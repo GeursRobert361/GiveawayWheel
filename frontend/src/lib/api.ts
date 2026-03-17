@@ -36,13 +36,16 @@ export async function apiGet<T>(path: string) {
 }
 
 export async function apiPost<T>(path: string, body?: unknown) {
+  const hasBody = body !== undefined;
   const response = await fetch(`${apiBase}${path}`, {
     method: "POST",
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: body == null ? undefined : JSON.stringify(body)
+    headers: hasBody
+      ? {
+          "Content-Type": "application/json"
+        }
+      : undefined,
+    body: hasBody ? JSON.stringify(body) : undefined
   });
   return handleResponse<T>(response);
 }
