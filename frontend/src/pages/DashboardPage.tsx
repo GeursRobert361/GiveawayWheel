@@ -154,7 +154,7 @@ export function DashboardPage() {
   }, [giveaway]);
 
   useEffect(() => {
-    if (!giveaway || !snapshot?.broadcaster) {
+    if (!giveaway) {
       return;
     }
 
@@ -162,17 +162,8 @@ export function DashboardPage() {
     if (window.localStorage.getItem(key)) {
       return;
     }
-
-    const defaultTitles = [
-      "Community Giveaway",
-      `${snapshot.broadcaster.displayName} Giveaway`,
-      snapshot.broadcaster.channelName ? `${snapshot.broadcaster.channelName} Giveaway` : null
-    ].filter(Boolean) as string[];
-
-    if (giveaway.entryCommand === "!ticket" || defaultTitles.includes(giveaway.title)) {
-      setShowSetupModal(true);
-    }
-  }, [giveaway, snapshot?.broadcaster]);
+    setShowSetupModal(true);
+  }, [giveaway]);
 
   if (!giveaway || !snapshot) {
     return <Card><p className="text-sm text-slate-300">Waiting for giveaway data...</p></Card>;
