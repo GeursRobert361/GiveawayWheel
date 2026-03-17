@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DisclosurePanel } from "../components/ui/DisclosurePanel";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
@@ -143,6 +143,10 @@ export function DashboardPage() {
   const [showSetupModal, setShowSetupModal] = useState(false);
   const [savingSetup, setSavingSetup] = useState(false);
   const [setupForm, setSetupForm] = useState<SetupFormState | null>(null);
+  const [winnerPopupName, setWinnerPopupName] = useState<string | null>(null);
+  const [expandedEntrantId, setExpandedEntrantId] = useState<string | null>(null);
+  const bootstrappedSpinRef = useRef(false);
+  const handledWinnerPopupRef = useRef<string | null>(null);
 
   const eligibleEntrants = useMemo(() => getEligibleEntrants(snapshot), [snapshot]);
   const giveaway = snapshot?.giveaway;
@@ -164,6 +168,51 @@ export function DashboardPage() {
     }
     setShowSetupModal(true);
   }, [giveaway]);
+
+  useEffect(() => {
+    const spin = giveaway?.lastSpin;
+    if (!spin) {
+      return;
+    }
+
+    const completedAt = new Date(spin.completedAt).getTime();
+
+    if (!bootstrappedSpinRef.current) {
+      bootstrappedSpinRef.current = true;
+      if (completedAt <= Date.now()) {
+        handledWinnerPopupRef.current = spin.eventId;
+        return;
+      }
+    }
+
+    if (handledWinnerPopupRef.current === spin.eventId) {
+      return;
+    }
+
+    setWinnerPopupName(null);
+    handledWinnerPopupRef.current = spin.eventId;
+    const timer = window.setTimeout(
+      () => setWinnerPopupName(spin.winnerDisplayName),
+      Math.max(0, completedAt - Date.now())
+    );
+
+    return () => window.clearTimeout(timer);
+  }, [giveaway?.lastSpin]);
+
+  useEffect(() => {
+    if (!winnerPopupName) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setWinnerPopupName(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [winnerPopupName]);
 
   if (!giveaway || !snapshot) {
     return <Card><p className="text-sm text-slate-300">Waiting for giveaway data...</p></Card>;
@@ -254,51 +303,139 @@ export function DashboardPage() {
 
           <div className="space-y-4">
             <Card className="space-y-4">
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p className="section-kicker">Primary controls</p>
+                  <h3 className="mt-2 text-2xl font-bold text-white">Run the draw</h3>
+                  <p className="mt-2 text-sm text-slate-300">
+                    Open entries, collect {giveaway.entryCommand}, then spin once the pool looks right.
+                  </p>
+                </div>
+                <div className="pill-chip">
+                  {giveaway.status === "OPEN" ? "Chat entry open" : "Chat entry closed"}
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
                 <Button variant="secondary" onClick={() => setShowSetupModal(true)}>Setup</Button>
-                <Button variant="secondary" disabled={busyAction !== null || spinActive} onClick={() => runAction("open", () => apiPost("/api/giveaway/open"))}>Open</Button>
-                <Button variant="secondary" disabled={busyAction !== null || spinActive} onClick={() => runAction("close", () => apiPost("/api/giveaway/close"))}>Close</Button>
-                <Button disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0} onClick={() => runAction("spin", () => apiPost("/api/giveaway/spin"))}>Spin</Button>
-                <Button variant="secondary" disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0} onClick={() => runAction("reroll", () => apiPost("/api/giveaway/reroll"))}>Reroll</Button>
+                <Button
+                  variant="secondary"
+                  disabled={busyAction !== null || spinActive}
+                  onClick={() =>
+                    runAction(giveaway.status === "OPEN" ? "close" : "open", () =>
+                      apiPost(giveaway.status === "OPEN" ? "/api/giveaway/close" : "/api/giveaway/open")
+                    )
+                  }
+                >
+                  {giveaway.status === "OPEN" ? "Close entry" : "Open entry"}
+                </Button>
+                <Button
+                  disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
+                  onClick={() => runAction("spin", () => apiPost("/api/giveaway/spin"))}
+                >
+                  Spin now
+                </Button>
               </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <Button variant="secondary" disabled={busyAction !== null || spinActive} onClick={() => runAction("chatters", () => apiPost("/api/entrants/import-chatters"))}>Import chatters</Button>
-                <Button variant="secondary" disabled={busyAction !== null || spinActive} onClick={() => runAction("clear", () => apiPost("/api/giveaway/clear"))}>Clear entrants</Button>
-              </div>
-              <div>
-                <label className="field-label">Manual add</label>
-                <div className="flex gap-2">
-                  <input className="field-input" placeholder="Add username" value={manualUsername} onChange={(event) => setManualUsername(event.target.value)} />
-                  <Button variant="secondary" disabled={busyAction !== null || spinActive || manualUsername.trim().length < 2} onClick={() => runAction("add-entrant", async () => {
-                    await apiPost("/api/entrants/add", { username: manualUsername.trim() });
-                    setManualUsername("");
-                  })}>Add</Button>
+
+              <div className="grid gap-3 lg:grid-cols-2">
+                <div className="rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Next move</p>
+                  <p className="mt-3 text-lg font-semibold text-white">
+                    {spinActive
+                      ? "Spin reveal is running"
+                      : giveaway.status === "OPEN"
+                        ? `Chat can enter with ${giveaway.entryCommand}`
+                        : "Open entry when you are ready to collect names"}
+                  </p>
+                  <p className="mt-2 text-sm text-slate-400">
+                    {spinActive
+                      ? "The winner popup lands when the wheel finishes."
+                      : `${eligibleEntrants.length} eligible entrant${eligibleEntrants.length === 1 ? "" : "s"} currently on the wheel.`}
+                  </p>
+                </div>
+
+                <div className="rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Quick check</p>
+                  <p className="mt-3 text-sm text-slate-300">
+                    {giveaway.entryCommand} only works while entry is open. If you test from the broadcaster account,
+                    turn off Exclude Broadcaster in Settings or use a viewer account.
+                  </p>
+                  {latestJoinRejection ? (
+                    <div className="mt-3 rounded-[18px] border border-amber-400/20 bg-amber-500/10 px-3 py-3 text-sm text-amber-50">
+                      {latestJoinRejection.message}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </Card>
 
-            <DisclosurePanel kicker="Stream tools" title="Overlay and exports" description="Copy the overlay URL or export the current state." defaultOpen={false}>
+            <DisclosurePanel
+              kicker="Secondary actions"
+              title="More actions"
+              description="Rerolls, cleanup, manual adds, overlay copy, and exports live here."
+              defaultOpen={false}
+            >
               <div className="space-y-4">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <Button
+                    variant="secondary"
+                    disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
+                    onClick={() => runAction("reroll", () => apiPost("/api/giveaway/reroll"))}
+                  >
+                    Reroll winner
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    disabled={busyAction !== null || spinActive}
+                    onClick={() => runAction("chatters", () => apiPost("/api/entrants/import-chatters"))}
+                  >
+                    Import chatters
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    disabled={busyAction !== null || spinActive}
+                    onClick={() => runAction("clear", () => apiPost("/api/giveaway/clear"))}
+                  >
+                    Clear entrants
+                  </Button>
+                </div>
+
+                <div className="rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4">
+                  <label className="field-label">Manual add</label>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <input
+                      className="field-input"
+                      placeholder="Add username"
+                      value={manualUsername}
+                      onChange={(event) => setManualUsername(event.target.value)}
+                    />
+                    <Button
+                      variant="secondary"
+                      disabled={busyAction !== null || spinActive || manualUsername.trim().length < 2}
+                      onClick={() =>
+                        runAction("add-entrant", async () => {
+                          await apiPost("/api/entrants/add", { username: manualUsername.trim() });
+                          setManualUsername("");
+                        })
+                      }
+                    >
+                      Add entrant
+                    </Button>
+                  </div>
+                </div>
+
                 <div className="rounded-[24px] border border-white/10 bg-slate-950/45 px-4 py-4 text-sm text-slate-300">
                   <p className="font-semibold text-white">Overlay URL</p>
                   <p className="mt-2 break-all text-slate-400">{snapshot.overlayUrl ?? "Overlay URL unavailable"}</p>
                 </div>
-                <div className="grid gap-3 sm:grid-cols-2">
+
+                <div className="grid gap-3 sm:grid-cols-3">
                   <Button variant="secondary" disabled={!snapshot.overlayUrl} onClick={() => snapshot.overlayUrl && copyToClipboard(snapshot.overlayUrl)}>Copy overlay URL</Button>
                   <Button variant="secondary" onClick={() => apiDownload("/api/entrants/export")}>Export entrants CSV</Button>
                   <Button variant="secondary" onClick={() => apiDownload("/api/history/export")}>Export winners CSV</Button>
                 </div>
               </div>
             </DisclosurePanel>
-
-            <Card className="space-y-3">
-              <p className="section-kicker">Quick checks</p>
-              <p className="text-sm text-slate-300">
-                {giveaway.entryCommand} only works while the giveaway is open. If you test from the broadcaster account, turn off Exclude Broadcaster in Settings or use a viewer account.
-              </p>
-              {latestJoinRejection ? <div className="rounded-[22px] border border-amber-400/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-50">{latestJoinRejection.message}</div> : null}
-              {spinActive ? <div className="rounded-[22px] border border-brand-300/20 bg-brand-300/10 px-4 py-3 text-sm text-brand-50">Spin in progress. Entrants stay visible until the wheel finishes landing.</div> : null}
-            </Card>
           </div>
         </div>
       </Card>
@@ -320,10 +457,13 @@ export function DashboardPage() {
                     <p className="truncate font-semibold text-white">{entrant.displayName}</p>
                     <p className="mt-1 text-sm text-slate-400">{entrant.roleLabel} / {entrant.entryCount} entr{entrant.entryCount === 1 ? "y" : "ies"}</p>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {entrant.entryCount > 1 ? <Button variant="secondary" disabled={busyAction !== null || spinActive} onClick={() => runAction(`remove-one-${entrant.username}`, () => apiPost("/api/entrants/remove", { username: entrant.username, mode: "single" }))}>Remove 1</Button> : null}
-                    <Button variant="ghost" disabled={busyAction !== null || spinActive} onClick={() => runAction(`remove-${entrant.username}`, () => apiPost("/api/entrants/remove", { username: entrant.username, mode: "all" }))}>Remove all</Button>
-                  </div>
+                  <Button
+                    variant="ghost"
+                    disabled={busyAction !== null || spinActive}
+                    onClick={() => setExpandedEntrantId((current) => current === entrant.id ? null : entrant.id)}
+                  >
+                    {expandedEntrantId === entrant.id ? "Hide actions" : "Manage"}
+                  </Button>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2"><RoleTags entrant={entrant} />{!entrant.isEligible ? <span className="pill-chip">Not eligible</span> : null}</div>
                 <div className="mt-4">
@@ -332,6 +472,39 @@ export function DashboardPage() {
                     <div className={cn("h-full rounded-full", entrant.isEligible ? "bg-brand-300" : "bg-amber-300")} style={{ width: `${Math.max(Math.min(entrant.chancePercent, 100), entrant.isEligible ? 5 : 0)}%` }} />
                   </div>
                 </div>
+                {expandedEntrantId === entrant.id ? (
+                  <div className="mt-4 rounded-[22px] border border-white/10 bg-slate-950/45 px-4 py-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Entrant actions</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {entrant.entryCount > 1 ? (
+                        <Button
+                          variant="secondary"
+                          disabled={busyAction !== null || spinActive}
+                          onClick={() =>
+                            runAction(`remove-one-${entrant.username}`, async () => {
+                              await apiPost("/api/entrants/remove", { username: entrant.username, mode: "single" });
+                              setExpandedEntrantId(null);
+                            })
+                          }
+                        >
+                          Remove 1 entry
+                        </Button>
+                      ) : null}
+                      <Button
+                        variant="ghost"
+                        disabled={busyAction !== null || spinActive}
+                        onClick={() =>
+                          runAction(`remove-${entrant.username}`, async () => {
+                            await apiPost("/api/entrants/remove", { username: entrant.username, mode: "all" });
+                            setExpandedEntrantId(null);
+                          })
+                        }
+                      >
+                        Remove entrant
+                      </Button>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>
@@ -400,6 +573,34 @@ export function DashboardPage() {
             <div className="mt-6 flex justify-end gap-3">
               <Button variant="ghost" onClick={dismissSetup}>Later</Button>
               <Button disabled={savingSetup} onClick={saveSetup}>{savingSetup ? "Saving..." : "Save and continue"}</Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {winnerPopupName ? (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/82 p-4 backdrop-blur-md"
+          onClick={() => setWinnerPopupName(null)}
+        >
+          <div
+            className="relative w-full max-w-3xl overflow-hidden rounded-[40px] border border-brand-200/30 bg-[radial-gradient(circle_at_top,rgba(123,229,255,0.3),transparent_42%),linear-gradient(160deg,rgba(9,16,31,0.98),rgba(7,9,19,0.98))] px-8 py-10 text-center shadow-[0_45px_120px_rgba(0,0,0,0.6)]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="pointer-events-none absolute inset-x-1/2 top-0 h-44 w-44 -translate-x-1/2 rounded-full bg-brand-300/20 blur-[100px]" />
+            <div className="pointer-events-none absolute inset-x-12 bottom-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+
+            <p className="section-kicker">Winner locked in</p>
+            <h3 className="mt-4 text-2xl font-semibold text-slate-200">The wheel landed on</h3>
+            <p className="mt-6 font-display text-5xl font-bold tracking-tight text-white sm:text-7xl">
+              {winnerPopupName}
+            </p>
+            <p className="mx-auto mt-5 max-w-2xl text-sm text-slate-300 sm:text-base">
+              Keep the result on screen, call it out on stream, then use More actions if you need a reroll.
+            </p>
+
+            <div className="mt-8 flex justify-center">
+              <Button onClick={() => setWinnerPopupName(null)}>Close winner popup</Button>
             </div>
           </div>
         </div>
