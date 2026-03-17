@@ -85,6 +85,7 @@ TWITCH_REDIRECT_URI=http://localhost:4000/api/auth/callback
 FRONTEND_URL=http://localhost:5173
 BACKEND_URL=http://localhost:4000
 VITE_API_BASE_URL=http://localhost:4000
+VITE_ALLOWED_HOSTS=localhost,127.0.0.1
 COOKIE_SECURE=false
 ```
 
