@@ -55,6 +55,10 @@ function truncateName(value: string, maxLength: number) {
   return value.length > maxLength ? `${value.slice(0, maxLength - 3)}...` : value;
 }
 
+function easeOutCubic(value: number) {
+  return 1 - (1 - value) ** 3;
+}
+
 export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: WheelProps) {
   const [rotation, setRotation] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -62,6 +66,98 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
   const [celebrating, setCelebrating] = useState(false);
   const [resolvedWinner, setResolvedWinner] = useState<string | null>(winnerLabel ?? null);
   const handledSpinRef = useRef<string | null>(null);
+  const rotationRef = useRef(0);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const stopTickTrackRef = useRef<(() => void) | null>(null);
+
+  const stopTickTrack = () => {
+    stopTickTrackRef.current?.();
+    stopTickTrackRef.current = null;
+  };
+
+  const ensureAudioContext = () => {
+    if (typeof window === "undefined") {
+      return null;
+    }
+
+    if (!audioContextRef.current) {
+      const AudioContextConstructor = window.AudioContext ?? (window as Window & typeof globalThis & {
+        webkitAudioContext?: typeof AudioContext;
+      }).webkitAudioContext;
+
+      if (!AudioContextConstructor) {
+        return null;
+      }
+
+      audioContextRef.current = new AudioContextConstructor();
+    }
+
+    const context = audioContextRef.current;
+    if (context.state === "suspended") {
+      void context.resume().catch(() => undefined);
+    }
+
+    return context;
+  };
+
+  const playTick = (context: AudioContext, energy: number) => {
+    const tickTime = context.currentTime;
+    const gainNode = context.createGain();
+    const oscillator = context.createOscillator();
+
+    oscillator.type = "triangle";
+    oscillator.frequency.setValueAtTime(980 + energy * 420, tickTime);
+
+    gainNode.gain.setValueAtTime(0.0001, tickTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.08 + energy * 0.05, tickTime + 0.004);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, tickTime + 0.045);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(context.destination);
+
+    oscillator.start(tickTime);
+    oscillator.stop(tickTime + 0.05);
+  };
+
+  const startTickTrack = (spinDurationMs: number, totalRotationDegrees: number) => {
+    stopTickTrack();
+
+    const context = ensureAudioContext();
+    if (!context) {
+      return;
+    }
+
+    const tickStepDegrees = 28;
+    let lastTickAngle = 0;
+    let frameId = 0;
+    const startedAt = performance.now();
+
+    const frame = (now: number) => {
+      const elapsed = Math.min(now - startedAt, spinDurationMs);
+      const progress = spinDurationMs <= 0 ? 1 : elapsed / spinDurationMs;
+      const travelled = totalRotationDegrees * easeOutCubic(progress);
+
+      while (travelled - lastTickAngle >= tickStepDegrees) {
+        const remaining = 1 - progress;
+        playTick(context, Math.max(0.2, remaining));
+        lastTickAngle += tickStepDegrees;
+      }
+
+      if (progress < 1) {
+        frameId = window.requestAnimationFrame(frame);
+      } else {
+        playTick(context, 0.18);
+        stopTickTrackRef.current = null;
+      }
+    };
+
+    frameId = window.requestAnimationFrame(frame);
+    stopTickTrackRef.current = () => window.cancelAnimationFrame(frameId);
+  };
+
+  useEffect(() => {
+    rotationRef.current = rotation;
+  }, [rotation]);
 
   useEffect(() => {
     if (!lastSpin || handledSpinRef.current === lastSpin.eventId) {
@@ -75,6 +171,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
     const delay = Math.max(0, scheduledAt - now);
 
     if (completedAt <= now) {
+      stopTickTrack();
       setDuration(0);
       setRotation(lastSpin.rotationDegrees);
       setResolvedWinner(lastSpin.winnerDisplayName);
@@ -98,21 +195,24 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
     const spinTimeout = window.setTimeout(() => {
       setCountdown(null);
       setDuration(lastSpin.durationMs);
-      setRotation((current) => {
-        const currentNormalized = normalizeRotation(current);
-        const targetNormalized = normalizeRotation(lastSpin.rotationDegrees);
-        let delta = targetNormalized - currentNormalized;
+      const current = rotationRef.current;
+      const currentNormalized = normalizeRotation(current);
+      const targetNormalized = normalizeRotation(lastSpin.rotationDegrees);
+      let delta = targetNormalized - currentNormalized;
 
-        if (delta <= 0) {
-          delta += 360;
-        }
+      if (delta <= 0) {
+        delta += 360;
+      }
 
-        const extraTurns = Math.max(Math.floor(lastSpin.rotationDegrees / 360), 6);
-        return current + extraTurns * 360 + delta;
-      });
+      const extraTurns = Math.max(Math.floor(lastSpin.rotationDegrees / 360), 6);
+      const totalRotation = extraTurns * 360 + delta;
+
+      startTickTrack(lastSpin.durationMs, totalRotation);
+      setRotation(current + totalRotation);
     }, delay);
 
     const celebrationTimeout = window.setTimeout(() => {
+      stopTickTrack();
       setResolvedWinner(lastSpin.winnerDisplayName);
       setCelebrating(true);
     }, Math.max(0, completedAt - now));
@@ -121,8 +221,11 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
       window.clearInterval(countdownInterval);
       window.clearTimeout(spinTimeout);
       window.clearTimeout(celebrationTimeout);
+      stopTickTrack();
     };
   }, [lastSpin]);
+
+  useEffect(() => () => stopTickTrack(), []);
 
   const wheelEntrants = useMemo(
     () => (entrants.length > 0 ? entrants : [{ id: "empty", displayName: "Waiting for entrants" }]),

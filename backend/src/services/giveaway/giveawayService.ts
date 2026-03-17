@@ -85,7 +85,8 @@ export class GiveawayService {
         broadcasterId: userId,
         title: "Community Giveaway",
         entryCommand: "!ticket",
-        leaveCommand: "!leave"
+        leaveCommand: "!leave",
+        spinCountdownSeconds: 1
       }
     });
   }
@@ -632,9 +633,9 @@ export class GiveawayService {
 
     const segmentAngle = 360 / preview.length;
     const landingAngle = 360 - (winnerIndex * segmentAngle + segmentAngle / 2);
-    const rotationTurns = 7 + Math.floor(secureRandomFraction() * 4);
+    const rotationTurns = 9 + Math.floor(secureRandomFraction() * 4);
     const rotationDegrees = rotationTurns * 360 + landingAngle;
-    const durationMs = 8500 + Math.floor(secureRandomFraction() * 2500);
+    const durationMs = 12_000 + Math.floor(secureRandomFraction() * 3_500);
     const scheduledAt = new Date(Date.now() + session.spinCountdownSeconds * 1000);
     const completedAt = new Date(scheduledAt.getTime() + durationMs);
 

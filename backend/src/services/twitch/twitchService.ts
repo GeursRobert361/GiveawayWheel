@@ -182,16 +182,17 @@ export class TwitchService {
         select: { id: true }
       });
 
-      if (!existingSession) {
-        await tx.giveawaySession.create({
-          data: {
-            broadcasterId: upsertedUser.id,
-            title: `${sanitizeDisplayName(profile.display_name)} Giveaway`,
-            entryCommand: "!ticket",
-            leaveCommand: "!leave"
-          }
-        });
-      }
+        if (!existingSession) {
+          await tx.giveawaySession.create({
+            data: {
+              broadcasterId: upsertedUser.id,
+              title: `${sanitizeDisplayName(profile.display_name)} Giveaway`,
+              entryCommand: "!ticket",
+              leaveCommand: "!leave",
+              spinCountdownSeconds: 1
+            }
+          });
+        }
 
       return upsertedUser;
     });
