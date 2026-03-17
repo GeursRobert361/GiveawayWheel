@@ -4,7 +4,7 @@ import { buildCsv } from "../lib/csv";
 import { GiveawayService } from "../services/giveaway/giveawayService";
 import { SnapshotService } from "../services/snapshotService";
 import { parseWithSchema, requireUserId } from "./helpers";
-import { manualEntrantSchema, usernameSchema } from "./schemas";
+import { entrantRemovalSchema, manualEntrantSchema } from "./schemas";
 
 interface EntrantRoutesOptions {
   giveawayService: GiveawayService;
@@ -28,8 +28,8 @@ export async function registerEntrantRoutes(app: FastifyInstance, options: Entra
 
   app.post("/api/entrants/remove", { config: { rateLimit: { max: 30, timeWindow: 60_000 } } }, async (request) => {
     const userId = await requireUserId(request);
-    const input = parseWithSchema(usernameSchema, request.body);
-    await options.giveawayService.removeEntrant(userId, input.username);
+    const input = parseWithSchema(entrantRemovalSchema, request.body);
+    await options.giveawayService.removeEntrant(userId, input.username, { mode: input.mode });
     const snapshot = await options.snapshotService.getDashboardSnapshot(userId);
     return snapshot.giveaway?.entrants ?? [];
   });

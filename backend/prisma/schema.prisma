@@ -65,7 +65,7 @@ model GiveawaySession {
   broadcasterId         String
   overlayKey            String         @unique @default(cuid())
   title                 String
-  entryCommand          String         @default("!join")
+  entryCommand          String         @default("!ticket")
   leaveCommand          String         @default("!leave")
   status                GiveawayStatus @default(CLOSED)
   removeWinnerAfterDraw Boolean        @default(true)

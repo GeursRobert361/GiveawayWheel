@@ -150,7 +150,7 @@ npm run start
 4. Authorize the app in Twitch.
 5. After redirect, verify the dashboard shows your channel info and Twitch connection status.
 6. Open or configure the current giveaway.
-7. In your Twitch chat, type the entry command, default `!join`.
+7. In your Twitch chat, type the entry command, default `!ticket`.
 8. From the dashboard or as a mod in chat, use:
    - `!gopen`
    - `!gclose`

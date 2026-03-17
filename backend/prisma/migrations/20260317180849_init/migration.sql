@@ -37,7 +37,7 @@ CREATE TABLE "GiveawaySession" (
     "broadcasterId" TEXT NOT NULL,
     "overlayKey" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "entryCommand" TEXT NOT NULL DEFAULT '!join',
+    "entryCommand" TEXT NOT NULL DEFAULT '!ticket',
     "leaveCommand" TEXT NOT NULL DEFAULT '!leave',
     "status" TEXT NOT NULL DEFAULT 'CLOSED',
     "removeWinnerAfterDraw" BOOLEAN NOT NULL DEFAULT true,

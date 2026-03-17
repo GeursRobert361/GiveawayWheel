@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import type { LastSpinPayload } from "./types";
 
 export function cn(...values: Array<string | false | null | undefined>) {
   return clsx(values);
@@ -40,4 +41,12 @@ export function formatConnectionStatus(status: "connected" | "reconnecting" | "d
     default:
       return "Disconnected";
   }
+}
+
+export function isSpinInProgress(spin: LastSpinPayload | null | undefined) {
+  if (!spin) {
+    return false;
+  }
+
+  return new Date(spin.completedAt).getTime() > Date.now();
 }

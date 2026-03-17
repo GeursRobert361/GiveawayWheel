@@ -3,13 +3,16 @@ import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { apiDownload, getHistory } from "../lib/api";
 import type { HistoryItem } from "../lib/types";
-import { formatRelativeTime } from "../lib/utils";
+import { formatRelativeTime, isSpinInProgress } from "../lib/utils";
 import { useDashboardStore } from "../store/useDashboardStore";
 
 export function HistoryPage() {
   const lastSpinEventId = useDashboardStore((state) => state.snapshot?.giveaway?.lastSpin?.eventId);
+  const spinActive = useDashboardStore((state) => isSpinInProgress(state.snapshot?.giveaway?.lastSpin));
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const visibleHistory = spinActive ? history.slice(1) : history;
 
   useEffect(() => {
     setLoading(true);
@@ -34,10 +37,10 @@ export function HistoryPage() {
       <Card className="space-y-3">
         {loading ? (
           <p className="text-sm text-slate-400">Loading history...</p>
-        ) : history.length === 0 ? (
+        ) : visibleHistory.length === 0 ? (
           <p className="text-sm text-slate-400">No winners recorded yet.</p>
         ) : (
-          history.map((winner) => (
+          visibleHistory.map((winner) => (
             <div
               key={winner.id}
               className="grid gap-2 rounded-[26px] border border-white/10 bg-white/[0.05] px-4 py-4 md:grid-cols-[1.1fr_0.9fr_0.6fr]"

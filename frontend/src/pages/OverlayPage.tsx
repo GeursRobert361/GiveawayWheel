@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { Wheel } from "../components/wheel/Wheel";
 import { buildWsUrl, getOverlaySnapshot } from "../lib/api";
 import type { OverlaySnapshot } from "../lib/types";
+import { isSpinInProgress } from "../lib/utils";
 
 function playWinnerTone() {
   const AudioContextCtor = window.AudioContext;
@@ -124,6 +125,7 @@ export function OverlayPage() {
     () => snapshot?.entrants.map((entrant) => ({ id: entrant.id, displayName: entrant.displayName })) ?? [],
     [snapshot?.entrants]
   );
+  const spinActive = isSpinInProgress(snapshot?.lastSpin);
 
   if (error) {
     return (
@@ -156,7 +158,7 @@ export function OverlayPage() {
           <Wheel
             entrants={entrants}
             lastSpin={snapshot.lastSpin}
-            winnerLabel={snapshot.lastSpin?.winnerDisplayName ?? snapshot.winners[0]?.displayName ?? null}
+            winnerLabel={spinActive ? null : snapshot.winners[0]?.displayName ?? null}
           />
         </div>
 
@@ -167,7 +169,9 @@ export function OverlayPage() {
           </div>
           <div className="rounded-[30px] border border-white/10 bg-white/[0.05] px-5 py-5 text-center shadow-soft backdrop-blur-xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-200/70">Latest winner</p>
-            <p className="mt-2 text-4xl font-bold text-white">{snapshot.winners[0]?.displayName ?? "Waiting"}</p>
+            <p className="mt-2 text-4xl font-bold text-white">
+              {spinActive ? "Revealing..." : snapshot.winners[0]?.displayName ?? "Waiting"}
+            </p>
           </div>
           <div className="rounded-[30px] border border-white/10 bg-white/[0.05] px-5 py-5 text-center shadow-soft backdrop-blur-xl">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-200/70">Mode</p>

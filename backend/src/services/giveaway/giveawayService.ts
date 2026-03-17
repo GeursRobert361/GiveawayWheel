@@ -83,7 +83,9 @@ export class GiveawayService {
     return prisma.giveawaySession.create({
       data: {
         broadcasterId: userId,
-        title: "Community Giveaway"
+        title: "Community Giveaway",
+        entryCommand: "!ticket",
+        leaveCommand: "!leave"
       }
     });
   }
@@ -98,7 +100,7 @@ export class GiveawayService {
       data: {
         broadcasterId: userId,
         title: sanitizeTitle(input?.title ?? previous.title) || previous.title,
-        entryCommand: normalizeCommand(input?.entryCommand ?? previous.entryCommand, "!join"),
+        entryCommand: normalizeCommand(input?.entryCommand ?? previous.entryCommand, "!ticket"),
         leaveCommand: normalizeCommand(input?.leaveCommand ?? previous.leaveCommand, "!leave"),
         status: "CLOSED",
         removeWinnerAfterDraw: input?.removeWinnerAfterDraw ?? previous.removeWinnerAfterDraw,
@@ -155,7 +157,7 @@ export class GiveawayService {
         where: { id: current.id },
         data: {
           title: sanitizeTitle(input.title) || current.title,
-          entryCommand: normalizeCommand(input.entryCommand, "!join"),
+          entryCommand: normalizeCommand(input.entryCommand, "!ticket"),
           leaveCommand: normalizeCommand(input.leaveCommand, "!leave"),
           removeWinnerAfterDraw: input.removeWinnerAfterDraw,
           allowDuplicateEntries: input.allowDuplicateEntries,
@@ -319,6 +321,7 @@ export class GiveawayService {
   async removeEntrant(
     userId: string,
     username: string,
+    options: { mode?: "single" | "all" } = {},
     actor: ActionActor = { type: "DASHBOARD", login: "dashboard" }
   ) {
     const session = await this.ensureCurrentSession(userId);
@@ -328,23 +331,46 @@ export class GiveawayService {
       throw new AppError(400, "Invalid Twitch username", "INVALID_USERNAME");
     }
 
-    await prisma.entrant.updateMany({
+    const entrant = await prisma.entrant.findUnique({
       where: {
-        giveawaySessionId: session.id,
-        username: normalized,
-        isActive: true
-      },
-      data: {
-        isActive: false,
-        removedReason: "MANUAL"
+        giveawaySessionId_username: {
+          giveawaySessionId: session.id,
+          username: normalized
+        }
       }
     });
+
+    if (!entrant || !entrant.isActive) {
+      return;
+    }
+
+    const removeSingleEntry = options.mode === "single" && session.allowDuplicateEntries && entrant.entryCount > 1;
+
+    if (removeSingleEntry) {
+      await prisma.entrant.update({
+        where: { id: entrant.id },
+        data: {
+          entryCount: entrant.entryCount - 1,
+          lastSeenAt: new Date()
+        }
+      });
+    } else {
+      await prisma.entrant.update({
+        where: { id: entrant.id },
+        data: {
+          isActive: false,
+          removedReason: "MANUAL"
+        }
+      });
+    }
 
     await this.recordAudit(
       userId,
       actor,
-      "entrant.remove",
-      `Removed @${normalized} from "${session.title}".`
+      removeSingleEntry ? "entrant.remove_single_entry" : "entrant.remove",
+      removeSingleEntry
+        ? `Removed one entry for @${normalized} from "${session.title}".`
+        : `Removed @${normalized} from "${session.title}".`
     );
     await this.syncService.broadcastForUser(userId);
   }
@@ -487,7 +513,7 @@ export class GiveawayService {
         if (roles.isBroadcaster && result.reason === "Broadcaster entry is disabled in this giveaway.") {
           await this.safeChatAnnounce(
             userId,
-            "Broadcaster entry is currently disabled. Turn off Exclude Broadcaster in settings if you want to test !join from your own account."
+            `Broadcaster entry is currently disabled. Turn off Exclude Broadcaster in settings if you want to test ${session.entryCommand} from your own account.`
           );
         }
 
@@ -649,16 +675,6 @@ export class GiveawayService {
         }
       });
 
-      if (session.removeWinnerAfterDraw) {
-        await tx.entrant.update({
-          where: { id: winnerEntrant.id },
-          data: {
-            isActive: false,
-            removedReason: "WINNER_REMOVED"
-          }
-        });
-      }
-
       await this.recordAudit(
         userId,
         actor,
@@ -673,24 +689,9 @@ export class GiveawayService {
 
     await this.syncService.broadcastForUser(userId);
 
-    if (session.announceWinnerInChat) {
+    if (session.removeWinnerAfterDraw || session.announceWinnerInChat) {
       const delayMs = session.spinCountdownSeconds * 1000 + durationMs;
-      setTimeout(() => {
-        this.safeChatAnnounce(
-          userId,
-          `Winner: ${winnerEntrant.displayName}! Congratulations on winning ${session.title}.`
-        )
-          .then(async () => {
-            await prisma.winner.update({
-              where: { id: winner.id },
-              data: { announcedInChat: true }
-            });
-            await this.syncService.broadcastForUser(userId);
-          })
-          .catch((error) => {
-            this.logger.warn({ error }, "Failed to announce winner in chat");
-          });
-      }, delayMs);
+      this.schedulePostSpinWork(userId, session, winner, winnerEntrant.id, delayMs);
     }
 
     return spinPayload;
@@ -820,6 +821,54 @@ export class GiveawayService {
     return prisma.roleWeightSettings.findUnique({
       where: { broadcasterId: userId }
     });
+  }
+
+  private schedulePostSpinWork(
+    userId: string,
+    session: GiveawaySession,
+    winner: { id: string; displayName: string },
+    winnerEntrantId: string,
+    delayMs: number
+  ) {
+    setTimeout(() => {
+      void (async () => {
+        let shouldBroadcast = false;
+
+        if (session.removeWinnerAfterDraw) {
+          await prisma.entrant.updateMany({
+            where: {
+              id: winnerEntrantId,
+              giveawaySessionId: session.id,
+              isActive: true
+            },
+            data: {
+              isActive: false,
+              removedReason: "WINNER_REMOVED"
+            }
+          });
+          shouldBroadcast = true;
+        }
+
+        if (session.announceWinnerInChat) {
+          await this.safeChatAnnounce(
+            userId,
+            `Winner: ${winner.displayName}! Congratulations on winning ${session.title}.`
+          );
+
+          await prisma.winner.update({
+            where: { id: winner.id },
+            data: { announcedInChat: true }
+          });
+          shouldBroadcast = true;
+        }
+
+        if (shouldBroadcast) {
+          await this.syncService.broadcastForUser(userId);
+        }
+      })().catch((error) => {
+        this.logger.warn({ error, userId, winnerId: winner.id }, "Failed to finalize post-spin work");
+      });
+    }, delayMs);
   }
 
   private clampInt(value: number, min: number, max: number) {

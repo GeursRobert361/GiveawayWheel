@@ -27,6 +27,11 @@ const segmentColors = [
   "#9ec8ff"
 ];
 
+function normalizeRotation(value: number) {
+  const normalized = value % 360;
+  return normalized < 0 ? normalized + 360 : normalized;
+}
+
 function polarToCartesian(cx: number, cy: number, radius: number, angle: number) {
   const radians = ((angle - 90) * Math.PI) / 180;
   return {
@@ -93,7 +98,18 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
     const spinTimeout = window.setTimeout(() => {
       setCountdown(null);
       setDuration(lastSpin.durationMs);
-      setRotation(lastSpin.rotationDegrees);
+      setRotation((current) => {
+        const currentNormalized = normalizeRotation(current);
+        const targetNormalized = normalizeRotation(lastSpin.rotationDegrees);
+        let delta = targetNormalized - currentNormalized;
+
+        if (delta <= 0) {
+          delta += 360;
+        }
+
+        const extraTurns = Math.max(Math.floor(lastSpin.rotationDegrees / 360), 6);
+        return current + extraTurns * 360 + delta;
+      });
     }, delay);
 
     const celebrationTimeout = window.setTimeout(() => {
@@ -271,13 +287,23 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
           )}
         </div>
 
-        <div className="rounded-[28px] border border-white/10 bg-[linear-gradient(135deg,rgba(71,215,255,0.12),rgba(255,204,77,0.08),rgba(255,114,94,0.12))] px-5 py-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-50/80">Winner spotlight</p>
+        <div
+          className={`rounded-[28px] border px-5 py-4 ${
+            resolvedWinner
+              ? "border-brand-200/35 bg-[linear-gradient(135deg,rgba(71,215,255,0.18),rgba(255,204,77,0.14),rgba(255,114,94,0.16))] shadow-[0_0_0_1px_rgba(123,229,255,0.08),0_28px_70px_rgba(26,192,245,0.18)]"
+              : "border-white/10 bg-[linear-gradient(135deg,rgba(71,215,255,0.12),rgba(255,204,77,0.08),rgba(255,114,94,0.12))]"
+          }`}
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-50/80">
+            {resolvedWinner ? "Winner confirmed" : "Winner spotlight"}
+          </p>
           <p className="mt-3 font-display text-3xl font-bold text-white sm:text-5xl">
             {resolvedWinner ?? winnerLabel ?? "Waiting for the next spin"}
           </p>
           <p className="mt-3 max-w-2xl text-sm text-slate-200/90">
-            The wheel stays oversized on purpose so it reads cleanly in-browser, on stream, and in the OBS overlay.
+            {resolvedWinner
+              ? "Locked in. Trigger confetti, call it on stream, or reroll if you need another winner."
+              : "The wheel stays oversized on purpose so it reads cleanly in-browser, on stream, and in the OBS overlay."}
           </p>
         </div>
       </div>

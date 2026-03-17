@@ -61,6 +61,11 @@ export const usernameSchema = z.object({
   username: z.string().min(2).max(25)
 });
 
+export const entrantRemovalSchema = z.object({
+  username: z.string().min(2).max(25),
+  mode: z.enum(["single", "all"]).default("all")
+});
+
 export const overlayParamSchema = z.object({
   overlayKey: z.string().min(1)
 });

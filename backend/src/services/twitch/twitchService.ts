@@ -186,7 +186,9 @@ export class TwitchService {
         await tx.giveawaySession.create({
           data: {
             broadcasterId: upsertedUser.id,
-            title: `${sanitizeDisplayName(profile.display_name)} Giveaway`
+            title: `${sanitizeDisplayName(profile.display_name)} Giveaway`,
+            entryCommand: "!ticket",
+            leaveCommand: "!leave"
           }
         });
       }

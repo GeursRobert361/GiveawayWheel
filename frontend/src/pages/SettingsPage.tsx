@@ -133,7 +133,7 @@ export function SettingsPage() {
                 {form.subscriberOnlyMode ? "Subscribers" : form.followerOnlyMode ? "Followers" : "Everyone"}
               </p>
               <p className="mt-1 text-sm text-slate-400">
-                {form.excludeBroadcaster ? "Broadcaster blocked by default" : "Broadcaster can test !join"}
+                {form.excludeBroadcaster ? "Broadcaster blocked by default" : `Broadcaster can test ${form.entryCommand}`}
               </p>
             </div>
             <div className="metric-card">
