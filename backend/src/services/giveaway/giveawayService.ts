@@ -300,7 +300,11 @@ export class GiveawayService {
     const result = await this.addOrIncrementEntrant(userId, session, roles);
 
     if (!result.changed) {
-      throw new AppError(400, "Entrant already exists or reached the entry limit", "ENTRANT_EXISTS");
+      throw new AppError(
+        400,
+        result.reason ?? "Entrant already exists or reached the entry limit",
+        "ENTRANT_EXISTS"
+      );
     }
 
     await this.recordAudit(
@@ -439,6 +443,19 @@ export class GiveawayService {
 
     if (command === session.entryCommand) {
       if (session.status !== "OPEN") {
+        if (event.chatter_user_id === event.broadcaster_user_id) {
+          await this.recordAudit(
+            userId,
+            actor,
+            "entrant.chat_join_rejected",
+            `Rejected @${actor.login} for "${session.title}" (Giveaway is closed).`
+          );
+          await this.safeChatAnnounce(
+            userId,
+            `Open the giveaway before testing ${session.entryCommand}. You can use the dashboard or !gopen.`
+          );
+          await this.syncService.broadcastForUser(userId);
+        }
         return;
       }
 
@@ -458,6 +475,22 @@ export class GiveawayService {
           "entrant.chat_join",
           `@${roles.username} entered "${session.title}".`
         );
+        await this.syncService.broadcastForUser(userId);
+      } else if (result.reason) {
+        await this.recordAudit(
+          userId,
+          actor,
+          "entrant.chat_join_rejected",
+          `Rejected @${roles.username} for "${session.title}" (${result.reason}).`
+        );
+
+        if (roles.isBroadcaster && result.reason === "Broadcaster entry is disabled in this giveaway.") {
+          await this.safeChatAnnounce(
+            userId,
+            "Broadcaster entry is currently disabled. Turn off Exclude Broadcaster in settings if you want to test !join from your own account."
+          );
+        }
+
         await this.syncService.broadcastForUser(userId);
       }
 
@@ -700,7 +733,18 @@ export class GiveawayService {
     );
 
     if (!weightResult.isEligible) {
-      return { changed: false };
+      const reasonMap: Record<string, string> = {
+        blocked: "This user is blocked by an override.",
+        "excluded broadcaster": "Broadcaster entry is disabled in this giveaway.",
+        "follower-only": "Follower-only mode is enabled.",
+        "subscriber-only": "Subscriber-only mode is enabled.",
+        "account age": "This account does not meet the minimum account age."
+      };
+
+      return {
+        changed: false,
+        reason: reasonMap[weightResult.roleLabel] ?? "This user is not eligible for the giveaway."
+      };
     }
 
     const existing = await prisma.entrant.findUnique({
@@ -735,11 +779,17 @@ export class GiveawayService {
     }
 
     if (existing.isActive && !session.allowDuplicateEntries) {
-      return { changed: false };
+      return {
+        changed: false,
+        reason: "Duplicate entries are disabled."
+      };
     }
 
     if (existing.isActive && session.allowDuplicateEntries && existing.entryCount >= session.maxEntriesPerUser) {
-      return { changed: false };
+      return {
+        changed: false,
+        reason: "This user already reached the maximum number of entries."
+      };
     }
 
     await prisma.entrant.update({
@@ -763,7 +813,7 @@ export class GiveawayService {
       }
     });
 
-    return { changed: true };
+    return { changed: true, reason: null };
   }
 
   private async getWeightSettings(userId: string): Promise<RoleWeightSettings | null> {

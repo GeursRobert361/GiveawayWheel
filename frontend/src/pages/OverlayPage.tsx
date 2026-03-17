@@ -136,43 +136,42 @@ export function OverlayPage() {
   if (!snapshot) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
-        <div className="rounded-3xl border border-white/10 bg-slate-900/80 px-6 py-4 text-sm">Loading overlay…</div>
+        <div className="rounded-3xl border border-white/10 bg-slate-900/80 px-6 py-4 text-sm">Loading overlay...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(71,215,255,0.16),_transparent_28%),linear-gradient(180deg,_#050816_0%,_#02040b_100%)] px-4 py-8 text-slate-100">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-6xl flex-col justify-center gap-6">
+    <div className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(71,215,255,0.16),_transparent_24%),radial-gradient(circle_at_80%_10%,_rgba(255,114,94,0.12),_transparent_16%),linear-gradient(180deg,_#050816_0%,_#02040b_100%)] px-4 py-8 text-slate-100">
+      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-[1600px] flex-col justify-center gap-6">
         <div className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-200/70">OBS Overlay</p>
-          <h1 className="mt-3 font-display text-4xl font-bold text-white sm:text-6xl">{snapshot.title}</h1>
+          <p className="section-kicker">OBS overlay</p>
+          <h1 className="mt-3 font-display text-5xl font-bold text-white sm:text-7xl">{snapshot.title}</h1>
           <p className="mt-3 text-lg text-slate-300">
             {snapshot.status === "OPEN" ? `Chat command: ${snapshot.entryCommand}` : "Giveaway closed until the next round"}
           </p>
         </div>
 
-        <div className="mx-auto w-full max-w-4xl">
+        <div className="mx-auto w-full max-w-[1200px]">
           <Wheel
             entrants={entrants}
             lastSpin={snapshot.lastSpin}
             winnerLabel={snapshot.lastSpin?.winnerDisplayName ?? snapshot.winners[0]?.displayName ?? null}
-            compact
           />
         </div>
 
         <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-[28px] border border-white/10 bg-slate-900/70 px-5 py-4 text-center shadow-soft backdrop-blur">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-200/70">Entrants</p>
-            <p className="mt-2 text-3xl font-bold text-white">{snapshot.entrantCount}</p>
+          <div className="rounded-[30px] border border-white/10 bg-white/[0.05] px-5 py-5 text-center shadow-soft backdrop-blur-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-200/70">Entrants</p>
+            <p className="mt-2 text-4xl font-bold text-white">{snapshot.entrantCount}</p>
           </div>
-          <div className="rounded-[28px] border border-white/10 bg-slate-900/70 px-5 py-4 text-center shadow-soft backdrop-blur">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-200/70">Latest winner</p>
-            <p className="mt-2 text-3xl font-bold text-white">{snapshot.winners[0]?.displayName ?? "Waiting…"}</p>
+          <div className="rounded-[30px] border border-white/10 bg-white/[0.05] px-5 py-5 text-center shadow-soft backdrop-blur-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-200/70">Latest winner</p>
+            <p className="mt-2 text-4xl font-bold text-white">{snapshot.winners[0]?.displayName ?? "Waiting"}</p>
           </div>
-          <div className="rounded-[28px] border border-white/10 bg-slate-900/70 px-5 py-4 text-center shadow-soft backdrop-blur">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-200/70">Mode</p>
-            <p className="mt-2 text-3xl font-bold text-white">{snapshot.status === "OPEN" ? "Live" : "Closed"}</p>
+          <div className="rounded-[30px] border border-white/10 bg-white/[0.05] px-5 py-5 text-center shadow-soft backdrop-blur-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-200/70">Mode</p>
+            <p className="mt-2 text-4xl font-bold text-white">{snapshot.status === "OPEN" ? "Live" : "Closed"}</p>
           </div>
         </div>
       </div>

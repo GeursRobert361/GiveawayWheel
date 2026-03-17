@@ -5,11 +5,11 @@ export function Card({ children, className }: PropsWithChildren<{ className?: st
   return (
     <section
       className={cn(
-        "rounded-[28px] border border-white/10 bg-slate-900/70 p-5 shadow-soft backdrop-blur",
+        "relative overflow-hidden rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.82),rgba(4,7,17,0.88))] p-5 shadow-soft backdrop-blur-xl before:absolute before:inset-x-8 before:top-0 before:h-px before:bg-gradient-to-r before:from-transparent before:via-white/35 before:to-transparent",
         className
       )}
     >
-      {children}
+      <div className="relative">{children}</div>
     </section>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { DisclosurePanel } from "../components/ui/DisclosurePanel";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { apiPost } from "../lib/api";
@@ -65,7 +66,7 @@ function Toggle({
   description: string;
 }) {
   return (
-    <label className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+    <label className="flex items-start gap-3 rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4">
       <input
         type="checkbox"
         className="mt-1 h-4 w-4 rounded border-white/20 bg-slate-950"
@@ -94,7 +95,7 @@ export function SettingsPage() {
   if (!snapshot?.giveaway || !form) {
     return (
       <Card>
-        <p className="text-sm text-slate-300">Waiting for settings data…</p>
+        <p className="text-sm text-slate-300">Waiting for settings data...</p>
       </Card>
     );
   }
@@ -105,14 +106,55 @@ export function SettingsPage() {
 
   return (
     <div className="space-y-6">
-      <Card className="space-y-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-200/70">
-            Giveaway setup
-          </p>
-          <h2 className="mt-2 text-2xl font-bold text-white">Current session settings</h2>
-        </div>
+      <Card className="px-6 py-6 sm:px-7">
+        <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <div>
+            <p className="section-kicker">Configuration studio</p>
+            <h2 className="page-title">Giveaway settings</h2>
+            <p className="mt-3 max-w-3xl text-sm text-slate-300 sm:text-base">
+              The most-used controls stay up front. Heavier configuration lives behind expandable panels so the page
+              stays fast to scan during a stream.
+            </p>
 
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="pill-chip">Join: {form.entryCommand}</span>
+              <span className="pill-chip">Leave: {form.leaveCommand}</span>
+              <span className="pill-chip">
+                {form.allowDuplicateEntries ? `Up to ${form.maxEntriesPerUser} entries` : "Single entry only"}
+              </span>
+              <span className="pill-chip">{form.spinCountdownSeconds}s countdown</span>
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="metric-card">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Audience gate</p>
+              <p className="mt-2 text-xl font-bold text-white">
+                {form.subscriberOnlyMode ? "Subscribers" : form.followerOnlyMode ? "Followers" : "Everyone"}
+              </p>
+              <p className="mt-1 text-sm text-slate-400">
+                {form.excludeBroadcaster ? "Broadcaster blocked by default" : "Broadcaster can test !join"}
+              </p>
+            </div>
+            <div className="metric-card">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Winner behavior</p>
+              <p className="mt-2 text-xl font-bold text-white">
+                {form.removeWinnerAfterDraw ? "Winner removed" : "Winner stays in pool"}
+              </p>
+              <p className="mt-1 text-sm text-slate-400">
+                {form.announceWinnerInChat ? "Winner announced in chat" : "Overlay only"}
+              </p>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      <DisclosurePanel
+        kicker="Core setup"
+        title="Session identity"
+        description="The title and the two chat commands stream viewers actually see."
+        defaultOpen
+      >
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="field-label">Title</label>
@@ -135,6 +177,28 @@ export function SettingsPage() {
             />
           </div>
           <div>
+            <label className="field-label">Spin countdown (seconds)</label>
+            <input
+              className="field-input"
+              type="number"
+              min={0}
+              max={15}
+              value={form.spinCountdownSeconds}
+              onChange={(event) => updateForm("spinCountdownSeconds", Number(event.target.value))}
+            />
+            <p className="field-hint">Controls how long the audience sees the pre-spin suspense countdown.</p>
+          </div>
+        </div>
+      </DisclosurePanel>
+
+      <DisclosurePanel
+        kicker="Entry rules"
+        title="Eligibility and behavior"
+        description="Keep the common stream-time rules available, but out of the way when you do not need them."
+        defaultOpen
+      >
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
             <label className="field-label">Max entries per user</label>
             <input
               className="field-input"
@@ -156,34 +220,14 @@ export function SettingsPage() {
               onChange={(event) => updateForm("minimumAccountAgeDays", Number(event.target.value))}
             />
           </div>
-          <div>
-            <label className="field-label">Spin countdown (seconds)</label>
-            <input
-              className="field-input"
-              type="number"
-              min={0}
-              max={15}
-              value={form.spinCountdownSeconds}
-              onChange={(event) => updateForm("spinCountdownSeconds", Number(event.target.value))}
-            />
-          </div>
-        </div>
-      </Card>
-
-      <Card className="space-y-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-200/70">
-            Restrictions and behavior
-          </p>
-          <h3 className="mt-2 text-xl font-bold text-white">Entry rules</h3>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2">
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
           <Toggle
             label="Remove winner after draw"
             checked={form.removeWinnerAfterDraw}
             onChange={(checked) => updateForm("removeWinnerAfterDraw", checked)}
-            description="Automatically remove the winner from the active entrant pool after each spin."
+            description="Automatically remove the winner from the live entrant pool after each spin."
           />
           <Toggle
             label="Allow duplicate entries"
@@ -207,23 +251,22 @@ export function SettingsPage() {
             label="Announce winner in chat"
             checked={form.announceWinnerInChat}
             onChange={(checked) => updateForm("announceWinnerInChat", checked)}
-            description="Send the final winner message back into Twitch chat after the spin finishes."
+            description="Send the winner message back into Twitch chat after the wheel finishes."
           />
           <Toggle
             label="Exclude broadcaster"
             checked={form.excludeBroadcaster}
             onChange={(checked) => updateForm("excludeBroadcaster", checked)}
-            description="Keep the broadcaster out of the entrant pool by default."
+            description="Disable broadcaster self-entry unless you intentionally want to test from your own account."
           />
         </div>
-      </Card>
+      </DisclosurePanel>
 
-      <Card className="space-y-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-200/70">Weighting</p>
-          <h3 className="mt-2 text-xl font-bold text-white">Role multipliers</h3>
-        </div>
-
+      <DisclosurePanel
+        kicker="Weight studio"
+        title="Role multipliers"
+        description="These weights directly shape the chance preview on the dashboard and the final winner selection."
+      >
         <div className="grid gap-4 md:grid-cols-3">
           {(
             [
@@ -260,14 +303,14 @@ export function SettingsPage() {
             </div>
           ))}
         </div>
-      </Card>
+      </DisclosurePanel>
 
-      <Card className="space-y-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-200/70">Custom overrides</p>
-            <h3 className="mt-2 text-xl font-bold text-white">User-specific weight or blacklist rules</h3>
-          </div>
+      <DisclosurePanel
+        kicker="Per-user rules"
+        title="Overrides and blacklist"
+        description="Use overrides for sponsor boosts, trusted community members, or permanent blocks."
+      >
+        <div className="flex justify-end">
           <Button
             variant="secondary"
             onClick={() =>
@@ -285,14 +328,14 @@ export function SettingsPage() {
           </Button>
         </div>
 
-        <div className="space-y-3">
+        <div className="mt-4 space-y-3">
           {form.overrides.length === 0 ? (
             <p className="text-sm text-slate-400">No overrides yet.</p>
           ) : (
             form.overrides.map((override, index) => (
               <div
                 key={`${override.username}-${index}`}
-                className="grid gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 md:grid-cols-[1.2fr_0.8fr_1fr_auto]"
+                className="grid gap-3 rounded-[26px] border border-white/10 bg-white/[0.04] p-4 md:grid-cols-[1.1fr_0.8fr_1fr_auto]"
               >
                 <input
                   className="field-input"
@@ -386,11 +429,12 @@ export function SettingsPage() {
             ))
           )}
         </div>
-      </Card>
+      </DisclosurePanel>
 
       <div className="flex justify-end">
         <Button
           disabled={saving}
+          className="min-w-[180px]"
           onClick={async () => {
             setSaving(true);
             try {
@@ -400,7 +444,7 @@ export function SettingsPage() {
             }
           }}
         >
-          {saving ? "Saving…" : "Save settings"}
+          {saving ? "Saving..." : "Save settings"}
         </Button>
       </div>
     </div>

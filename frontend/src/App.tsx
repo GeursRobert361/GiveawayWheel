@@ -16,7 +16,7 @@ function ProtectedRoutes() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
         <div className="rounded-3xl border border-white/10 bg-slate-900/80 px-6 py-4 text-sm">
-          Loading dashboard…
+          Loading dashboard...
         </div>
       </div>
     );

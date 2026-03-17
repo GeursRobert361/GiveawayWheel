@@ -20,10 +20,11 @@ export function HistoryPage() {
 
   return (
     <div className="space-y-6">
-      <Card className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-brand-200/70">History</p>
-          <h2 className="mt-2 text-2xl font-bold text-white">Past winners</h2>
+      <Card className="flex flex-wrap items-center justify-between gap-4 px-6 py-6">
+        <div className="space-y-2">
+          <p className="section-kicker">History</p>
+          <h2 className="text-3xl font-bold text-white">Past winners</h2>
+          <p className="text-sm text-slate-400">Every recorded winner from your recent giveaway sessions.</p>
         </div>
         <Button variant="secondary" onClick={() => apiDownload("/api/history/export")}>
           Export winners CSV
@@ -32,14 +33,14 @@ export function HistoryPage() {
 
       <Card className="space-y-3">
         {loading ? (
-          <p className="text-sm text-slate-400">Loading history…</p>
+          <p className="text-sm text-slate-400">Loading history...</p>
         ) : history.length === 0 ? (
           <p className="text-sm text-slate-400">No winners recorded yet.</p>
         ) : (
           history.map((winner) => (
             <div
               key={winner.id}
-              className="grid gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 md:grid-cols-[1.1fr_0.9fr_0.6fr]"
+              className="grid gap-2 rounded-[26px] border border-white/10 bg-white/[0.05] px-4 py-4 md:grid-cols-[1.1fr_0.9fr_0.6fr]"
             >
               <div>
                 <p className="font-semibold text-white">{winner.displayName}</p>
@@ -49,9 +50,7 @@ export function HistoryPage() {
                 <p>{winner.selectedWeight.toFixed(2)} effective weight</p>
                 <p className="mt-1 text-slate-500">{winner.source}</p>
               </div>
-              <div className="text-sm text-slate-400 md:text-right">
-                {formatRelativeTime(winner.createdAt)}
-              </div>
+              <div className="text-sm text-slate-400 md:text-right">{formatRelativeTime(winner.createdAt)}</div>
             </div>
           ))
         )}
