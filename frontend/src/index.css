@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-slate-950 font-sans text-slate-100 antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.65);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.32);
+  border-radius: 999px;
+}
+
+.panel-grid {
+  @apply grid gap-6 lg:grid-cols-[1.35fr_0.95fr];
+}
+
+.field-label {
+  @apply mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400;
+}
+
+.field-input {
+  @apply w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-brand-300 focus:ring-2 focus:ring-brand-300/20;
+}

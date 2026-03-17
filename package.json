@@ -1,0 +1,24 @@
+{
+  "name": "twitch-giveaway-wheel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Twitch Giveaway Wheel monorepo with React, Fastify, Prisma, and Twitch EventSub.",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "concurrently -n BACKEND,FRONTEND -c blue,magenta \"npm run dev --workspace backend\" \"npm run dev --workspace frontend\"",
+    "build": "npm run build --workspace backend && npm run build --workspace frontend",
+    "start": "concurrently -n BACKEND,FRONTEND -c blue,magenta \"npm run start --workspace backend\" \"npm run preview --workspace frontend -- --host 0.0.0.0 --port 4173\"",
+    "prisma:generate": "npm run prisma:generate --workspace backend",
+    "prisma:migrate": "npm run prisma:migrate --workspace backend",
+    "prisma:studio": "npm run prisma:studio --workspace backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

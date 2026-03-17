@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum GiveawayStatus {
+  OPEN
+  CLOSED
+}
+
+enum ConnectionStatus {
+  CONNECTED
+  RECONNECTING
+  DISCONNECTED
+}
+
+enum AuditActorType {
+  DASHBOARD
+  CHAT
+  SYSTEM
+}
+
+model User {
+  id                  String               @id @default(cuid())
+  twitchUserId        String               @unique
+  login               String
+  displayName         String
+  profileImageUrl     String?
+  broadcasterType     String?
+  email               String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  connection          TwitchConnection?
+  giveawaySessions    GiveawaySession[]
+  roleWeightSettings  RoleWeightSettings?
+  userWeightOverrides UserWeightOverride[]
+  auditLogs           AuditLog[]
+}
+
+model TwitchConnection {
+  id                    String           @id @default(cuid())
+  userId                String           @unique
+  encryptedAccessToken  String
+  encryptedRefreshToken String
+  tokenExpiresAt        DateTime
+  scopeText             String
+  channelId             String
+  channelLogin          String
+  channelName           String
+  status                ConnectionStatus @default(DISCONNECTED)
+  eventSubSessionId     String?
+  lastError             String?
+  lastConnectedAt       DateTime?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model GiveawaySession {
+  id                    String         @id @default(cuid())
+  broadcasterId         String
+  overlayKey            String         @unique @default(cuid())
+  title                 String
+  entryCommand          String         @default("!join")
+  leaveCommand          String         @default("!leave")
+  status                GiveawayStatus @default(CLOSED)
+  removeWinnerAfterDraw Boolean        @default(true)
+  allowDuplicateEntries Boolean        @default(false)
+  maxEntriesPerUser     Int            @default(1)
+  followerOnlyMode      Boolean        @default(false)
+  subscriberOnlyMode    Boolean        @default(false)
+  announceWinnerInChat  Boolean        @default(true)
+  excludeBroadcaster    Boolean        @default(true)
+  minimumAccountAgeDays Int            @default(0)
+  spinCountdownSeconds  Int            @default(4)
+  lastSpinPayloadJson   String?
+  lastWinnerId          String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  broadcaster           User           @relation(fields: [broadcasterId], references: [id], onDelete: Cascade)
+  entrants              Entrant[]
+  winners               Winner[]
+
+  @@index([broadcasterId, createdAt(sort: Desc)])
+}
+
+model Entrant {
+  id                String          @id @default(cuid())
+  giveawaySessionId String
+  twitchUserId      String?
+  username          String
+  displayName       String
+  entryCount        Int             @default(1)
+  isFollower        Boolean         @default(false)
+  isSubscriber      Boolean         @default(false)
+  isVip             Boolean         @default(false)
+  isModerator       Boolean         @default(false)
+  isBroadcaster     Boolean         @default(false)
+  accountCreatedAt  DateTime?
+  isActive          Boolean         @default(true)
+  removedReason     String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  lastSeenAt        DateTime        @default(now())
+  giveawaySession   GiveawaySession @relation(fields: [giveawaySessionId], references: [id], onDelete: Cascade)
+  winners           Winner[]
+
+  @@unique([giveawaySessionId, username])
+  @@index([giveawaySessionId, isActive])
+}
+
+model Winner {
+  id                String          @id @default(cuid())
+  giveawaySessionId String
+  entrantId         String?
+  username          String
+  displayName       String
+  twitchUserId      String?
+  selectedWeight    Float
+  source            String          @default("draw")
+  announcedInChat   Boolean         @default(false)
+  createdAt         DateTime        @default(now())
+  giveawaySession   GiveawaySession @relation(fields: [giveawaySessionId], references: [id], onDelete: Cascade)
+  entrant           Entrant?        @relation(fields: [entrantId], references: [id], onDelete: SetNull)
+
+  @@index([giveawaySessionId, createdAt(sort: Desc)])
+}
+
+model RoleWeightSettings {
+  id                String   @id @default(cuid())
+  broadcasterId     String   @unique
+  viewerWeight      Float    @default(1)
+  followerWeight    Float    @default(1.25)
+  subscriberWeight  Float    @default(2)
+  vipWeight         Float    @default(2.5)
+  moderatorWeight   Float    @default(3)
+  broadcasterWeight Float    @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  broadcaster       User     @relation(fields: [broadcasterId], references: [id], onDelete: Cascade)
+}
+
+model UserWeightOverride {
+  id             String   @id @default(cuid())
+  broadcasterId  String
+  usernameLower  String
+  usernameDisplay String
+  weight         Float    @default(1)
+  isBlocked      Boolean  @default(false)
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  broadcaster    User     @relation(fields: [broadcasterId], references: [id], onDelete: Cascade)
+
+  @@unique([broadcasterId, usernameLower])
+}
+
+model AuditLog {
+  id            String         @id @default(cuid())
+  broadcasterId String
+  actorType     AuditActorType
+  actorLogin    String
+  action        String
+  message       String
+  metadataJson  String?
+  createdAt     DateTime       @default(now())
+  broadcaster   User           @relation(fields: [broadcasterId], references: [id], onDelete: Cascade)
+
+  @@index([broadcasterId, createdAt(sort: Desc)])
+}
