@@ -269,6 +269,15 @@ export class GiveawayService {
     await this.syncService.broadcastForUser(userId);
   }
 
+  async toggleOverlayVisibility(userId: string) {
+    const session = await this.ensureCurrentSession(userId);
+    await prisma.giveawaySession.update({
+      where: { id: session.id },
+      data: { overlayVisible: !session.overlayVisible }
+    });
+    await this.syncService.broadcastForUser(userId);
+  }
+
   async addManualEntrant(
     userId: string,
     input: { username: string; displayName?: string | null },

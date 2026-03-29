@@ -451,15 +451,26 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              <div className="rounded-[20px] border border-white/[0.08] bg-slate-950/40 px-4 py-3 text-xs text-slate-400 break-all">
-                {snapshot.overlayUrl ?? "Overlay URL unavailable"}
+              <div className="space-y-3">
+                <div className="rounded-[20px] border border-white/[0.08] bg-slate-950/40 px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">OBS Setup</p>
+                  <p className="text-xs text-slate-400 mb-2">Add a Browser Source with these settings:</p>
+                  <ul className="text-xs text-slate-400 space-y-1 ml-4 list-disc">
+                    <li>Width: 2500px, Height: 2500px</li>
+                    <li>URL: {snapshot.overlayUrl ? <span className="text-white font-mono break-all">{snapshot.overlayUrl}</span> : "Generate overlay first"}</li>
+                  </ul>
+                </div>
               </div>
 
-              <div className="grid gap-2 sm:grid-cols-4">
+              <div className="grid gap-2 sm:grid-cols-5">
                 <Button variant="secondary" disabled={!snapshot.overlayUrl}
-                  onClick={() => snapshot.overlayUrl && copyToClipboard(snapshot.overlayUrl)}>Copy overlay URL</Button>
+                  onClick={() => snapshot.overlayUrl && copyToClipboard(snapshot.overlayUrl)}>Copy URL</Button>
                 <Button variant="secondary" disabled={!snapshot.overlayUrl}
-                  onClick={() => snapshot.overlayUrl && window.open(snapshot.overlayUrl, "GiveawayOverlay", "width=1920,height=1080")}>Show overlay</Button>
+                  onClick={() => snapshot.overlayUrl && window.open(snapshot.overlayUrl, "GiveawayOverlay", "width=1920,height=1080")}>Preview</Button>
+                <Button variant="secondary" disabled={!giveaway}
+                  onClick={() => runAction("toggle-overlay", () => apiPost("/api/giveaway/toggle-overlay"))}>
+                  {giveaway?.overlayVisible ? "Hide overlay" : "Show overlay"}
+                </Button>
                 <Button variant="secondary" onClick={() => apiDownload("/api/entrants/export")}>Export entrants</Button>
                 <Button variant="secondary" onClick={() => apiDownload("/api/history/export")}>Export winners</Button>
               </div>

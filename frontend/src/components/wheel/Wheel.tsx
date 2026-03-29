@@ -213,6 +213,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
     const startTime = Date.now();
     const idleSpinSpeed = 0.015; // degrees per millisecond (very slow)
+    let frameId: number;
 
     const animate = () => {
       const elapsed = Date.now() - startTime;
@@ -220,7 +221,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       frameId = requestAnimationFrame(animate);
     };
 
-    let frameId = requestAnimationFrame(animate);
+    frameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameId);
   }, [countdown, duration]);
 

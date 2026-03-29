@@ -78,6 +78,7 @@ model GiveawaySession {
   minimumAccountAgeDays Int            @default(0)
   minimumFollowageDays  Int            @default(0)
   spinCountdownSeconds  Int            @default(1)
+  overlayVisible        Boolean        @default(true)
   lastSpinPayloadJson   String?
   lastWinnerId          String?
   createdAt             DateTime       @default(now())

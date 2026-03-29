@@ -149,6 +149,7 @@ export class SnapshotService {
             minimumAccountAgeDays: session.minimumAccountAgeDays,
             minimumFollowageDays: session.minimumFollowageDays,
             spinCountdownSeconds: session.spinCountdownSeconds,
+            overlayVisible: session.overlayVisible,
             entrants: buildWeightedPreview(
               session,
               session.entrants,
@@ -225,6 +226,7 @@ export class SnapshotService {
       status: session.status,
       entryCommand: session.entryCommand,
       entrantCount: weightedEntrants.length,
+      overlayVisible: session.overlayVisible,
       entrants: weightedEntrants.map((entrant) => ({
         id: entrant.id,
         displayName: entrant.displayName,

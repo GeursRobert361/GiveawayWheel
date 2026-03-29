@@ -113,7 +113,7 @@ export function OverlayPage() {
     return null;
   }
 
-  if (!snapshot) {
+  if (!snapshot || !snapshot.overlayVisible) {
     return null;
   }
 

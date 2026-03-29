@@ -89,6 +89,7 @@ export interface GiveawaySnapshot {
   minimumAccountAgeDays: number;
   minimumFollowageDays: number;
   spinCountdownSeconds: number;
+  overlayVisible: boolean;
   entrants: WeightedEntrantView[];
   entrantCount: number;
   winners: WinnerView[];
@@ -127,6 +128,7 @@ export interface OverlaySnapshot {
   status: "OPEN" | "CLOSED";
   entryCommand: string;
   entrantCount: number;
+  overlayVisible: boolean;
   entrants: Array<{
     id: string;
     displayName: string;

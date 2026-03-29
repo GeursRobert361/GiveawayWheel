@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:wheel.niettegeloven.com)",
+      "Bash(ssh:*)",
+      "Read(//c/Users/rober/.ssh/**)",
+      "Bash(echo \"Bash home: $HOME\")",
+      "Bash(npm run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(npx prisma:*)",
+      "Bash(ls -la backend/*.env*)",
+      "Bash(DATABASE_URL=\"file:./dev.db\" npx prisma migrate dev --name add_minimum_followage_days)",
+      "Bash(DATABASE_URL='file:./dev.db' npx prisma migrate dev --name add_overlay_visible)"
+    ]
+  }
+}
