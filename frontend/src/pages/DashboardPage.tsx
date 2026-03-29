@@ -455,6 +455,8 @@ export function DashboardPage() {
               <SetupToggle label="Remove winner after draw" checked={setupForm.removeWinnerAfterDraw} onChange={(v) => setSetupForm((c) => c ? { ...c, removeWinnerAfterDraw: v } : c)} description="Remove the winner from the pool once revealed." />
               <SetupToggle label="Announce winner in chat" checked={setupForm.announceWinnerInChat} onChange={(v) => setSetupForm((c) => c ? { ...c, announceWinnerInChat: v } : c)} description="Post the winner into Twitch chat after the spin." />
               <SetupToggle label="Exclude broadcaster" checked={setupForm.excludeBroadcaster} onChange={(v) => setSetupForm((c) => c ? { ...c, excludeBroadcaster: v } : c)} description="Block broadcaster self-entry." />
+              <SetupToggle label="Follower-only mode" checked={setupForm.followerOnlyMode} onChange={(v) => setSetupForm((c) => c ? { ...c, followerOnlyMode: v } : c)} description="Require entrants to follow the channel." />
+              <SetupToggle label="Subscriber-only mode" checked={setupForm.subscriberOnlyMode} onChange={(v) => setSetupForm((c) => c ? { ...c, subscriberOnlyMode: v } : c)} description="Restrict entry to current subscribers." />
             </div>
 
             <div className="mt-6 rounded-[24px] border border-white/[0.08] bg-white/[0.03] px-5 py-5">
