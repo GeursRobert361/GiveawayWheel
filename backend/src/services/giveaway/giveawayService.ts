@@ -287,6 +287,73 @@ export class GiveawayService {
     await this.syncService.broadcastForUser(userId);
   }
 
+  async shuffleEntrants(userId: string, actor: ActionActor = defaultActor) {
+    const session = await this.ensureCurrentSession(userId);
+    const entrants = await prisma.entrant.findMany({
+      where: {
+        giveawaySessionId: session.id,
+        isActive: true
+      }
+    });
+
+    // Shuffle using Fisher-Yates algorithm
+    const shuffled = [...entrants];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(secureRandomFraction() * (i + 1));
+      const temp = shuffled[i]!;
+      shuffled[i] = shuffled[j]!;
+      shuffled[j] = temp;
+    }
+
+    // Update createdAt to change order (entrants are sorted by createdAt, username)
+    const now = Date.now();
+    await Promise.all(
+      shuffled.map((entrant, index) =>
+        prisma.entrant.update({
+          where: { id: entrant.id },
+          data: { createdAt: new Date(now + index) }
+        })
+      )
+    );
+
+    await this.recordAudit(userId, actor, "giveaway.shuffle", `Shuffled ${entrants.length} entrants.`);
+    await this.syncService.broadcastForUser(userId);
+  }
+
+  async addTestEntrants(userId: string, count: number, actor: ActionActor = defaultActor) {
+    const session = await this.ensureCurrentSession(userId);
+    const adjectives = ["Swift", "Brave", "Mighty", "Silent", "Golden", "Shadow", "Thunder", "Crystal", "Fire", "Ice"];
+    const nouns = ["Wolf", "Dragon", "Phoenix", "Tiger", "Falcon", "Bear", "Lion", "Eagle", "Fox", "Hawk"];
+
+    const testEntrants = [];
+    for (let i = 0; i < count; i++) {
+      const adj = adjectives[Math.floor(secureRandomFraction() * adjectives.length)];
+      const noun = nouns[Math.floor(secureRandomFraction() * nouns.length)];
+      const num = Math.floor(secureRandomFraction() * 9999);
+      const username = `${adj}${noun}${num}`.toLowerCase();
+      const displayName = `${adj}${noun}${num}`;
+
+      testEntrants.push({
+        giveawaySessionId: session.id,
+        twitchUserId: `test_${username}`,
+        username,
+        displayName,
+        isFollower: secureRandomFraction() > 0.5,
+        isSubscriber: secureRandomFraction() > 0.7,
+        isVip: secureRandomFraction() > 0.9,
+        isModerator: false,
+        isBroadcaster: false,
+        accountCreatedAt: new Date(Date.now() - Math.floor(secureRandomFraction() * 365 * 24 * 60 * 60 * 1000)),
+        followedAt: secureRandomFraction() > 0.5 ? new Date(Date.now() - Math.floor(secureRandomFraction() * 180 * 24 * 60 * 60 * 1000)) : null,
+        isActive: true
+      });
+    }
+
+    await prisma.entrant.createMany({ data: testEntrants });
+    await this.recordAudit(userId, actor, "giveaway.test", `Added ${count} test entrants.`);
+    await this.syncService.broadcastForUser(userId);
+  }
+
   async addManualEntrant(
     userId: string,
     input: { username: string; displayName?: string | null },

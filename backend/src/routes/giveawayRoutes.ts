@@ -77,6 +77,20 @@ export async function registerGiveawayRoutes(app: FastifyInstance, options: Give
     return options.snapshotService.getDashboardSnapshot(userId);
   });
 
+  app.post("/api/giveaway/shuffle", { config: { rateLimit: { max: 20, timeWindow: 60_000 } } }, async (request) => {
+    const userId = await requireUserId(request);
+    await options.giveawayService.shuffleEntrants(userId, { type: "DASHBOARD", login: "dashboard" });
+    return options.snapshotService.getDashboardSnapshot(userId);
+  });
+
+  app.post("/api/giveaway/add-test-entrants", { config: { rateLimit: { max: 10, timeWindow: 60_000 } } }, async (request) => {
+    const userId = await requireUserId(request);
+    const body = request.body as { count?: number };
+    const count = Math.min(Math.max(1, body.count || 10), 100); // Min 1, max 100
+    await options.giveawayService.addTestEntrants(userId, count, { type: "DASHBOARD", login: "dashboard" });
+    return options.snapshotService.getDashboardSnapshot(userId);
+  });
+
   app.post("/api/giveaway/clear", { config: { rateLimit: { max: 12, timeWindow: 60_000 } } }, async (request) => {
     const userId = await requireUserId(request);
     await options.giveawayService.clearCurrent(userId, { type: "DASHBOARD", login: "dashboard" });

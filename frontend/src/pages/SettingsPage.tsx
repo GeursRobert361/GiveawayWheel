@@ -538,6 +538,42 @@ export function SettingsPage() {
         </div>
       </DisclosurePanel>
 
+      <DisclosurePanel
+        kicker="Testing"
+        title="Test utilities"
+        defaultOpen={false}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-slate-400">
+            Add random test entrants to verify the wheel is working correctly.
+          </p>
+          <div>
+            <label className="field-label">Number of test entrants</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                className="field-input w-32"
+                min="1"
+                max="100"
+                defaultValue="10"
+                id="test-entrants-count"
+              />
+              <Button
+                variant="secondary"
+                onClick={async () => {
+                  const input = document.getElementById("test-entrants-count") as HTMLInputElement;
+                  const count = Math.min(Math.max(1, parseInt(input?.value || "10")), 100);
+                  await apiPost("/api/giveaway/add-test-entrants", { count });
+                }}
+              >
+                Add test entrants
+              </Button>
+            </div>
+            <p className="field-hint">Add between 1 and 100 random test entrants with random roles.</p>
+          </div>
+        </div>
+      </DisclosurePanel>
+
       <div className="flex justify-end">
         <Button
           disabled={saving}

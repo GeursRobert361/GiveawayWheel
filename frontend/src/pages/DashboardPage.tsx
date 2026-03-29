@@ -377,13 +377,29 @@ export function DashboardPage() {
             >
               {giveaway?.overlayVisible ? "Hide overlay" : "Show overlay"}
             </Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                const wheelContainer = document.getElementById("wheel-container");
+                if (wheelContainer) {
+                  if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(() => {});
+                  } else {
+                    wheelContainer.requestFullscreen().catch(() => {});
+                  }
+                }
+              }}
+            >
+              Fullscreen
+            </Button>
           </div>
         </div>
       </Card>
 
       {/* Wheel + side panel */}
       <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
-        <Wheel
+        <div id="wheel-container">
+          <Wheel
           entrants={eligibleEntrants.map((e) => ({ id: e.id, displayName: e.displayName }))}
           lastSpin={giveaway.lastSpin}
           winnerLabel={spinActive ? null : giveaway.winners[0]?.displayName ?? null}
@@ -392,6 +408,7 @@ export function DashboardPage() {
           onWinnerDismiss={() => handleDismissWinner()}
           dismissKey={dismissKey}
         />
+        </div>
 
         {/* Side panel */}
         <div className="space-y-4">
@@ -438,9 +455,11 @@ export function DashboardPage() {
           {/* Secondary actions */}
           <DisclosurePanel kicker="More" title="Secondary actions" defaultOpen={false}>
             <div className="space-y-3">
-              <div className="grid gap-2 sm:grid-cols-3">
+              <div className="grid gap-2 sm:grid-cols-4">
                 <Button variant="secondary" disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
                   onClick={() => runAction("reroll", () => apiPost("/api/giveaway/reroll"))}>Reroll</Button>
+                <Button variant="secondary" disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
+                  onClick={() => runAction("shuffle", () => apiPost("/api/giveaway/shuffle"))}>Shuffle</Button>
                 <Button variant="secondary" disabled={busyAction !== null || spinActive}
                   onClick={() => runAction("chatters", () => apiPost("/api/entrants/import-chatters"))}>Import chatters</Button>
                 <Button variant="secondary" disabled={busyAction !== null || spinActive}
