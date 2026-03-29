@@ -457,6 +457,44 @@ export function DashboardPage() {
               <SetupToggle label="Exclude broadcaster" checked={setupForm.excludeBroadcaster} onChange={(v) => setSetupForm((c) => c ? { ...c, excludeBroadcaster: v } : c)} description="Block broadcaster self-entry." />
             </div>
 
+            <div className="mt-6 rounded-[24px] border border-white/[0.08] bg-white/[0.03] px-5 py-5">
+              <p className="section-kicker">Role multipliers</p>
+              <h4 className="mt-1.5 text-lg font-bold text-white">Weight each role</h4>
+              <p className="mt-1.5 text-sm text-slate-400">Higher values increase that role's chances of winning.</p>
+
+              <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                {(
+                  [
+                    ["viewerWeight", "Viewer"],
+                    ["followerWeight", "Follower"],
+                    ["subscriberWeight", "Subscriber"],
+                    ["vipWeight", "VIP"],
+                    ["moderatorWeight", "Moderator"],
+                    ["broadcasterWeight", "Broadcaster"]
+                  ] as const
+                ).map(([key, label]) => (
+                  <div key={key}>
+                    <div className="flex items-center justify-between">
+                      <label className="field-label">{label}</label>
+                      <span className="text-sm font-bold text-violet-300">{setupForm.weights[key].toFixed(2)}×</span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0"
+                      max="10"
+                      step="0.25"
+                      value={setupForm.weights[key]}
+                      onChange={(e) => setSetupForm((c) => c ? {
+                        ...c,
+                        weights: { ...c.weights, [key]: Number(e.target.value) }
+                      } : c)}
+                      className="mt-2 h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-800 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-violet-500 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-violet-500"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="mt-5 flex justify-end gap-2">
               <Button variant="ghost" onClick={dismissSetup}>Later</Button>
               <Button disabled={savingSetup} onClick={saveSetup}>{savingSetup ? "Saving..." : "Save"}</Button>
