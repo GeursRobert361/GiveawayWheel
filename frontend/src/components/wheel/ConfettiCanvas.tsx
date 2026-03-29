@@ -41,18 +41,31 @@ export function ConfettiCanvas({ active }: ConfettiCanvasProps) {
     resize();
     window.addEventListener("resize", resize);
 
-    const particles: Particle[] = Array.from({ length: 120 }, () => ({
-      x: Math.random() * canvas.clientWidth,
-      y: -20 - Math.random() * 120,
-      vx: (Math.random() - 0.5) * 3.5,
-      vy: 2 + Math.random() * 4,
-      size: 5 + Math.random() * 7,
-      rotation: Math.random() * Math.PI,
-      color: colors[Math.floor(Math.random() * colors.length)]
-    }));
+    const makeParticle = (wave: number): Particle => {
+      const fromSide = Math.random() < 0.2;
+      const fromLeft = Math.random() < 0.5;
+      return {
+        x: fromSide
+          ? (fromLeft ? -10 : canvas.clientWidth + 10)
+          : Math.random() * canvas.clientWidth,
+        y: fromSide
+          ? Math.random() * canvas.clientHeight * 0.5
+          : -20 - Math.random() * 200 - wave * 60,
+        vx: fromSide
+          ? (fromLeft ? 3 + Math.random() * 5 : -(3 + Math.random() * 5))
+          : (Math.random() - 0.5) * 6,
+        vy: fromSide ? -(1 + Math.random() * 3) : 1.5 + Math.random() * 5,
+        size: 5 + Math.random() * 9,
+        rotation: Math.random() * Math.PI,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      };
+    };
+
+    const particles: Particle[] = Array.from({ length: 350 }, (_, i) => makeParticle(Math.floor(i / 120)));
 
     let frame = 0;
     let start: number | null = null;
+    const duration = 6000;
 
     const render = (timestamp: number) => {
       if (start == null) {
@@ -65,18 +78,19 @@ export function ConfettiCanvas({ active }: ConfettiCanvasProps) {
       for (const particle of particles) {
         particle.x += particle.vx;
         particle.y += particle.vy;
-        particle.rotation += 0.08;
-        particle.vy += 0.015;
+        particle.rotation += 0.07 + Math.random() * 0.04;
+        particle.vy += 0.018;
+        particle.vx *= 0.998;
 
         context.save();
         context.translate(particle.x, particle.y);
         context.rotate(particle.rotation);
         context.fillStyle = particle.color;
-        context.fillRect(-particle.size / 2, -particle.size / 2, particle.size, particle.size * 0.65);
+        context.fillRect(-particle.size / 2, -particle.size / 2, particle.size, particle.size * 0.6);
         context.restore();
       }
 
-      if (elapsed < 3000) {
+      if (elapsed < duration) {
         frame = window.requestAnimationFrame(render);
       } else {
         context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);

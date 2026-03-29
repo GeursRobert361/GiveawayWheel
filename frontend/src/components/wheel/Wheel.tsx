@@ -250,13 +250,18 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
   const nameLength = compact ? 16 : 20;
   const anglePerSegment = 360 / wheelEntrants.length;
 
+  const isSpinActive = countdown !== null || (duration > 0 && !resolvedWinner);
+
   return (
-    <div className="relative overflow-hidden rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(71,215,255,0.16),_transparent_40%),linear-gradient(180deg,rgba(9,15,29,0.98),rgba(3,5,12,0.94))] p-5 sm:p-7">
+    <div className={isSpinActive
+      ? "fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-slate-950/98 p-4 backdrop-blur-sm"
+      : "relative overflow-hidden rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(71,215,255,0.16),_transparent_40%),linear-gradient(180deg,rgba(9,15,29,0.98),rgba(3,5,12,0.94))] p-5 sm:p-7"
+    }>
       <ConfettiCanvas active={celebrating} />
       <div className="pointer-events-none absolute inset-x-1/2 top-1/2 h-[72%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-300/10 blur-[90px]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_52%,rgba(255,255,255,0.02)_100%)]" />
 
-      <div className="absolute left-1/2 top-2 z-20 -translate-x-1/2 sm:top-4">
+      <div className={isSpinActive ? "absolute left-1/2 top-2 z-20 -translate-x-1/2 sm:top-6" : "absolute left-1/2 top-2 z-20 -translate-x-1/2 sm:top-4"}>
         <div className="flex flex-col items-center">
           <div className="h-5 w-20 rounded-full bg-white/10 blur-md" />
           <div className="relative -mt-1 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-slate-950/90 shadow-[0_20px_40px_rgba(0,0,0,0.45)]">
@@ -265,7 +270,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
         </div>
       </div>
 
-      <div className={compact ? "mx-auto max-w-[680px]" : "mx-auto max-w-[900px]"}>
+      <div className={isSpinActive ? "w-full max-w-[min(86vh,86vw)]" : (compact ? "mx-auto max-w-[680px]" : "mx-auto max-w-[900px]")}>
         <svg
           viewBox={`0 0 ${size} ${size}`}
           className="w-full drop-shadow-[0_45px_95px_rgba(0,0,0,0.55)]"
@@ -367,7 +372,23 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
         </svg>
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[0.78fr_1.22fr]">
+      {isSpinActive && (
+        <div className="relative z-10 mt-6 text-center">
+          {countdown !== null && countdown > 0 ? (
+            <>
+              <p className="text-7xl font-bold text-amber-200">{countdown}</p>
+              <p className="mt-3 text-lg text-slate-400">Spin begins after the countdown</p>
+            </>
+          ) : (
+            <>
+              <p className="text-3xl font-bold text-white">Spinning live</p>
+              <p className="mt-2 text-base text-slate-400">Hold for the landing moment...</p>
+            </>
+          )}
+        </div>
+      )}
+
+      {!isSpinActive && <div className="mt-5 grid gap-4 lg:grid-cols-[0.78fr_1.22fr]">
         <div className="rounded-[28px] border border-white/10 bg-white/[0.05] px-5 py-4">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-200/70">Wheel status</p>
           {countdown != null && countdown > 0 ? (
@@ -409,7 +430,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
               : "The wheel stays oversized on purpose so it reads cleanly in-browser, on stream, and in the OBS overlay."}
           </p>
         </div>
-      </div>
+      </div>}
     </div>
   );
 }
