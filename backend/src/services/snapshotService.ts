@@ -147,6 +147,7 @@ export class SnapshotService {
             announceWinnerInChat: session.announceWinnerInChat,
             excludeBroadcaster: session.excludeBroadcaster,
             minimumAccountAgeDays: session.minimumAccountAgeDays,
+            minimumFollowageDays: session.minimumFollowageDays,
             spinCountdownSeconds: session.spinCountdownSeconds,
             entrants: buildWeightedPreview(
               session,

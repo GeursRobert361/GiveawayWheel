@@ -21,6 +21,7 @@ type SetupFormState = Pick<
   | "announceWinnerInChat"
   | "excludeBroadcaster"
   | "minimumAccountAgeDays"
+  | "minimumFollowageDays"
   | "spinCountdownSeconds"
   | "weightSettings"
   | "overrides"
@@ -45,6 +46,7 @@ function buildSetupForm(giveaway: GiveawaySnapshot): SetupFormState {
     announceWinnerInChat: giveaway.announceWinnerInChat,
     excludeBroadcaster: giveaway.excludeBroadcaster,
     minimumAccountAgeDays: giveaway.minimumAccountAgeDays,
+    minimumFollowageDays: giveaway.minimumFollowageDays,
     spinCountdownSeconds: giveaway.spinCountdownSeconds,
     weightSettings: giveaway.weightSettings,
     overrides: giveaway.overrides,
@@ -448,6 +450,7 @@ export function DashboardPage() {
               <div><label className="field-label">Max entries per user</label><input className="field-input" type="number" min={1} max={100} value={setupForm.maxEntriesPerUser} onChange={(e) => setSetupForm((c) => c ? { ...c, maxEntriesPerUser: Number(e.target.value) } : c)} /></div>
               <div><label className="field-label">Spin countdown (s)</label><input className="field-input" type="number" min={0} max={15} value={setupForm.spinCountdownSeconds} onChange={(e) => setSetupForm((c) => c ? { ...c, spinCountdownSeconds: Number(e.target.value) } : c)} /></div>
               <div><label className="field-label">Min account age (days)</label><input className="field-input" type="number" min={0} max={3650} value={setupForm.minimumAccountAgeDays} onChange={(e) => setSetupForm((c) => c ? { ...c, minimumAccountAgeDays: Number(e.target.value) } : c)} /></div>
+              <div><label className="field-label">Min followage (days)</label><input className="field-input" type="number" min={0} max={3650} value={setupForm.minimumFollowageDays} onChange={(e) => setSetupForm((c) => c ? { ...c, minimumFollowageDays: Number(e.target.value) } : c)} /></div>
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-2">

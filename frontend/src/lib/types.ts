@@ -87,6 +87,7 @@ export interface GiveawaySnapshot {
   announceWinnerInChat: boolean;
   excludeBroadcaster: boolean;
   minimumAccountAgeDays: number;
+  minimumFollowageDays: number;
   spinCountdownSeconds: number;
   entrants: WeightedEntrantView[];
   entrantCount: number;

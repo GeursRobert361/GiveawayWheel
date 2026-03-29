@@ -25,6 +25,7 @@ interface SettingsFormState {
   announceWinnerInChat: boolean;
   excludeBroadcaster: boolean;
   minimumAccountAgeDays: number;
+  minimumFollowageDays: number;
   spinCountdownSeconds: number;
   weights: GiveawaySnapshot["weightSettings"];
   overrides: OverrideFormRow[];
@@ -43,6 +44,7 @@ function buildForm(giveaway: GiveawaySnapshot): SettingsFormState {
     announceWinnerInChat: giveaway.announceWinnerInChat,
     excludeBroadcaster: giveaway.excludeBroadcaster,
     minimumAccountAgeDays: giveaway.minimumAccountAgeDays,
+    minimumFollowageDays: giveaway.minimumFollowageDays,
     spinCountdownSeconds: giveaway.spinCountdownSeconds,
     weights: giveaway.weightSettings,
     overrides: giveaway.overrides.map((override) => ({
@@ -218,6 +220,17 @@ export function SettingsPage() {
               max={3650}
               value={form.minimumAccountAgeDays}
               onChange={(event) => updateForm("minimumAccountAgeDays", Number(event.target.value))}
+            />
+          </div>
+          <div>
+            <label className="field-label">Minimum followage (days)</label>
+            <input
+              className="field-input"
+              type="number"
+              min={0}
+              max={3650}
+              value={form.minimumFollowageDays}
+              onChange={(event) => updateForm("minimumFollowageDays", Number(event.target.value))}
             />
           </div>
         </div>

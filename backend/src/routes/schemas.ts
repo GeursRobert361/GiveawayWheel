@@ -13,6 +13,7 @@ export const createSessionSchema = z
     announceWinnerInChat: z.boolean().optional(),
     excludeBroadcaster: z.boolean().optional(),
     minimumAccountAgeDays: z.coerce.number().int().min(0).max(3650).optional(),
+    minimumFollowageDays: z.coerce.number().int().min(0).max(3650).optional(),
     spinCountdownSeconds: z.coerce.number().int().min(0).max(15).optional()
   })
   .optional();
@@ -38,6 +39,7 @@ export const settingsUpdateSchema = z.object({
   announceWinnerInChat: z.boolean(),
   excludeBroadcaster: z.boolean(),
   minimumAccountAgeDays: z.coerce.number().int().min(0).max(3650),
+  minimumFollowageDays: z.coerce.number().int().min(0).max(3650),
   spinCountdownSeconds: z.coerce.number().int().min(0).max(15),
   weights: weightSettingsSchema,
   overrides: z

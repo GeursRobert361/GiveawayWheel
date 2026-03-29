@@ -76,6 +76,7 @@ model GiveawaySession {
   announceWinnerInChat  Boolean        @default(true)
   excludeBroadcaster    Boolean        @default(true)
   minimumAccountAgeDays Int            @default(0)
+  minimumFollowageDays  Int            @default(0)
   spinCountdownSeconds  Int            @default(1)
   lastSpinPayloadJson   String?
   lastWinnerId          String?
