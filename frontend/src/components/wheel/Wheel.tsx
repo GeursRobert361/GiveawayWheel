@@ -149,8 +149,8 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       stopTickTrack();
       setDuration(0);
       setRotation(lastSpin.rotationDegrees);
-      setResolvedWinner(lastSpin.winnerDisplayName);
-      setCelebrating(true);
+      setResolvedWinner(overlayMode ? null : lastSpin.winnerDisplayName);
+      setCelebrating(false);
       setCountdown(null);
       return;
     }
@@ -185,13 +185,21 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       setCelebrating(true);
     }, Math.max(0, completedAt - now));
 
+    const autoDismissTimeout = overlayMode
+      ? window.setTimeout(() => {
+          setCelebrating(false);
+          setResolvedWinner(null);
+        }, Math.max(0, completedAt - now) + 8000)
+      : null;
+
     return () => {
       window.clearInterval(countdownInterval);
       window.clearTimeout(spinTimeout);
       window.clearTimeout(celebrationTimeout);
+      if (autoDismissTimeout) window.clearTimeout(autoDismissTimeout);
       stopTickTrack();
     };
-  }, [lastSpin]);
+  }, [lastSpin, overlayMode]);
 
   useEffect(() => () => stopTickTrack(), []);
 
@@ -290,6 +298,35 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
     </div>
   );
 
+  // Overlay mode — just wheel, transparent background (check first so it stays in overlay mode even when spinning)
+  if (overlayMode) {
+    return (
+      <div className="relative w-full">
+        <ConfettiCanvas active={celebrating} />
+
+        {/* Pointer arrow */}
+        <div className="absolute left-1/2 top-4 z-20 -translate-x-1/2">
+          {pointerEl}
+        </div>
+
+        {/* Wheel SVG - full width */}
+        <div className="w-full">
+          {svgEl}
+        </div>
+
+        {/* Winner popup when spin completes (only show when celebrating) */}
+        {resolvedWinner && celebrating && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="animate-in zoom-in duration-500 rounded-full bg-slate-950/95 px-12 py-10 text-center shadow-[0_32px_90px_rgba(0,0,0,0.9)] backdrop-blur-md border-2 border-violet-400/40">
+              <p className="text-base font-semibold uppercase tracking-[0.3em] text-violet-300">Winner</p>
+              <p className="mt-4 font-display text-7xl font-bold text-white">{resolvedWinner}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   // Spinning — render as a centered modal box with blurry backdrop
   if (isSpinActive) {
     return (
@@ -324,35 +361,6 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
             )}
           </div>
         </div>
-      </div>
-    );
-  }
-
-  // Overlay mode — just wheel, transparent background
-  if (overlayMode) {
-    return (
-      <div className="relative w-full">
-        <ConfettiCanvas active={celebrating} />
-
-        {/* Pointer arrow */}
-        <div className="absolute left-1/2 top-4 z-20 -translate-x-1/2">
-          {pointerEl}
-        </div>
-
-        {/* Wheel SVG - full width */}
-        <div className="w-full">
-          {svgEl}
-        </div>
-
-        {/* Winner popup when spin completes (only show when celebrating) */}
-        {resolvedWinner && celebrating && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="animate-in zoom-in duration-500 rounded-full bg-slate-950/95 px-12 py-10 text-center shadow-[0_32px_90px_rgba(0,0,0,0.9)] backdrop-blur-md border-2 border-violet-400/40">
-              <p className="text-base font-semibold uppercase tracking-[0.3em] text-violet-300">Winner</p>
-              <p className="mt-4 font-display text-7xl font-bold text-white">{resolvedWinner}</p>
-            </div>
-          </div>
-        )}
       </div>
     );
   }
