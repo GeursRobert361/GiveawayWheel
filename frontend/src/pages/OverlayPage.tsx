@@ -7,10 +7,7 @@ import { isSpinInProgress } from "../lib/utils";
 
 function playWinnerTone() {
   const AudioContextCtor = window.AudioContext;
-  if (!AudioContextCtor) {
-    return;
-  }
-
+  if (!AudioContextCtor) return;
   const context = new AudioContextCtor();
   const oscillator = context.createOscillator();
   const gain = context.createGain();
@@ -33,24 +30,15 @@ export function OverlayPage() {
   const handledWinnerRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!overlayKey) {
-      return;
-    }
-
+    if (!overlayKey) return;
     let active = true;
     let socket: WebSocket | null = null;
     let reconnectTimer: number | null = null;
 
     void getOverlaySnapshot(overlayKey)
-      .then((data) => {
-        if (active) {
-          setSnapshot(data);
-        }
-      })
+      .then((data) => { if (active) setSnapshot(data); })
       .catch((reason: unknown) => {
-        if (active) {
-          setError(reason instanceof Error ? reason.message : "Unable to load overlay");
-        }
+        if (active) setError(reason instanceof Error ? reason.message : "Unable to load overlay");
       });
 
     const connect = () => {
@@ -62,21 +50,16 @@ export function OverlayPage() {
         const payload = JSON.parse(event.data) as
           | { type: "snapshot"; scope: "overlay"; data: OverlaySnapshot }
           | { type: "error"; message: string };
-
         if (payload.type === "error") {
           setError(payload.message);
           return;
         }
-
         setError(null);
         setSnapshot(payload.data);
       });
 
       socket.addEventListener("close", () => {
-        if (!active) {
-          return;
-        }
-
+        if (!active) return;
         reconnectTimer = window.setTimeout(connect, 2000);
       });
     };
@@ -85,27 +68,20 @@ export function OverlayPage() {
 
     return () => {
       active = false;
-      if (reconnectTimer != null) {
-        window.clearTimeout(reconnectTimer);
-      }
+      if (reconnectTimer != null) window.clearTimeout(reconnectTimer);
       socket?.close();
     };
   }, [overlayKey]);
 
   useEffect(() => {
     const spin = snapshot?.lastSpin;
-    if (!spin || handledWinnerRef.current === spin.eventId) {
-      return;
-    }
+    if (!spin || handledWinnerRef.current === spin.eventId) return;
 
     const fireWinner = () => {
       handledWinnerRef.current = spin.eventId;
       window.dispatchEvent(
         new CustomEvent("tgw:winner", {
-          detail: {
-            winner: spin.winnerDisplayName,
-            overlayKey
-          }
+          detail: { winner: spin.winnerDisplayName, overlayKey }
         })
       );
       playWinnerTone();
@@ -126,58 +102,41 @@ export function OverlayPage() {
     [snapshot?.entrants]
   );
   const spinActive = isSpinInProgress(snapshot?.lastSpin);
+  const winnerName = spinActive ? null : snapshot?.winners[0]?.displayName ?? null;
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
-        <div className="rounded-3xl border border-rose-500/30 bg-rose-500/10 px-6 py-4 text-sm">{error}</div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="rounded-3xl border border-rose-500/30 bg-rose-500/10 px-6 py-4 text-sm text-white">{error}</div>
       </div>
     );
   }
 
   if (!snapshot) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
-        <div className="rounded-3xl border border-white/10 bg-slate-900/80 px-6 py-4 text-sm">Loading overlay...</div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="rounded-3xl border border-white/10 bg-slate-900/80 px-6 py-4 text-sm text-white">Loading overlay...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top,_rgba(71,215,255,0.16),_transparent_24%),radial-gradient(circle_at_80%_10%,_rgba(255,114,94,0.12),_transparent_16%),linear-gradient(180deg,_#050816_0%,_#02040b_100%)] px-4 py-8 text-slate-100">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-[1600px] flex-col justify-center gap-6">
-        <div className="text-center">
-          <p className="section-kicker">OBS overlay</p>
-          <h1 className="mt-3 font-display text-5xl font-bold text-white sm:text-7xl">{snapshot.title}</h1>
-          <p className="mt-3 text-lg text-slate-300">
-            {snapshot.status === "OPEN" ? `Chat command: ${snapshot.entryCommand}` : "Giveaway closed until the next round"}
-          </p>
-        </div>
+    <div className="flex min-h-screen items-center justify-center bg-transparent p-8">
+      <div className="relative w-full max-w-[900px]">
+        <Wheel
+          entrants={entrants}
+          lastSpin={snapshot.lastSpin}
+          winnerLabel={winnerName}
+        />
 
-        <div className="mx-auto w-full max-w-[1200px]">
-          <Wheel
-            entrants={entrants}
-            lastSpin={snapshot.lastSpin}
-            winnerLabel={spinActive ? null : snapshot.winners[0]?.displayName ?? null}
-          />
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="rounded-[30px] border border-white/10 bg-white/[0.05] px-5 py-5 text-center shadow-soft backdrop-blur-xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-200/70">Entrants</p>
-            <p className="mt-2 text-4xl font-bold text-white">{snapshot.entrantCount}</p>
+        {winnerName && !spinActive && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="rounded-full bg-slate-950/95 px-8 py-6 text-center shadow-[0_32px_90px_rgba(0,0,0,0.8)] backdrop-blur-md border border-violet-400/30">
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-violet-300">Winner</p>
+              <p className="mt-2 font-display text-5xl font-bold text-white">{winnerName}</p>
+            </div>
           </div>
-          <div className="rounded-[30px] border border-white/10 bg-white/[0.05] px-5 py-5 text-center shadow-soft backdrop-blur-xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-200/70">Latest winner</p>
-            <p className="mt-2 text-4xl font-bold text-white">
-              {spinActive ? "Revealing..." : snapshot.winners[0]?.displayName ?? "Waiting"}
-            </p>
-          </div>
-          <div className="rounded-[30px] border border-white/10 bg-white/[0.05] px-5 py-5 text-center shadow-soft backdrop-blur-xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-200/70">Mode</p>
-            <p className="mt-2 text-4xl font-bold text-white">{snapshot.status === "OPEN" ? "Live" : "Closed"}</p>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

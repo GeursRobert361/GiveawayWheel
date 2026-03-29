@@ -12,6 +12,8 @@ interface WheelProps {
   lastSpin: LastSpinPayload | null;
   winnerLabel?: string | null;
   compact?: boolean;
+  onSpin?: () => void;
+  spinDisabled?: boolean;
 }
 
 const segmentColors = [
@@ -59,7 +61,7 @@ function easeOutCubic(value: number) {
   return 1 - (1 - value) ** 3;
 }
 
-export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: WheelProps) {
+export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin, spinDisabled = false }: WheelProps) {
   const [rotation, setRotation] = useState(0);
   const [duration, setDuration] = useState(0);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -337,7 +339,23 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
       </div>
 
       <div className={compact ? "mx-auto max-w-[680px]" : "mx-auto max-w-[900px]"}>
-        {svgEl}
+        <div className="relative">
+          {svgEl}
+
+          {/* Spin button overlay in center */}
+          {onSpin && !resolvedWinner && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <button
+                type="button"
+                disabled={spinDisabled}
+                onClick={onSpin}
+                className="pointer-events-auto rounded-full border-2 border-violet-400/30 bg-gradient-to-b from-violet-500 to-violet-700 px-8 py-4 text-lg font-bold text-white shadow-[0_20px_60px_rgba(124,58,237,0.5)] transition hover:scale-105 hover:shadow-[0_25px_70px_rgba(124,58,237,0.7)] disabled:opacity-40 disabled:hover:scale-100"
+              >
+                Spin Now
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[0.78fr_1.22fr]">

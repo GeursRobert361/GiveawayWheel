@@ -345,12 +345,14 @@ export function DashboardPage() {
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => setShowSetupModal(true)}>Setup</Button>
             <Button
-              variant={giveaway.status === "OPEN" ? "secondary" : "primary"}
+              variant="secondary"
               disabled={busyAction !== null || spinActive}
               onClick={() => runAction(giveaway.status === "OPEN" ? "close" : "open", () =>
                 apiPost(giveaway.status === "OPEN" ? "/api/giveaway/close" : "/api/giveaway/open")
               )}
-              className={giveaway.status === "OPEN" ? "" : "animate-pulse"}
+              className={giveaway.status === "OPEN"
+                ? "!border-red-400/30 !bg-red-500/20 hover:!bg-red-500/30"
+                : "!border-emerald-400/30 !bg-emerald-500/20 hover:!bg-emerald-500/30 animate-pulse"}
             >
               {giveaway.status === "OPEN" ? "Close entry" : "Open entry"}
             </Button>
@@ -370,6 +372,8 @@ export function DashboardPage() {
           entrants={eligibleEntrants.map((e) => ({ id: e.id, displayName: e.displayName }))}
           lastSpin={giveaway.lastSpin}
           winnerLabel={spinActive ? null : giveaway.winners[0]?.displayName ?? null}
+          onSpin={() => runAction("spin", () => apiPost("/api/giveaway/spin"))}
+          spinDisabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
         />
 
         {/* Side panel */}
