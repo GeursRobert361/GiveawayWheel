@@ -250,6 +250,19 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
     }
   }, [dismissKey]);
 
+  // Listen for dismiss event from dashboard (for overlay mode)
+  useEffect(() => {
+    if (!overlayMode) return;
+
+    const handleDismissEvent = () => {
+      setCelebrating(false);
+      setResolvedWinner(null);
+    };
+
+    window.addEventListener("tgw:dismiss-winner", handleDismissEvent);
+    return () => window.removeEventListener("tgw:dismiss-winner", handleDismissEvent);
+  }, [overlayMode]);
+
   const wheelEntrants = useMemo(
     () => (entrants.length > 0 ? entrants : [{ id: "empty", displayName: "Waiting for entrants" }]),
     [entrants]
