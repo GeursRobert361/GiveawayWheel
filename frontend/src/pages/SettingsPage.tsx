@@ -303,14 +303,15 @@ export function SettingsPage() {
         description="Keep the common stream-time rules available, but out of the way when you do not need them."
         defaultOpen
       >
-        <div className="grid gap-4 md:grid-cols-2">
-          <NumberStepper
-            label="Max entries per user"
-            value={form.maxEntriesPerUser}
-            onChange={(value) => updateForm("maxEntriesPerUser", value)}
-            min={1}
-            max={100}
-          />
+        <NumberStepper
+          label="Max entries per user"
+          value={form.maxEntriesPerUser}
+          onChange={(value) => updateForm("maxEntriesPerUser", value)}
+          min={1}
+          max={100}
+        />
+
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
           <TimeStepper
             label="Minimum account age"
             days={form.minimumAccountAgeDays}

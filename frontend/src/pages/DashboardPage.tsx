@@ -345,11 +345,12 @@ export function DashboardPage() {
           <div className="flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => setShowSetupModal(true)}>Setup</Button>
             <Button
-              variant="secondary"
+              variant={giveaway.status === "OPEN" ? "secondary" : "primary"}
               disabled={busyAction !== null || spinActive}
               onClick={() => runAction(giveaway.status === "OPEN" ? "close" : "open", () =>
                 apiPost(giveaway.status === "OPEN" ? "/api/giveaway/close" : "/api/giveaway/open")
               )}
+              className={giveaway.status === "OPEN" ? "" : "animate-pulse"}
             >
               {giveaway.status === "OPEN" ? "Close entry" : "Open entry"}
             </Button>
@@ -571,34 +572,38 @@ export function DashboardPage() {
               <Button variant="ghost" onClick={dismissSetup}>Close</Button>
             </div>
 
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
-              <div><label className="field-label">Title</label><input className="field-input" value={setupForm.title} onChange={(e) => setSetupForm((c) => c ? { ...c, title: e.target.value } : c)} /></div>
-              <div><label className="field-label">Entry command</label><input className="field-input" value={setupForm.entryCommand} onChange={(e) => setSetupForm((c) => c ? { ...c, entryCommand: e.target.value } : c)} /></div>
-              <div><label className="field-label">Leave command</label><input className="field-input" value={setupForm.leaveCommand} onChange={(e) => setSetupForm((c) => c ? { ...c, leaveCommand: e.target.value } : c)} /></div>
-              <NumberStepper
-                label="Max entries per user"
-                value={setupForm.maxEntriesPerUser}
-                onChange={(v) => setSetupForm((c) => c ? { ...c, maxEntriesPerUser: v } : c)}
-                min={1}
-                max={100}
-              />
-              <NumberStepper
-                label="Spin countdown (s)"
-                value={setupForm.spinCountdownSeconds}
-                onChange={(v) => setSetupForm((c) => c ? { ...c, spinCountdownSeconds: v } : c)}
-                min={0}
-                max={15}
-              />
-              <TimeStepper
-                label="Min account age"
-                days={setupForm.minimumAccountAgeDays}
-                onChange={(v) => setSetupForm((c) => c ? { ...c, minimumAccountAgeDays: v } : c)}
-              />
-              <TimeStepper
-                label="Min followage"
-                days={setupForm.minimumFollowageDays}
-                onChange={(v) => setSetupForm((c) => c ? { ...c, minimumFollowageDays: v } : c)}
-              />
+            <div className="mt-5 space-y-4">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div><label className="field-label">Title</label><input className="field-input" value={setupForm.title} onChange={(e) => setSetupForm((c) => c ? { ...c, title: e.target.value } : c)} /></div>
+                <div><label className="field-label">Entry command</label><input className="field-input" value={setupForm.entryCommand} onChange={(e) => setSetupForm((c) => c ? { ...c, entryCommand: e.target.value } : c)} /></div>
+                <div><label className="field-label">Leave command</label><input className="field-input" value={setupForm.leaveCommand} onChange={(e) => setSetupForm((c) => c ? { ...c, leaveCommand: e.target.value } : c)} /></div>
+                <NumberStepper
+                  label="Max entries per user"
+                  value={setupForm.maxEntriesPerUser}
+                  onChange={(v) => setSetupForm((c) => c ? { ...c, maxEntriesPerUser: v } : c)}
+                  min={1}
+                  max={100}
+                />
+                <NumberStepper
+                  label="Spin countdown (s)"
+                  value={setupForm.spinCountdownSeconds}
+                  onChange={(v) => setSetupForm((c) => c ? { ...c, spinCountdownSeconds: v } : c)}
+                  min={0}
+                  max={15}
+                />
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <TimeStepper
+                  label="Min account age"
+                  days={setupForm.minimumAccountAgeDays}
+                  onChange={(v) => setSetupForm((c) => c ? { ...c, minimumAccountAgeDays: v } : c)}
+                />
+                <TimeStepper
+                  label="Min followage"
+                  days={setupForm.minimumFollowageDays}
+                  onChange={(v) => setSetupForm((c) => c ? { ...c, minimumFollowageDays: v } : c)}
+                />
+              </div>
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-2">
