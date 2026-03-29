@@ -9,11 +9,10 @@
 html {
   min-height: 100%;
   background:
-    radial-gradient(ellipse at top left, rgba(109, 40, 217, 0.22), transparent 38%),
-    radial-gradient(ellipse at top right, rgba(26, 192, 245, 0.11), transparent 30%),
-    radial-gradient(circle at 80% 75%, rgba(124, 58, 237, 0.08), transparent 22%),
-    radial-gradient(circle at 18% 18%, rgba(255, 114, 94, 0.07), transparent 16%),
-    linear-gradient(180deg, #060916 0%, #03050c 100%);
+    radial-gradient(ellipse at top left, rgba(109, 40, 217, 0.2), transparent 40%),
+    radial-gradient(ellipse at top right, rgba(26, 192, 245, 0.09), transparent 32%),
+    radial-gradient(circle at 75% 70%, rgba(124, 58, 237, 0.07), transparent 20%),
+    linear-gradient(180deg, #060916 0%, #030509 100%);
 }
 
 body {
@@ -25,67 +24,63 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(10, 15, 35, 0.5);
+  background: rgba(8, 12, 28, 0.6);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.25);
+  background: rgba(139, 92, 246, 0.22);
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 92, 246, 0.4);
-}
-
-.panel-grid {
-  @apply grid gap-6 lg:grid-cols-[1.35fr_0.95fr];
+  background: rgba(139, 92, 246, 0.38);
 }
 
 .section-kicker {
-  @apply text-xs font-semibold uppercase tracking-[0.26em] text-violet-300/65;
+  @apply text-xs font-semibold uppercase tracking-[0.28em] text-violet-300/60;
 }
 
 .page-title {
-  @apply mt-2 font-display text-3xl font-bold text-white sm:text-4xl;
-}
-
-.glass-grid {
-  @apply grid gap-4;
+  @apply mt-1.5 font-display text-3xl font-bold text-white sm:text-4xl;
 }
 
 .metric-card {
   @apply relative overflow-hidden rounded-[22px] border border-white/[0.08] bg-white/[0.04] px-4 py-4;
-  border-left: 2px solid rgba(139, 92, 246, 0.35);
+  border-left: 2px solid rgba(139, 92, 246, 0.3);
 }
 
 .metric-card::after {
   content: "";
   position: absolute;
-  inset: auto 1rem 0.6rem;
+  inset: auto 1rem 0.55rem;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.18), transparent);
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.15), transparent);
 }
 
 .field-label {
-  @apply mb-2 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400;
+  @apply mb-1.5 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400;
 }
 
 .field-input {
-  @apply w-full rounded-2xl border border-white/[0.1] bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-violet-400/50 focus:ring-2 focus:ring-violet-400/15;
+  @apply w-full rounded-xl border border-white/[0.1] bg-slate-950/60 px-3.5 py-2.5 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-400/50 focus:ring-2 focus:ring-violet-400/15;
 }
 
 .field-hint {
-  @apply mt-2 text-xs text-slate-500;
+  @apply mt-1.5 text-xs text-slate-500;
 }
 
 .pill-chip {
-  @apply inline-flex items-center rounded-full border border-white/[0.1] bg-white/[0.05] px-3 py-1 text-xs font-medium text-slate-300;
+  @apply inline-flex items-center rounded-full border border-white/[0.09] bg-white/[0.05] px-2.5 py-0.5 text-xs font-medium text-slate-300;
 }
 
 .glow-divider {
   @apply h-px bg-gradient-to-r from-transparent via-violet-400/20 to-transparent;
+}
+
+.shadow-soft {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
 }

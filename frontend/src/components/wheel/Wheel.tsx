@@ -76,27 +76,16 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
   };
 
   const ensureAudioContext = () => {
-    if (typeof window === "undefined") {
-      return null;
-    }
-
+    if (typeof window === "undefined") return null;
     if (!audioContextRef.current) {
       const AudioContextConstructor = window.AudioContext ?? (window as Window & typeof globalThis & {
         webkitAudioContext?: typeof AudioContext;
       }).webkitAudioContext;
-
-      if (!AudioContextConstructor) {
-        return null;
-      }
-
+      if (!AudioContextConstructor) return null;
       audioContextRef.current = new AudioContextConstructor();
     }
-
     const context = audioContextRef.current;
-    if (context.state === "suspended") {
-      void context.resume().catch(() => undefined);
-    }
-
+    if (context.state === "suspended") void context.resume().catch(() => undefined);
     return context;
   };
 
@@ -104,45 +93,34 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
     const tickTime = context.currentTime;
     const gainNode = context.createGain();
     const oscillator = context.createOscillator();
-
     oscillator.type = "triangle";
     oscillator.frequency.setValueAtTime(980 + energy * 420, tickTime);
-
     gainNode.gain.setValueAtTime(0.0001, tickTime);
     gainNode.gain.exponentialRampToValueAtTime(0.08 + energy * 0.05, tickTime + 0.004);
     gainNode.gain.exponentialRampToValueAtTime(0.0001, tickTime + 0.045);
-
     oscillator.connect(gainNode);
     gainNode.connect(context.destination);
-
     oscillator.start(tickTime);
     oscillator.stop(tickTime + 0.05);
   };
 
   const startTickTrack = (spinDurationMs: number, totalRotationDegrees: number) => {
     stopTickTrack();
-
     const context = ensureAudioContext();
-    if (!context) {
-      return;
-    }
-
+    if (!context) return;
     const tickStepDegrees = 28;
     let lastTickAngle = 0;
     let frameId = 0;
     const startedAt = performance.now();
-
     const frame = (now: number) => {
       const elapsed = Math.min(now - startedAt, spinDurationMs);
       const progress = spinDurationMs <= 0 ? 1 : elapsed / spinDurationMs;
       const travelled = totalRotationDegrees * easeOutCubic(progress);
-
       while (travelled - lastTickAngle >= tickStepDegrees) {
         const remaining = 1 - progress;
         playTick(context, Math.max(0.2, remaining));
         lastTickAngle += tickStepDegrees;
       }
-
       if (progress < 1) {
         frameId = window.requestAnimationFrame(frame);
       } else {
@@ -150,20 +128,14 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
         stopTickTrackRef.current = null;
       }
     };
-
     frameId = window.requestAnimationFrame(frame);
     stopTickTrackRef.current = () => window.cancelAnimationFrame(frameId);
   };
 
-  useEffect(() => {
-    rotationRef.current = rotation;
-  }, [rotation]);
+  useEffect(() => { rotationRef.current = rotation; }, [rotation]);
 
   useEffect(() => {
-    if (!lastSpin || handledSpinRef.current === lastSpin.eventId) {
-      return;
-    }
-
+    if (!lastSpin || handledSpinRef.current === lastSpin.eventId) return;
     handledSpinRef.current = lastSpin.eventId;
     const scheduledAt = new Date(lastSpin.scheduledAt).getTime();
     const completedAt = new Date(lastSpin.completedAt).getTime();
@@ -187,9 +159,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
     const countdownInterval = window.setInterval(() => {
       const remaining = Math.max(0, Math.ceil((scheduledAt - Date.now()) / 1000));
       setCountdown(remaining);
-      if (remaining <= 0) {
-        window.clearInterval(countdownInterval);
-      }
+      if (remaining <= 0) window.clearInterval(countdownInterval);
     }, 250);
 
     const spinTimeout = window.setTimeout(() => {
@@ -199,14 +169,9 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
       const currentNormalized = normalizeRotation(current);
       const targetNormalized = normalizeRotation(lastSpin.rotationDegrees);
       let delta = targetNormalized - currentNormalized;
-
-      if (delta <= 0) {
-        delta += 360;
-      }
-
+      if (delta <= 0) delta += 360;
       const extraTurns = Math.max(Math.floor(lastSpin.rotationDegrees / 360), 6);
       const totalRotation = extraTurns * 360 + delta;
-
       startTickTrack(lastSpin.durationMs, totalRotation);
       setRotation(current + totalRotation);
     }, delay);
@@ -239,185 +204,158 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
   const innerRadius = compact ? 84 : 100;
   const labelRadius = compact ? 205 : 250;
   const fontSize = compact
-    ? wheelEntrants.length > 18
-      ? 12
-      : 14
-    : wheelEntrants.length > 24
-      ? 12
-      : wheelEntrants.length > 16
-        ? 14
-        : 16;
+    ? wheelEntrants.length > 18 ? 12 : 14
+    : wheelEntrants.length > 24 ? 12 : wheelEntrants.length > 16 ? 14 : 16;
   const nameLength = compact ? 16 : 20;
   const anglePerSegment = 360 / wheelEntrants.length;
 
   const isSpinActive = countdown !== null || (duration > 0 && !resolvedWinner);
 
+  const svgEl = (
+    <svg
+      viewBox={`0 0 ${size} ${size}`}
+      className="w-full drop-shadow-[0_45px_95px_rgba(0,0,0,0.55)]"
+      style={{
+        transform: `rotate(${rotation}deg)`,
+        transition: duration ? `transform ${duration}ms cubic-bezier(0.12, 0.92, 0.14, 1)` : "none"
+      }}
+    >
+      <defs>
+        <radialGradient id="wheelCore" cx="50%" cy="50%" r="65%">
+          <stop offset="0%" stopColor="#12263f" />
+          <stop offset="65%" stopColor="#09111f" />
+          <stop offset="100%" stopColor="#050816" />
+        </radialGradient>
+        <radialGradient id="wheelHalo" cx="50%" cy="50%" r="65%">
+          <stop offset="0%" stopColor="#7be5ff" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#7be5ff" stopOpacity="0" />
+        </radialGradient>
+        <filter id="segmentGlow">
+          <feDropShadow dx="0" dy="0" stdDeviation="8" floodColor="#ffffff" floodOpacity="0.12" />
+        </filter>
+      </defs>
+
+      <circle cx={center} cy={center} r={outerRadius + 12} fill="url(#wheelHalo)" />
+      <circle cx={center} cy={center} r={outerRadius} fill="#06101e" stroke="rgba(255,255,255,0.16)" strokeWidth="8" />
+      <circle cx={center} cy={center} r={outerRadius - 8} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="12" strokeDasharray="5 14" />
+
+      {Array.from({ length: Math.max(wheelEntrants.length * 2, 28) }).map((_, index, array) => {
+        const angle = (360 / array.length) * index;
+        const start = polarToCartesian(center, center, outerRadius + 2, angle);
+        const end = polarToCartesian(center, center, outerRadius + 16, angle);
+        return (
+          <line key={`tick-${index}`} x1={start.x} y1={start.y} x2={end.x} y2={end.y}
+            stroke="rgba(255,255,255,0.12)" strokeWidth={index % 2 === 0 ? 2.4 : 1.4} />
+        );
+      })}
+
+      {wheelEntrants.map((entrant, index) => {
+        const textAngle = index * anglePerSegment + anglePerSegment / 2;
+        const textPoint = polarToCartesian(center, center, labelRadius, textAngle);
+        return (
+          <g key={entrant.id} filter="url(#segmentGlow)">
+            <path d={describeSegment(index, wheelEntrants.length, segmentRadius, center)}
+              fill={segmentColors[index % segmentColors.length]} stroke="rgba(8,17,33,0.45)" strokeWidth="4" />
+            <line x1={center} y1={center}
+              x2={polarToCartesian(center, center, segmentRadius, index * anglePerSegment).x}
+              y2={polarToCartesian(center, center, segmentRadius, index * anglePerSegment).y}
+              stroke="rgba(255,255,255,0.16)" strokeWidth="1.5" />
+            <text x={textPoint.x} y={textPoint.y} fill="#07111d" fontSize={fontSize} fontWeight="800"
+              letterSpacing="0.02em" textAnchor="middle" dominantBaseline="middle"
+              transform={`rotate(${textAngle + 90} ${textPoint.x} ${textPoint.y})`}>
+              {truncateName(entrant.displayName, nameLength)}
+            </text>
+          </g>
+        );
+      })}
+
+      <circle cx={center} cy={center} r={innerRadius + 18} fill="url(#wheelCore)" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
+      <circle cx={center} cy={center} r={innerRadius} fill="#07101c" stroke="rgba(123,229,255,0.22)" strokeWidth="3" />
+      <text x={center} y={center - 12} textAnchor="middle" fill="#ecfbff" fontSize={compact ? "24" : "28"} fontWeight="800">LIVE DRAW</text>
+      <text x={center} y={center + 18} textAnchor="middle" fill="#7be5ff" fontSize={compact ? "15" : "18"} fontWeight="700">
+        {wheelEntrants.length} names in play
+      </text>
+    </svg>
+  );
+
+  const pointerEl = (
+    <div className="flex flex-col items-center">
+      <div className="h-5 w-20 rounded-full bg-white/10 blur-md" />
+      <div className="relative -mt-1 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-slate-950/90 shadow-[0_20px_40px_rgba(0,0,0,0.45)]">
+        <div className="h-0 w-0 border-l-[18px] border-r-[18px] border-t-[34px] border-l-transparent border-r-transparent border-t-white drop-shadow-[0_12px_24px_rgba(255,255,255,0.35)]" />
+      </div>
+    </div>
+  );
+
+  // Spinning — render as a centered modal box with blurry backdrop
+  if (isSpinActive) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-xl">
+        <div className="relative w-full max-w-[800px] overflow-hidden rounded-[40px] border border-white/[0.1] bg-[linear-gradient(160deg,rgba(10,16,36,0.99),rgba(4,6,16,0.99))] shadow-[0_48px_130px_rgba(0,0,0,0.75),inset_0_1px_0_rgba(255,255,255,0.06)]">
+          <ConfettiCanvas active={celebrating} />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/30 to-transparent" />
+          <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full bg-violet-500/10 blur-[80px]" />
+
+          {/* Pointer arrow inside the box */}
+          <div className="absolute left-1/2 top-4 z-20 -translate-x-1/2">
+            {pointerEl}
+          </div>
+
+          {/* Wheel SVG — padded so the arrow is clear */}
+          <div className="mx-auto max-w-[640px] px-6 pb-2 pt-16">
+            {svgEl}
+          </div>
+
+          {/* Status */}
+          <div className="pb-10 pt-3 text-center">
+            {countdown != null && countdown > 0 ? (
+              <>
+                <p className="font-display text-8xl font-bold tabular-nums text-amber-200 drop-shadow-[0_0_40px_rgba(251,191,36,0.4)]">{countdown}</p>
+                <p className="mt-3 text-sm text-slate-400">Spin begins in a moment</p>
+              </>
+            ) : (
+              <>
+                <p className="text-2xl font-bold text-white">Spinning live</p>
+                <p className="mt-1 text-sm text-slate-400">Winner lands when the wheel stops</p>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Normal inline card
   return (
-    <div className={isSpinActive
-      ? "fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-slate-950/98 p-4 backdrop-blur-sm"
-      : "relative overflow-hidden rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(71,215,255,0.16),_transparent_40%),linear-gradient(180deg,rgba(9,15,29,0.98),rgba(3,5,12,0.94))] p-5 sm:p-7"
-    }>
+    <div className="relative overflow-hidden rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(71,215,255,0.16),_transparent_40%),linear-gradient(180deg,rgba(9,15,29,0.98),rgba(3,5,12,0.94))] p-5 sm:p-7">
       <ConfettiCanvas active={celebrating} />
       <div className="pointer-events-none absolute inset-x-1/2 top-1/2 h-[72%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-300/10 blur-[90px]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_52%,rgba(255,255,255,0.02)_100%)]" />
 
-      <div className={isSpinActive ? "absolute left-1/2 top-2 z-20 -translate-x-1/2 sm:top-6" : "absolute left-1/2 top-2 z-20 -translate-x-1/2 sm:top-4"}>
-        <div className="flex flex-col items-center">
-          <div className="h-5 w-20 rounded-full bg-white/10 blur-md" />
-          <div className="relative -mt-1 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-slate-950/90 shadow-[0_20px_40px_rgba(0,0,0,0.45)]">
-            <div className="h-0 w-0 border-l-[18px] border-r-[18px] border-t-[34px] border-l-transparent border-r-transparent border-t-white drop-shadow-[0_12px_24px_rgba(255,255,255,0.35)]" />
-          </div>
-        </div>
+      <div className="absolute left-1/2 top-2 z-20 -translate-x-1/2 sm:top-4">
+        {pointerEl}
       </div>
 
-      <div className={isSpinActive ? "w-full max-w-[min(86vh,86vw)]" : (compact ? "mx-auto max-w-[680px]" : "mx-auto max-w-[900px]")}>
-        <svg
-          viewBox={`0 0 ${size} ${size}`}
-          className="w-full drop-shadow-[0_45px_95px_rgba(0,0,0,0.55)]"
-          style={{
-            transform: `rotate(${rotation}deg)`,
-            transition: duration ? `transform ${duration}ms cubic-bezier(0.12, 0.92, 0.14, 1)` : "none"
-          }}
-        >
-          <defs>
-            <radialGradient id="wheelCore" cx="50%" cy="50%" r="65%">
-              <stop offset="0%" stopColor="#12263f" />
-              <stop offset="65%" stopColor="#09111f" />
-              <stop offset="100%" stopColor="#050816" />
-            </radialGradient>
-            <radialGradient id="wheelHalo" cx="50%" cy="50%" r="65%">
-              <stop offset="0%" stopColor="#7be5ff" stopOpacity="0.35" />
-              <stop offset="100%" stopColor="#7be5ff" stopOpacity="0" />
-            </radialGradient>
-            <filter id="segmentGlow">
-              <feDropShadow dx="0" dy="0" stdDeviation="8" floodColor="#ffffff" floodOpacity="0.12" />
-            </filter>
-          </defs>
-
-          <circle cx={center} cy={center} r={outerRadius + 12} fill="url(#wheelHalo)" />
-          <circle cx={center} cy={center} r={outerRadius} fill="#06101e" stroke="rgba(255,255,255,0.16)" strokeWidth="8" />
-          <circle
-            cx={center}
-            cy={center}
-            r={outerRadius - 8}
-            fill="none"
-            stroke="rgba(255,255,255,0.08)"
-            strokeWidth="12"
-            strokeDasharray="5 14"
-          />
-
-          {Array.from({ length: Math.max(wheelEntrants.length * 2, 28) }).map((_, index, array) => {
-            const angle = (360 / array.length) * index;
-            const start = polarToCartesian(center, center, outerRadius + 2, angle);
-            const end = polarToCartesian(center, center, outerRadius + 16, angle);
-
-            return (
-              <line
-                key={`tick-${index}`}
-                x1={start.x}
-                y1={start.y}
-                x2={end.x}
-                y2={end.y}
-                stroke="rgba(255,255,255,0.12)"
-                strokeWidth={index % 2 === 0 ? 2.4 : 1.4}
-              />
-            );
-          })}
-
-          {wheelEntrants.map((entrant, index) => {
-            const textAngle = index * anglePerSegment + anglePerSegment / 2;
-            const textPoint = polarToCartesian(center, center, labelRadius, textAngle);
-
-            return (
-              <g key={entrant.id} filter="url(#segmentGlow)">
-                <path
-                  d={describeSegment(index, wheelEntrants.length, segmentRadius, center)}
-                  fill={segmentColors[index % segmentColors.length]}
-                  stroke="rgba(8,17,33,0.45)"
-                  strokeWidth="4"
-                />
-                <line
-                  x1={center}
-                  y1={center}
-                  x2={polarToCartesian(center, center, segmentRadius, index * anglePerSegment).x}
-                  y2={polarToCartesian(center, center, segmentRadius, index * anglePerSegment).y}
-                  stroke="rgba(255,255,255,0.16)"
-                  strokeWidth="1.5"
-                />
-                <text
-                  x={textPoint.x}
-                  y={textPoint.y}
-                  fill="#07111d"
-                  fontSize={fontSize}
-                  fontWeight="800"
-                  letterSpacing="0.02em"
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  transform={`rotate(${textAngle + 90} ${textPoint.x} ${textPoint.y})`}
-                >
-                  {truncateName(entrant.displayName, nameLength)}
-                </text>
-              </g>
-            );
-          })}
-
-          <circle cx={center} cy={center} r={innerRadius + 18} fill="url(#wheelCore)" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
-          <circle cx={center} cy={center} r={innerRadius} fill="#07101c" stroke="rgba(123,229,255,0.22)" strokeWidth="3" />
-          <text x={center} y={center - 12} textAnchor="middle" fill="#ecfbff" fontSize={compact ? "24" : "28"} fontWeight="800">
-            LIVE DRAW
-          </text>
-          <text x={center} y={center + 18} textAnchor="middle" fill="#7be5ff" fontSize={compact ? "15" : "18"} fontWeight="700">
-            {wheelEntrants.length} names in play
-          </text>
-        </svg>
+      <div className={compact ? "mx-auto max-w-[680px]" : "mx-auto max-w-[900px]"}>
+        {svgEl}
       </div>
 
-      {isSpinActive && (
-        <div className="relative z-10 mt-6 text-center">
-          {countdown !== null && countdown > 0 ? (
-            <>
-              <p className="text-7xl font-bold text-amber-200">{countdown}</p>
-              <p className="mt-3 text-lg text-slate-400">Spin begins after the countdown</p>
-            </>
-          ) : (
-            <>
-              <p className="text-3xl font-bold text-white">Spinning live</p>
-              <p className="mt-2 text-base text-slate-400">Hold for the landing moment...</p>
-            </>
-          )}
-        </div>
-      )}
-
-      {!isSpinActive && <div className="mt-5 grid gap-4 lg:grid-cols-[0.78fr_1.22fr]">
+      <div className="mt-5 grid gap-4 lg:grid-cols-[0.78fr_1.22fr]">
         <div className="rounded-[28px] border border-white/10 bg-white/[0.05] px-5 py-4">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-200/70">Wheel status</p>
-          {countdown != null && countdown > 0 ? (
-            <>
-              <p className="mt-3 text-4xl font-bold text-amber-200">{countdown}</p>
-              <p className="mt-2 text-sm text-slate-400">Spin begins after the countdown lands.</p>
-            </>
-          ) : duration > 0 && !resolvedWinner ? (
-            <>
-              <p className="mt-3 text-2xl font-bold text-white">Spinning live</p>
-              <p className="mt-2 text-sm text-slate-400">Hold for the landing moment...</p>
-            </>
-          ) : (
-            <>
-              <p className="mt-3 text-2xl font-bold text-white">{resolvedWinner ? "Winner locked" : "Standing by"}</p>
-              <p className="mt-2 text-sm text-slate-400">
-                {resolvedWinner ? "Celebrate the result or reroll for another pick." : "Open the giveaway and start collecting chat joins."}
-              </p>
-            </>
-          )}
+          <>
+            <p className="mt-3 text-2xl font-bold text-white">{resolvedWinner ? "Winner locked" : "Standing by"}</p>
+            <p className="mt-2 text-sm text-slate-400">
+              {resolvedWinner ? "Celebrate the result or reroll for another pick." : "Open the giveaway and start collecting chat joins."}
+            </p>
+          </>
         </div>
 
-        <div
-          className={`rounded-[28px] border px-5 py-4 ${
-            resolvedWinner
-              ? "border-brand-200/35 bg-[linear-gradient(135deg,rgba(71,215,255,0.18),rgba(255,204,77,0.14),rgba(255,114,94,0.16))] shadow-[0_0_0_1px_rgba(123,229,255,0.08),0_28px_70px_rgba(26,192,245,0.18)]"
-              : "border-white/10 bg-[linear-gradient(135deg,rgba(71,215,255,0.12),rgba(255,204,77,0.08),rgba(255,114,94,0.12))]"
-          }`}
-        >
+        <div className={`rounded-[28px] border px-5 py-4 ${
+          resolvedWinner
+            ? "border-brand-200/35 bg-[linear-gradient(135deg,rgba(71,215,255,0.18),rgba(255,204,77,0.14),rgba(255,114,94,0.16))] shadow-[0_0_0_1px_rgba(123,229,255,0.08),0_28px_70px_rgba(26,192,245,0.18)]"
+            : "border-white/10 bg-[linear-gradient(135deg,rgba(71,215,255,0.12),rgba(255,204,77,0.08),rgba(255,114,94,0.12))]"
+        }`}>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-50/80">
             {resolvedWinner ? "Winner confirmed" : "Winner spotlight"}
           </p>
@@ -426,11 +364,11 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
           </p>
           <p className="mt-3 max-w-2xl text-sm text-slate-200/90">
             {resolvedWinner
-              ? "Locked in. Trigger confetti, call it on stream, or reroll if you need another winner."
-              : "The wheel stays oversized on purpose so it reads cleanly in-browser, on stream, and in the OBS overlay."}
+              ? "Locked in. Call it on stream, or reroll if you need another winner."
+              : "Open the giveaway and collect chat joins to populate the wheel."}
           </p>
         </div>
-      </div>}
+      </div>
     </div>
   );
 }
