@@ -14,6 +14,7 @@ interface WheelProps {
   compact?: boolean;
   onSpin?: () => void;
   spinDisabled?: boolean;
+  overlayMode?: boolean;
 }
 
 const segmentColors = [
@@ -61,7 +62,7 @@ function easeOutCubic(value: number) {
   return 1 - (1 - value) ** 3;
 }
 
-export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin, spinDisabled = false }: WheelProps) {
+export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin, spinDisabled = false, overlayMode = false }: WheelProps) {
   const [rotation, setRotation] = useState(0);
   const [duration, setDuration] = useState(0);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -323,6 +324,35 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
             )}
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // Overlay mode — just wheel, transparent background
+  if (overlayMode) {
+    return (
+      <div className="relative">
+        <ConfettiCanvas active={celebrating} />
+
+        {/* Pointer arrow */}
+        <div className="absolute left-1/2 top-2 z-20 -translate-x-1/2">
+          {pointerEl}
+        </div>
+
+        {/* Wheel SVG */}
+        <div className="mx-auto max-w-[900px]">
+          {svgEl}
+        </div>
+
+        {/* Winner popup when spin completes */}
+        {resolvedWinner && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="animate-in zoom-in duration-500 rounded-full bg-slate-950/95 px-10 py-8 text-center shadow-[0_32px_90px_rgba(0,0,0,0.9)] backdrop-blur-md border-2 border-violet-400/40">
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-violet-300">Winner</p>
+              <p className="mt-3 font-display text-6xl font-bold text-white">{resolvedWinner}</p>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

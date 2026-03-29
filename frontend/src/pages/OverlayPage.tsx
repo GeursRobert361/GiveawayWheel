@@ -121,23 +121,13 @@ export function OverlayPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-transparent p-8">
-      <div className="relative w-full max-w-[900px]">
-        <Wheel
-          entrants={entrants}
-          lastSpin={snapshot.lastSpin}
-          winnerLabel={winnerName}
-        />
-
-        {winnerName && !spinActive && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="rounded-full bg-slate-950/95 px-8 py-6 text-center shadow-[0_32px_90px_rgba(0,0,0,0.8)] backdrop-blur-md border border-violet-400/30">
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-violet-300">Winner</p>
-              <p className="mt-2 font-display text-5xl font-bold text-white">{winnerName}</p>
-            </div>
-          </div>
-        )}
-      </div>
+    <div className="flex min-h-screen items-center justify-center p-8">
+      <Wheel
+        entrants={entrants}
+        lastSpin={snapshot.lastSpin}
+        winnerLabel={winnerName}
+        overlayMode
+      />
     </div>
   );
 }
