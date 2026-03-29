@@ -267,7 +267,7 @@ export function SettingsPage() {
         title="Role multipliers"
         description="These weights directly shape the chance preview on the dashboard and the final winner selection."
       >
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-2">
           {(
             [
               ["viewerWeight", "Viewer"],
@@ -279,12 +279,15 @@ export function SettingsPage() {
             ] as const
           ).map(([key, label]) => (
             <div key={key}>
-              <label className="field-label">{label}</label>
+              <div className="flex items-center justify-between">
+                <label className="field-label">{label}</label>
+                <span className="text-sm font-bold text-violet-300">{form.weights[key].toFixed(2)}×</span>
+              </div>
               <input
-                className="field-input"
-                type="number"
+                type="range"
+                min="0"
+                max="10"
                 step="0.25"
-                min={0}
                 value={form.weights[key]}
                 onChange={(event) =>
                   setForm((current) =>
@@ -299,6 +302,7 @@ export function SettingsPage() {
                       : current
                   )
                 }
+                className="mt-2 h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-800 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-violet-500 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-violet-500"
               />
             </div>
           ))}
