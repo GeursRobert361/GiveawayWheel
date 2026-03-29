@@ -243,8 +243,14 @@ export function DashboardPage() {
   const [setupForm, setSetupForm] = useState<SetupFormState | null>(null);
   const [winnerPopupName, setWinnerPopupName] = useState<string | null>(null);
   const [expandedEntrantId, setExpandedEntrantId] = useState<string | null>(null);
+  const [dismissKey, setDismissKey] = useState(0);
   const bootstrappedSpinRef = useRef(false);
   const handledWinnerPopupRef = useRef<string | null>(null);
+
+  const handleDismissWinner = () => {
+    handleDismissWinner();
+    setDismissKey((k) => k + 1);
+  };
 
   const eligibleEntrants = useMemo(() => getEligibleEntrants(snapshot), [snapshot]);
   const giveaway = snapshot?.giveaway;
@@ -269,7 +275,7 @@ export function DashboardPage() {
       if (completedAt <= Date.now()) { handledWinnerPopupRef.current = spin.eventId; return; }
     }
     if (handledWinnerPopupRef.current === spin.eventId) return;
-    setWinnerPopupName(null);
+    handleDismissWinner();
     handledWinnerPopupRef.current = spin.eventId;
     const timer = window.setTimeout(
       () => setWinnerPopupName(spin.winnerDisplayName),
@@ -280,7 +286,7 @@ export function DashboardPage() {
 
   useEffect(() => {
     if (!winnerPopupName) return;
-    const handleKeyDown = (e: KeyboardEvent) => { if (e.key === "Escape") setWinnerPopupName(null); };
+    const handleKeyDown = (e: KeyboardEvent) => { if (e.key === "Escape") handleDismissWinner(); };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [winnerPopupName]);
@@ -374,6 +380,8 @@ export function DashboardPage() {
           winnerLabel={spinActive ? null : giveaway.winners[0]?.displayName ?? null}
           onSpin={() => runAction("spin", () => apiPost("/api/giveaway/spin"))}
           spinDisabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
+          onWinnerDismiss={() => handleDismissWinner()}
+          dismissKey={dismissKey}
         />
 
         {/* Side panel */}
@@ -670,7 +678,7 @@ export function DashboardPage() {
       {/* Winner popup */}
       {winnerPopupName ? (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/88 p-4 backdrop-blur-md"
-          onClick={() => setWinnerPopupName(null)}>
+          onClick={() => handleDismissWinner()}>
           <div className="relative w-full max-w-3xl overflow-hidden rounded-[40px] border border-violet-400/25 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,0.28),transparent_48%),linear-gradient(160deg,rgba(11,16,34,0.99),rgba(6,8,18,0.99))] px-8 py-10 text-center shadow-[0_48px_130px_rgba(0,0,0,0.65)]"
             onClick={(e) => e.stopPropagation()}>
             <div className="pointer-events-none absolute inset-x-1/2 top-0 h-48 w-48 -translate-x-1/2 rounded-full bg-violet-500/20 blur-[90px]" />
@@ -685,7 +693,7 @@ export function DashboardPage() {
               Call it out on stream, then use Secondary actions if you need a reroll.
             </p>
             <div className="mt-8 flex justify-center">
-              <Button onClick={() => setWinnerPopupName(null)}>Dismiss</Button>
+              <Button onClick={() => handleDismissWinner()}>Dismiss</Button>
             </div>
           </div>
         </div>

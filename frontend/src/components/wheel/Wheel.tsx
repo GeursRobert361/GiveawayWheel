@@ -15,6 +15,8 @@ interface WheelProps {
   onSpin?: () => void;
   spinDisabled?: boolean;
   overlayMode?: boolean;
+  onWinnerDismiss?: () => void;
+  dismissKey?: number;
 }
 
 const segmentColors = [
@@ -62,12 +64,13 @@ function easeOutCubic(value: number) {
   return 1 - (1 - value) ** 3;
 }
 
-export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin, spinDisabled = false, overlayMode = false }: WheelProps) {
+export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin, spinDisabled = false, overlayMode = false, onWinnerDismiss, dismissKey }: WheelProps) {
   const [rotation, setRotation] = useState(0);
   const [duration, setDuration] = useState(0);
   const [countdown, setCountdown] = useState<number | null>(null);
   const [celebrating, setCelebrating] = useState(false);
   const [resolvedWinner, setResolvedWinner] = useState<string | null>(winnerLabel ?? null);
+  const [idleRotation, setIdleRotation] = useState(0);
   const handledSpinRef = useRef<string | null>(null);
   const rotationRef = useRef(0);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -203,6 +206,48 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
   useEffect(() => () => stopTickTrack(), []);
 
+  // Idle spin animation - slow continuous rotation when not actively spinning
+  useEffect(() => {
+    const isSpinning = countdown !== null || duration > 0;
+    if (isSpinning) return;
+
+    const startTime = Date.now();
+    const idleSpinSpeed = 0.015; // degrees per millisecond (very slow)
+
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      setIdleRotation(elapsed * idleSpinSpeed);
+      frameId = requestAnimationFrame(animate);
+    };
+
+    let frameId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frameId);
+  }, [countdown, duration]);
+
+  // Handle winner dismissal callback
+  useEffect(() => {
+    if (!resolvedWinner || !onWinnerDismiss) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setCelebrating(false);
+        setResolvedWinner(null);
+        onWinnerDismiss();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [resolvedWinner, onWinnerDismiss]);
+
+  // Watch for dismiss trigger from parent
+  useEffect(() => {
+    if (dismissKey && dismissKey > 0) {
+      setCelebrating(false);
+      setResolvedWinner(null);
+    }
+  }, [dismissKey]);
+
   const wheelEntrants = useMemo(
     () => (entrants.length > 0 ? entrants : [{ id: "empty", displayName: "Waiting for entrants" }]),
     [entrants]
@@ -221,13 +266,14 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
   const anglePerSegment = 360 / wheelEntrants.length;
 
   const isSpinActive = !celebrating && (countdown !== null || duration > 0);
+  const totalRotation = rotation + (isSpinActive ? 0 : idleRotation);
 
   const svgEl = (
     <svg
       viewBox={`0 0 ${size} ${size}`}
       className="w-full drop-shadow-[0_45px_95px_rgba(0,0,0,0.55)]"
       style={{
-        transform: `rotate(${rotation}deg)`,
+        transform: `rotate(${totalRotation}deg)`,
         transition: duration ? `transform ${duration}ms cubic-bezier(0.12, 0.92, 0.14, 1)` : "none"
       }}
     >
@@ -317,9 +363,11 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
         {/* Winner popup when spin completes (only show when celebrating) */}
         {resolvedWinner && celebrating && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="animate-in zoom-in duration-500 rounded-full bg-slate-950/95 px-12 py-10 text-center shadow-[0_32px_90px_rgba(0,0,0,0.9)] backdrop-blur-md border-2 border-violet-400/40">
-              <p className="text-base font-semibold uppercase tracking-[0.3em] text-violet-300">Winner</p>
-              <p className="mt-4 font-display text-7xl font-bold text-white">{resolvedWinner}</p>
+            <div className="animate-in zoom-in duration-500 flex h-full w-full items-center justify-center rounded-full bg-slate-950/95 text-center shadow-[0_32px_90px_rgba(0,0,0,0.9)] backdrop-blur-md border-4 border-violet-400/40">
+              <div>
+                <p className="text-2xl font-semibold uppercase tracking-[0.4em] text-violet-300">Winner</p>
+                <p className="mt-6 font-display text-9xl font-bold text-white break-words px-8">{resolvedWinner}</p>
+              </div>
             </div>
           </div>
         )}
