@@ -27,11 +27,12 @@ export default {
         }
       },
       boxShadow: {
-        soft: "0 24px 80px rgba(0, 0, 0, 0.35)"
+        soft: "0 24px 80px rgba(0, 0, 0, 0.4)",
+        "soft-lg": "0 32px 100px rgba(0, 0, 0, 0.5)"
       },
       fontFamily: {
-        sans: ["Segoe UI", "system-ui", "sans-serif"],
-        display: ["Trebuchet MS", "Segoe UI", "sans-serif"]
+        sans: ["Inter", "system-ui", "sans-serif"],
+        display: ["'Plus Jakarta Sans'", "Inter", "sans-serif"]
       }
     }
   },

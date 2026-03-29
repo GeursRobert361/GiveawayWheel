@@ -66,10 +66,10 @@ function Toggle({
   description: string;
 }) {
   return (
-    <label className="flex items-start gap-3 rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4">
+    <label className="flex cursor-pointer items-start gap-3 rounded-[22px] border border-white/[0.08] bg-white/[0.04] px-4 py-4 transition hover:border-violet-400/20 hover:bg-white/[0.06]">
       <input
         type="checkbox"
-        className="mt-1 h-4 w-4 rounded border-white/20 bg-slate-950"
+        className="mt-1 h-4 w-4 accent-violet-500"
         checked={checked}
         onChange={(event) => onChange(event.target.checked)}
       />
@@ -335,7 +335,7 @@ export function SettingsPage() {
             form.overrides.map((override, index) => (
               <div
                 key={`${override.username}-${index}`}
-                className="grid gap-3 rounded-[26px] border border-white/10 bg-white/[0.04] p-4 md:grid-cols-[1.1fr_0.8fr_1fr_auto]"
+                className="grid gap-3 rounded-[24px] border border-white/[0.08] bg-white/[0.04] p-4 md:grid-cols-[1.1fr_0.8fr_1fr_auto]"
               >
                 <input
                   className="field-input"
@@ -374,9 +374,10 @@ export function SettingsPage() {
                     )
                   }
                 />
-                <label className="flex items-center gap-3 rounded-2xl border border-white/10 px-4 py-3 text-sm">
+                <label className="flex items-center gap-3 rounded-2xl border border-white/[0.08] px-4 py-3 text-sm transition hover:border-violet-400/20">
                   <input
                     type="checkbox"
+                    className="accent-violet-500"
                     checked={override.isBlocked}
                     onChange={(event) =>
                       setForm((current) =>

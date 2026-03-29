@@ -9,8 +9,10 @@
 html {
   min-height: 100%;
   background:
-    radial-gradient(circle at top, rgba(26, 192, 245, 0.14), transparent 24%),
-    radial-gradient(circle at 18% 18%, rgba(255, 114, 94, 0.1), transparent 18%),
+    radial-gradient(ellipse at top left, rgba(109, 40, 217, 0.22), transparent 38%),
+    radial-gradient(ellipse at top right, rgba(26, 192, 245, 0.11), transparent 30%),
+    radial-gradient(circle at 80% 75%, rgba(124, 58, 237, 0.08), transparent 22%),
+    radial-gradient(circle at 18% 18%, rgba(255, 114, 94, 0.07), transparent 16%),
     linear-gradient(180deg, #060916 0%, #03050c 100%);
 }
 
@@ -23,16 +25,20 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(10, 15, 35, 0.5);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.32);
+  background: rgba(139, 92, 246, 0.25);
   border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(139, 92, 246, 0.4);
 }
 
 .panel-grid {
@@ -40,7 +46,7 @@ body {
 }
 
 .section-kicker {
-  @apply text-xs font-semibold uppercase tracking-[0.24em] text-brand-200/70;
+  @apply text-xs font-semibold uppercase tracking-[0.26em] text-violet-300/65;
 }
 
 .page-title {
@@ -52,15 +58,16 @@ body {
 }
 
 .metric-card {
-  @apply relative overflow-hidden rounded-[26px] border border-white/10 bg-white/[0.04] px-4 py-4;
+  @apply relative overflow-hidden rounded-[22px] border border-white/[0.08] bg-white/[0.04] px-4 py-4;
+  border-left: 2px solid rgba(139, 92, 246, 0.35);
 }
 
 .metric-card::after {
   content: "";
   position: absolute;
-  inset: auto 1rem 0.65rem;
+  inset: auto 1rem 0.6rem;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.18), transparent);
 }
 
 .field-label {
@@ -68,7 +75,7 @@ body {
 }
 
 .field-input {
-  @apply w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-brand-300 focus:ring-2 focus:ring-brand-300/20;
+  @apply w-full rounded-2xl border border-white/[0.1] bg-slate-950/60 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-violet-400/50 focus:ring-2 focus:ring-violet-400/15;
 }
 
 .field-hint {
@@ -76,9 +83,9 @@ body {
 }
 
 .pill-chip {
-  @apply inline-flex items-center rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-medium text-slate-200;
+  @apply inline-flex items-center rounded-full border border-white/[0.1] bg-white/[0.05] px-3 py-1 text-xs font-medium text-slate-300;
 }
 
 .glow-divider {
-  @apply h-px bg-gradient-to-r from-transparent via-white/20 to-transparent;
+  @apply h-px bg-gradient-to-r from-transparent via-violet-400/20 to-transparent;
 }

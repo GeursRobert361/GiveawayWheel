@@ -54,8 +54,8 @@ function buildSetupForm(giveaway: GiveawaySnapshot): SetupFormState {
 
 function SummaryCard({ label, value, detail }: { label: string; value: string | number; detail: string }) {
   return (
-    <div className="rounded-[26px] border border-white/10 bg-white/[0.05] px-5 py-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">{label}</p>
+    <div className="metric-card">
+      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">{label}</p>
       <p className="mt-3 text-3xl font-bold text-white">{value}</p>
       <p className="mt-2 text-sm text-slate-400">{detail}</p>
     </div>
@@ -74,8 +74,8 @@ function SetupToggle({
   description: string;
 }) {
   return (
-    <label className="flex items-start gap-3 rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4">
-      <input type="checkbox" className="mt-1 h-4 w-4" checked={checked} onChange={(event) => onChange(event.target.checked)} />
+    <label className="flex cursor-pointer items-start gap-3 rounded-[22px] border border-white/[0.08] bg-white/[0.04] px-4 py-4 transition hover:border-violet-400/20 hover:bg-white/[0.06]">
+      <input type="checkbox" className="mt-1 h-4 w-4 accent-violet-500" checked={checked} onChange={(event) => onChange(event.target.checked)} />
       <span>
         <span className="block font-semibold text-white">{label}</span>
         <span className="mt-1 block text-sm text-slate-400">{description}</span>
@@ -111,10 +111,10 @@ function RoleTags({ entrant }: { entrant: WeightedEntrantView }) {
 function ActivityCard({ entry }: { entry: AuditLogView }) {
   const tone =
     entry.action.includes("rejected")
-      ? "border-amber-400/20 bg-amber-500/10"
+      ? "border-amber-400/20 bg-amber-500/[0.08]"
       : entry.action.includes("spin") || entry.action.includes("reroll")
-        ? "border-brand-300/20 bg-brand-300/10"
-        : "border-white/10 bg-white/[0.05]";
+        ? "border-violet-400/20 bg-violet-500/[0.08]"
+        : "border-white/[0.08] bg-white/[0.04]";
 
   return (
     <div className={cn("rounded-[24px] border px-4 py-3 text-sm", tone)}>
@@ -338,8 +338,8 @@ export function DashboardPage() {
               </div>
 
               <div className="grid gap-3 lg:grid-cols-2">
-                <div className="rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Next move</p>
+                <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.04] px-4 py-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Next move</p>
                   <p className="mt-3 text-lg font-semibold text-white">
                     {spinActive
                       ? "Spin reveal is running"
@@ -354,14 +354,14 @@ export function DashboardPage() {
                   </p>
                 </div>
 
-                <div className="rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Quick check</p>
+                <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.04] px-4 py-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Quick check</p>
                   <p className="mt-3 text-sm text-slate-300">
                     {giveaway.entryCommand} only works while entry is open. If you test from the broadcaster account,
                     turn off Exclude Broadcaster in Settings or use a viewer account.
                   </p>
                   {latestJoinRejection ? (
-                    <div className="mt-3 rounded-[18px] border border-amber-400/20 bg-amber-500/10 px-3 py-3 text-sm text-amber-50">
+                    <div className="mt-3 rounded-[18px] border border-amber-400/20 bg-amber-500/[0.08] px-3 py-3 text-sm text-amber-200">
                       {latestJoinRejection.message}
                     </div>
                   ) : null}
@@ -400,7 +400,7 @@ export function DashboardPage() {
                   </Button>
                 </div>
 
-                <div className="rounded-[24px] border border-white/10 bg-white/[0.04] px-4 py-4">
+                <div className="rounded-[22px] border border-white/[0.08] bg-white/[0.04] px-4 py-4">
                   <label className="field-label">Manual add</label>
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <input
@@ -424,7 +424,7 @@ export function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="rounded-[24px] border border-white/10 bg-slate-950/45 px-4 py-4 text-sm text-slate-300">
+                <div className="rounded-[22px] border border-white/[0.08] bg-slate-950/40 px-4 py-4 text-sm text-slate-300">
                   <p className="font-semibold text-white">Overlay URL</p>
                   <p className="mt-2 break-all text-slate-400">{snapshot.overlayUrl ?? "Overlay URL unavailable"}</p>
                 </div>
@@ -451,7 +451,7 @@ export function DashboardPage() {
           </div>
           <div className="max-h-[34rem] space-y-3 overflow-auto pr-1">
             {giveaway.entrants.length === 0 ? <p className="text-sm text-slate-400">No entrants yet.</p> : giveaway.entrants.map((entrant) => (
-              <div key={entrant.id} className={cn("rounded-[26px] border px-4 py-4", entrant.isEligible ? "border-white/10 bg-white/[0.05]" : "border-amber-400/20 bg-amber-500/10")}>
+              <div key={entrant.id} className={cn("rounded-[24px] border px-4 py-4", entrant.isEligible ? "border-white/[0.08] bg-white/[0.04]" : "border-amber-400/20 bg-amber-500/[0.07]")}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-white">{entrant.displayName}</p>
@@ -473,7 +473,7 @@ export function DashboardPage() {
                   </div>
                 </div>
                 {expandedEntrantId === entrant.id ? (
-                  <div className="mt-4 rounded-[22px] border border-white/10 bg-slate-950/45 px-4 py-4">
+                  <div className="mt-4 rounded-[20px] border border-white/[0.08] bg-slate-950/40 px-4 py-4">
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Entrant actions</p>
                     <div className="mt-3 flex flex-wrap gap-2">
                       {entrant.entryCount > 1 ? (
@@ -516,15 +516,15 @@ export function DashboardPage() {
             <h3 className="mt-2 text-xl font-bold text-white">Recent picks</h3>
           </div>
           <div className="space-y-3">
-            {spinActive ? <div className="rounded-[24px] border border-brand-300/20 bg-brand-300/10 px-4 py-4 text-sm text-slate-200">Winner reveal in progress. The newest winner lands here when the wheel stops.</div> : null}
+            {spinActive ? <div className="rounded-[22px] border border-violet-400/20 bg-violet-500/[0.08] px-4 py-4 text-sm text-violet-200">Winner reveal in progress. The newest winner lands here when the wheel stops.</div> : null}
             {visibleWinners.length === 0 ? <p className="text-sm text-slate-400">No winners recorded yet.</p> : visibleWinners.map((winner) => (
-              <div key={winner.id} className="rounded-[24px] border border-white/10 bg-white/[0.05] px-4 py-4">
+              <div key={winner.id} className="rounded-[22px] border border-white/[0.08] bg-white/[0.04] px-4 py-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-white">{winner.displayName}</p>
                     <p className="mt-1 text-sm text-slate-400">{winner.source} / {formatRelativeTime(winner.createdAt)}</p>
                   </div>
-                  <div className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-sm font-semibold text-brand-100">{winner.selectedWeight.toFixed(2)} weight</div>
+                  <div className="rounded-full border border-violet-400/20 bg-violet-500/[0.08] px-3 py-1 text-sm font-semibold text-violet-200">{winner.selectedWeight.toFixed(2)}×</div>
                 </div>
               </div>
             ))}
@@ -543,8 +543,9 @@ export function DashboardPage() {
       </div>
 
       {showSetupModal && setupForm ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-4xl rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(13,20,37,0.98),rgba(4,7,17,0.98))] p-6 shadow-[0_30px_100px_rgba(0,0,0,0.5)]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-4xl overflow-hidden rounded-[34px] border border-violet-400/15 bg-[linear-gradient(160deg,rgba(15,22,42,0.99),rgba(5,8,18,0.99))] p-6 shadow-[0_32px_100px_rgba(0,0,0,0.55)]">
+            <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/35 to-transparent" />
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="section-kicker">Quick setup</p>
@@ -580,15 +581,15 @@ export function DashboardPage() {
 
       {winnerPopupName ? (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/82 p-4 backdrop-blur-md"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/88 p-4 backdrop-blur-md"
           onClick={() => setWinnerPopupName(null)}
         >
           <div
-            className="relative w-full max-w-3xl overflow-hidden rounded-[40px] border border-brand-200/30 bg-[radial-gradient(circle_at_top,rgba(123,229,255,0.3),transparent_42%),linear-gradient(160deg,rgba(9,16,31,0.98),rgba(7,9,19,0.98))] px-8 py-10 text-center shadow-[0_45px_120px_rgba(0,0,0,0.6)]"
+            className="relative w-full max-w-3xl overflow-hidden rounded-[40px] border border-violet-400/25 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,0.28),transparent_48%),linear-gradient(160deg,rgba(11,16,34,0.99),rgba(6,8,18,0.99))] px-8 py-10 text-center shadow-[0_48px_130px_rgba(0,0,0,0.65),0_0_0_1px_rgba(139,92,246,0.1)]"
             onClick={(event) => event.stopPropagation()}
           >
-            <div className="pointer-events-none absolute inset-x-1/2 top-0 h-44 w-44 -translate-x-1/2 rounded-full bg-brand-300/20 blur-[100px]" />
-            <div className="pointer-events-none absolute inset-x-12 bottom-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-1/2 top-0 h-48 w-48 -translate-x-1/2 rounded-full bg-violet-500/20 blur-[90px]" />
+            <div className="pointer-events-none absolute inset-x-10 bottom-0 h-px bg-gradient-to-r from-transparent via-violet-400/35 to-transparent" />
 
             <p className="section-kicker">Winner locked in</p>
             <h3 className="mt-4 text-2xl font-semibold text-slate-200">The wheel landed on</h3>
