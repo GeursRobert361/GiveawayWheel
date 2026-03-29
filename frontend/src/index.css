@@ -15,6 +15,10 @@ html {
     linear-gradient(180deg, #060916 0%, #030509 100%);
 }
 
+html.overlay-mode {
+  background: transparent;
+}
+
 body {
   @apply min-h-screen bg-transparent font-sans text-slate-100 antialiased;
 }

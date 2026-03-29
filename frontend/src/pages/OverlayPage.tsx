@@ -30,6 +30,13 @@ export function OverlayPage() {
   const handledWinnerRef = useRef<string | null>(null);
 
   useEffect(() => {
+    document.documentElement.classList.add("overlay-mode");
+    return () => {
+      document.documentElement.classList.remove("overlay-mode");
+    };
+  }, []);
+
+  useEffect(() => {
     if (!overlayKey) return;
     let active = true;
     let socket: WebSocket | null = null;
