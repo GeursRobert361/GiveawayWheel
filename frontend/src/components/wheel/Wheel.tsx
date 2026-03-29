@@ -170,6 +170,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
     const spinTimeout = window.setTimeout(() => {
       setCountdown(null);
+      setIdleRotation(0); // Reset idle rotation when spin starts
       setDuration(lastSpin.durationMs);
       const current = rotationRef.current;
       const currentNormalized = normalizeRotation(current);
@@ -376,44 +377,6 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
     );
   }
 
-  // Spinning — render as a centered modal box with blurry backdrop
-  if (isSpinActive) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-xl">
-        <div className="relative w-full max-w-[800px] overflow-hidden rounded-[40px] border border-white/[0.1] bg-[linear-gradient(160deg,rgba(10,16,36,0.99),rgba(4,6,16,0.99))] shadow-[0_48px_130px_rgba(0,0,0,0.75),inset_0_1px_0_rgba(255,255,255,0.06)]">
-          <ConfettiCanvas active={celebrating} />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/30 to-transparent" />
-          <div className="pointer-events-none absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full bg-violet-500/10 blur-[80px]" />
-
-          {/* Pointer arrow inside the box */}
-          <div className="absolute left-1/2 top-4 z-20 -translate-x-1/2">
-            {pointerEl}
-          </div>
-
-          {/* Wheel SVG — padded so the arrow is clear */}
-          <div className="mx-auto max-w-[640px] px-6 pb-2 pt-16">
-            {svgEl}
-          </div>
-
-          {/* Status */}
-          <div className="pb-10 pt-3 text-center">
-            {countdown != null && countdown > 0 ? (
-              <>
-                <p className="font-display text-8xl font-bold tabular-nums text-amber-200 drop-shadow-[0_0_40px_rgba(251,191,36,0.4)]">{countdown}</p>
-                <p className="mt-3 text-sm text-slate-400">Spin begins in a moment</p>
-              </>
-            ) : (
-              <>
-                <p className="text-2xl font-bold text-white">Spinning live</p>
-                <p className="mt-1 text-sm text-slate-400">Winner lands when the wheel stops</p>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Normal inline card
   return (
     <div className="relative overflow-hidden rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(71,215,255,0.16),_transparent_40%),linear-gradient(180deg,rgba(9,15,29,0.98),rgba(3,5,12,0.94))] p-5 sm:p-7">
@@ -429,8 +392,18 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
         <div className="relative">
           {svgEl}
 
+          {/* Countdown overlay */}
+          {countdown != null && countdown > 0 && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div className="text-center">
+                <p className="font-display text-8xl font-bold tabular-nums text-amber-200 drop-shadow-[0_0_40px_rgba(251,191,36,0.6)]">{countdown}</p>
+                <p className="mt-2 text-sm text-slate-300">Spin starting...</p>
+              </div>
+            </div>
+          )}
+
           {/* Spin button overlay in center */}
-          {onSpin && !resolvedWinner && (
+          {onSpin && !resolvedWinner && !isSpinActive && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <button
                 type="button"
