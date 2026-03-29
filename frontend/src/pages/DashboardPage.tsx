@@ -447,9 +447,11 @@ export function DashboardPage() {
                 {snapshot.overlayUrl ?? "Overlay URL unavailable"}
               </div>
 
-              <div className="grid gap-2 sm:grid-cols-3">
+              <div className="grid gap-2 sm:grid-cols-4">
                 <Button variant="secondary" disabled={!snapshot.overlayUrl}
                   onClick={() => snapshot.overlayUrl && copyToClipboard(snapshot.overlayUrl)}>Copy overlay URL</Button>
+                <Button variant="secondary" disabled={!snapshot.overlayUrl}
+                  onClick={() => snapshot.overlayUrl && window.open(snapshot.overlayUrl, "GiveawayOverlay", "width=1920,height=1080")}>Show overlay</Button>
                 <Button variant="secondary" onClick={() => apiDownload("/api/entrants/export")}>Export entrants</Button>
                 <Button variant="secondary" onClick={() => apiDownload("/api/history/export")}>Export winners</Button>
               </div>

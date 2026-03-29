@@ -108,31 +108,20 @@ export function OverlayPage() {
     () => snapshot?.entrants.map((entrant) => ({ id: entrant.id, displayName: entrant.displayName })) ?? [],
     [snapshot?.entrants]
   );
-  const spinActive = isSpinInProgress(snapshot?.lastSpin);
-  const winnerName = spinActive ? null : snapshot?.winners[0]?.displayName ?? null;
 
   if (error) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="rounded-3xl border border-rose-500/30 bg-rose-500/10 px-6 py-4 text-sm text-white">{error}</div>
-      </div>
-    );
+    return null;
   }
 
   if (!snapshot) {
-    return (
-      <div className="flex min-h-screen items-center justify-center">
-        <div className="rounded-3xl border border-white/10 bg-slate-900/80 px-6 py-4 text-sm text-white">Loading overlay...</div>
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center p-8">
+    <div className="flex min-h-screen items-center justify-center">
       <Wheel
         entrants={entrants}
         lastSpin={snapshot.lastSpin}
-        winnerLabel={winnerName}
         overlayMode
       />
     </div>

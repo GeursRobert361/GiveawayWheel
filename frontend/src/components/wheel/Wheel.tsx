@@ -331,25 +331,25 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
   // Overlay mode — just wheel, transparent background
   if (overlayMode) {
     return (
-      <div className="relative">
+      <div className="relative w-full">
         <ConfettiCanvas active={celebrating} />
 
         {/* Pointer arrow */}
-        <div className="absolute left-1/2 top-2 z-20 -translate-x-1/2">
+        <div className="absolute left-1/2 top-4 z-20 -translate-x-1/2">
           {pointerEl}
         </div>
 
-        {/* Wheel SVG */}
-        <div className="mx-auto max-w-[900px]">
+        {/* Wheel SVG - full width */}
+        <div className="w-full">
           {svgEl}
         </div>
 
         {/* Winner popup when spin completes (only show when celebrating) */}
         {resolvedWinner && celebrating && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="animate-in zoom-in duration-500 rounded-full bg-slate-950/95 px-10 py-8 text-center shadow-[0_32px_90px_rgba(0,0,0,0.9)] backdrop-blur-md border-2 border-violet-400/40">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-violet-300">Winner</p>
-              <p className="mt-3 font-display text-6xl font-bold text-white">{resolvedWinner}</p>
+            <div className="animate-in zoom-in duration-500 rounded-full bg-slate-950/95 px-12 py-10 text-center shadow-[0_32px_90px_rgba(0,0,0,0.9)] backdrop-blur-md border-2 border-violet-400/40">
+              <p className="text-base font-semibold uppercase tracking-[0.3em] text-violet-300">Winner</p>
+              <p className="mt-4 font-display text-7xl font-bold text-white">{resolvedWinner}</p>
             </div>
           </div>
         )}
