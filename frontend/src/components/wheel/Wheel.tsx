@@ -209,7 +209,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false }: Whee
   const nameLength = compact ? 16 : 20;
   const anglePerSegment = 360 / wheelEntrants.length;
 
-  const isSpinActive = countdown !== null || (duration > 0 && !resolvedWinner);
+  const isSpinActive = !celebrating && (countdown !== null || duration > 0);
 
   const svgEl = (
     <svg
