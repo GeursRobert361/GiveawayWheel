@@ -83,6 +83,135 @@ function Toggle({
   );
 }
 
+function NumberStepper({ label, value, onChange, min, max }: {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+  min: number;
+  max: number;
+}) {
+  return (
+    <div>
+      <label className="field-label">{label}</label>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1] disabled:opacity-40"
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+        >
+          −
+        </button>
+        <input
+          type="number"
+          className="field-input w-20 text-center"
+          value={value}
+          onChange={(e) => onChange(Math.max(min, Math.min(max, Number(e.target.value) || min)))}
+          min={min}
+          max={max}
+        />
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1] disabled:opacity-40"
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value >= max}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
+type TimeUnit = "hours" | "days" | "months" | "years";
+
+function TimeStepper({ label, days, onChange }: {
+  label: string;
+  days: number;
+  onChange: (days: number) => void;
+}) {
+  const [unit, setUnit] = useState<TimeUnit>("days");
+  const [displayValue, setDisplayValue] = useState(days);
+
+  // Convert days to display value based on unit
+  useEffect(() => {
+    switch (unit) {
+      case "hours":
+        setDisplayValue(Math.round(days * 24));
+        break;
+      case "days":
+        setDisplayValue(days);
+        break;
+      case "months":
+        setDisplayValue(Math.round(days / 30));
+        break;
+      case "years":
+        setDisplayValue(Math.round(days / 365));
+        break;
+    }
+  }, [days, unit]);
+
+  const handleValueChange = (newValue: number) => {
+    setDisplayValue(newValue);
+    let newDays = newValue;
+    switch (unit) {
+      case "hours":
+        newDays = Math.round(newValue / 24);
+        break;
+      case "days":
+        newDays = newValue;
+        break;
+      case "months":
+        newDays = newValue * 30;
+        break;
+      case "years":
+        newDays = newValue * 365;
+        break;
+    }
+    onChange(Math.max(0, Math.min(3650, newDays)));
+  };
+
+  return (
+    <div>
+      <label className="field-label">{label}</label>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1] disabled:opacity-40"
+          onClick={() => handleValueChange(Math.max(0, displayValue - 1))}
+          disabled={displayValue <= 0}
+        >
+          −
+        </button>
+        <input
+          type="number"
+          className="field-input w-20 text-center"
+          value={displayValue}
+          onChange={(e) => handleValueChange(Math.max(0, Number(e.target.value) || 0))}
+          min={0}
+        />
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1]"
+          onClick={() => handleValueChange(displayValue + 1)}
+        >
+          +
+        </button>
+        <select
+          className="field-input w-28"
+          value={unit}
+          onChange={(e) => setUnit(e.target.value as TimeUnit)}
+        >
+          <option value="hours">Hours</option>
+          <option value="days">Days</option>
+          <option value="months">Months</option>
+          <option value="years">Years</option>
+        </select>
+      </div>
+    </div>
+  );
+}
+
 export function SettingsPage() {
   const snapshot = useDashboardStore((state) => state.snapshot);
   const [form, setForm] = useState<SettingsFormState | null>(null);
@@ -109,45 +238,20 @@ export function SettingsPage() {
   return (
     <div className="space-y-6">
       <Card className="px-6 py-6 sm:px-7">
-        <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
-          <div>
-            <p className="section-kicker">Configuration studio</p>
-            <h2 className="page-title">Giveaway settings</h2>
-            <p className="mt-3 max-w-3xl text-sm text-slate-300 sm:text-base">
-              The most-used controls stay up front. Heavier configuration lives behind expandable panels so the page
-              stays fast to scan during a stream.
-            </p>
+        <p className="section-kicker">Configuration studio</p>
+        <h2 className="page-title">Giveaway settings</h2>
+        <p className="mt-3 max-w-3xl text-sm text-slate-300 sm:text-base">
+          The most-used controls stay up front. Heavier configuration lives behind expandable panels so the page
+          stays fast to scan during a stream.
+        </p>
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              <span className="pill-chip">Join: {form.entryCommand}</span>
-              <span className="pill-chip">Leave: {form.leaveCommand}</span>
-              <span className="pill-chip">
-                {form.allowDuplicateEntries ? `Up to ${form.maxEntriesPerUser} entries` : "Single entry only"}
-              </span>
-              <span className="pill-chip">{form.spinCountdownSeconds}s countdown</span>
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="metric-card">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Audience gate</p>
-              <p className="mt-2 text-xl font-bold text-white">
-                {form.subscriberOnlyMode ? "Subscribers" : form.followerOnlyMode ? "Followers" : "Everyone"}
-              </p>
-              <p className="mt-1 text-sm text-slate-400">
-                {form.excludeBroadcaster ? "Broadcaster blocked by default" : `Broadcaster can test ${form.entryCommand}`}
-              </p>
-            </div>
-            <div className="metric-card">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Winner behavior</p>
-              <p className="mt-2 text-xl font-bold text-white">
-                {form.removeWinnerAfterDraw ? "Winner removed" : "Winner stays in pool"}
-              </p>
-              <p className="mt-1 text-sm text-slate-400">
-                {form.announceWinnerInChat ? "Winner announced in chat" : "Overlay only"}
-              </p>
-            </div>
-          </div>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <span className="pill-chip">Join: {form.entryCommand}</span>
+          <span className="pill-chip">Leave: {form.leaveCommand}</span>
+          <span className="pill-chip">
+            {form.allowDuplicateEntries ? `Up to ${form.maxEntriesPerUser} entries` : "Single entry only"}
+          </span>
+          <span className="pill-chip">{form.spinCountdownSeconds}s countdown</span>
         </div>
       </Card>
 
@@ -200,39 +304,23 @@ export function SettingsPage() {
         defaultOpen
       >
         <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <label className="field-label">Max entries per user</label>
-            <input
-              className="field-input"
-              type="number"
-              min={1}
-              max={100}
-              value={form.maxEntriesPerUser}
-              onChange={(event) => updateForm("maxEntriesPerUser", Number(event.target.value))}
-            />
-          </div>
-          <div>
-            <label className="field-label">Minimum account age (days)</label>
-            <input
-              className="field-input"
-              type="number"
-              min={0}
-              max={3650}
-              value={form.minimumAccountAgeDays}
-              onChange={(event) => updateForm("minimumAccountAgeDays", Number(event.target.value))}
-            />
-          </div>
-          <div>
-            <label className="field-label">Minimum followage (days)</label>
-            <input
-              className="field-input"
-              type="number"
-              min={0}
-              max={3650}
-              value={form.minimumFollowageDays}
-              onChange={(event) => updateForm("minimumFollowageDays", Number(event.target.value))}
-            />
-          </div>
+          <NumberStepper
+            label="Max entries per user"
+            value={form.maxEntriesPerUser}
+            onChange={(value) => updateForm("maxEntriesPerUser", value)}
+            min={1}
+            max={100}
+          />
+          <TimeStepper
+            label="Minimum account age"
+            days={form.minimumAccountAgeDays}
+            onChange={(days) => updateForm("minimumAccountAgeDays", days)}
+          />
+          <TimeStepper
+            label="Minimum followage"
+            days={form.minimumFollowageDays}
+            onChange={(days) => updateForm("minimumFollowageDays", days)}
+          />
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">

@@ -68,6 +68,134 @@ function SetupToggle({ label, checked, onChange, description }: {
   );
 }
 
+function NumberStepper({ label, value, onChange, min, max }: {
+  label: string;
+  value: number;
+  onChange: (value: number) => void;
+  min: number;
+  max: number;
+}) {
+  return (
+    <div>
+      <label className="field-label">{label}</label>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1] disabled:opacity-40"
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+        >
+          −
+        </button>
+        <input
+          type="number"
+          className="field-input w-20 text-center"
+          value={value}
+          onChange={(e) => onChange(Math.max(min, Math.min(max, Number(e.target.value) || min)))}
+          min={min}
+          max={max}
+        />
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1] disabled:opacity-40"
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value >= max}
+        >
+          +
+        </button>
+      </div>
+    </div>
+  );
+}
+
+type TimeUnit = "hours" | "days" | "months" | "years";
+
+function TimeStepper({ label, days, onChange }: {
+  label: string;
+  days: number;
+  onChange: (days: number) => void;
+}) {
+  const [unit, setUnit] = useState<TimeUnit>("days");
+  const [displayValue, setDisplayValue] = useState(days);
+
+  useEffect(() => {
+    switch (unit) {
+      case "hours":
+        setDisplayValue(Math.round(days * 24));
+        break;
+      case "days":
+        setDisplayValue(days);
+        break;
+      case "months":
+        setDisplayValue(Math.round(days / 30));
+        break;
+      case "years":
+        setDisplayValue(Math.round(days / 365));
+        break;
+    }
+  }, [days, unit]);
+
+  const handleValueChange = (newValue: number) => {
+    setDisplayValue(newValue);
+    let newDays = newValue;
+    switch (unit) {
+      case "hours":
+        newDays = Math.round(newValue / 24);
+        break;
+      case "days":
+        newDays = newValue;
+        break;
+      case "months":
+        newDays = newValue * 30;
+        break;
+      case "years":
+        newDays = newValue * 365;
+        break;
+    }
+    onChange(Math.max(0, Math.min(3650, newDays)));
+  };
+
+  return (
+    <div>
+      <label className="field-label">{label}</label>
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1] disabled:opacity-40"
+          onClick={() => handleValueChange(Math.max(0, displayValue - 1))}
+          disabled={displayValue <= 0}
+        >
+          −
+        </button>
+        <input
+          type="number"
+          className="field-input w-20 text-center"
+          value={displayValue}
+          onChange={(e) => handleValueChange(Math.max(0, Number(e.target.value) || 0))}
+          min={0}
+        />
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1]"
+          onClick={() => handleValueChange(displayValue + 1)}
+        >
+          +
+        </button>
+        <select
+          className="field-input w-28"
+          value={unit}
+          onChange={(e) => setUnit(e.target.value as TimeUnit)}
+        >
+          <option value="hours">Hours</option>
+          <option value="days">Days</option>
+          <option value="months">Months</option>
+          <option value="years">Years</option>
+        </select>
+      </div>
+    </div>
+  );
+}
+
 function RoleTags({ entrant }: { entrant: WeightedEntrantView }) {
   const labels = [
     entrant.roleFlags.broadcaster && "Broadcaster",
@@ -447,10 +575,30 @@ export function DashboardPage() {
               <div><label className="field-label">Title</label><input className="field-input" value={setupForm.title} onChange={(e) => setSetupForm((c) => c ? { ...c, title: e.target.value } : c)} /></div>
               <div><label className="field-label">Entry command</label><input className="field-input" value={setupForm.entryCommand} onChange={(e) => setSetupForm((c) => c ? { ...c, entryCommand: e.target.value } : c)} /></div>
               <div><label className="field-label">Leave command</label><input className="field-input" value={setupForm.leaveCommand} onChange={(e) => setSetupForm((c) => c ? { ...c, leaveCommand: e.target.value } : c)} /></div>
-              <div><label className="field-label">Max entries per user</label><input className="field-input" type="number" min={1} max={100} value={setupForm.maxEntriesPerUser} onChange={(e) => setSetupForm((c) => c ? { ...c, maxEntriesPerUser: Number(e.target.value) } : c)} /></div>
-              <div><label className="field-label">Spin countdown (s)</label><input className="field-input" type="number" min={0} max={15} value={setupForm.spinCountdownSeconds} onChange={(e) => setSetupForm((c) => c ? { ...c, spinCountdownSeconds: Number(e.target.value) } : c)} /></div>
-              <div><label className="field-label">Min account age (days)</label><input className="field-input" type="number" min={0} max={3650} value={setupForm.minimumAccountAgeDays} onChange={(e) => setSetupForm((c) => c ? { ...c, minimumAccountAgeDays: Number(e.target.value) } : c)} /></div>
-              <div><label className="field-label">Min followage (days)</label><input className="field-input" type="number" min={0} max={3650} value={setupForm.minimumFollowageDays} onChange={(e) => setSetupForm((c) => c ? { ...c, minimumFollowageDays: Number(e.target.value) } : c)} /></div>
+              <NumberStepper
+                label="Max entries per user"
+                value={setupForm.maxEntriesPerUser}
+                onChange={(v) => setSetupForm((c) => c ? { ...c, maxEntriesPerUser: v } : c)}
+                min={1}
+                max={100}
+              />
+              <NumberStepper
+                label="Spin countdown (s)"
+                value={setupForm.spinCountdownSeconds}
+                onChange={(v) => setSetupForm((c) => c ? { ...c, spinCountdownSeconds: v } : c)}
+                min={0}
+                max={15}
+              />
+              <TimeStepper
+                label="Min account age"
+                days={setupForm.minimumAccountAgeDays}
+                onChange={(v) => setSetupForm((c) => c ? { ...c, minimumAccountAgeDays: v } : c)}
+              />
+              <TimeStepper
+                label="Min followage"
+                days={setupForm.minimumFollowageDays}
+                onChange={(v) => setSetupForm((c) => c ? { ...c, minimumFollowageDays: v } : c)}
+              />
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-2">
