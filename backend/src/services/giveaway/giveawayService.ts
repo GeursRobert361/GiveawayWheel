@@ -278,6 +278,15 @@ export class GiveawayService {
     await this.syncService.broadcastForUser(userId);
   }
 
+  async dismissWinner(userId: string) {
+    const session = await this.ensureCurrentSession(userId);
+    await prisma.giveawaySession.update({
+      where: { id: session.id },
+      data: { lastSpinPayloadJson: null }
+    });
+    await this.syncService.broadcastForUser(userId);
+  }
+
   async addManualEntrant(
     userId: string,
     input: { username: string; displayName?: string | null },

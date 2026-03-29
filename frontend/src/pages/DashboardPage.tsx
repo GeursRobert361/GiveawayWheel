@@ -247,11 +247,11 @@ export function DashboardPage() {
   const bootstrappedSpinRef = useRef(false);
   const handledWinnerPopupRef = useRef<string | null>(null);
 
-  const handleDismissWinner = () => {
+  const handleDismissWinner = async () => {
     setWinnerPopupName(null);
     setDismissKey((k) => k + 1);
-    // Broadcast dismiss event for overlay windows
-    window.dispatchEvent(new CustomEvent("tgw:dismiss-winner"));
+    // Call API to dismiss winner - will broadcast to overlay via WebSocket
+    await apiPost("/api/giveaway/dismiss-winner").catch(() => {});
   };
 
   const eligibleEntrants = useMemo(() => getEligibleEntrants(snapshot), [snapshot]);
@@ -370,6 +370,13 @@ export function DashboardPage() {
             >
               Spin now
             </Button>
+            <Button
+              variant="secondary"
+              disabled={!giveaway}
+              onClick={() => runAction("toggle-overlay", () => apiPost("/api/giveaway/toggle-overlay"))}
+            >
+              {giveaway?.overlayVisible ? "Hide overlay" : "Show overlay"}
+            </Button>
           </div>
         </div>
       </Card>
@@ -464,15 +471,11 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              <div className="grid gap-2 sm:grid-cols-5">
+              <div className="grid gap-2 sm:grid-cols-4">
                 <Button variant="secondary" disabled={!snapshot.overlayUrl}
                   onClick={() => snapshot.overlayUrl && copyToClipboard(snapshot.overlayUrl)}>Copy URL</Button>
                 <Button variant="secondary" disabled={!snapshot.overlayUrl}
                   onClick={() => snapshot.overlayUrl && window.open(snapshot.overlayUrl, "GiveawayOverlay", "width=1920,height=1080")}>Preview</Button>
-                <Button variant="secondary" disabled={!giveaway}
-                  onClick={() => runAction("toggle-overlay", () => apiPost("/api/giveaway/toggle-overlay"))}>
-                  {giveaway?.overlayVisible ? "Hide overlay" : "Show overlay"}
-                </Button>
                 <Button variant="secondary" onClick={() => apiDownload("/api/entrants/export")}>Export entrants</Button>
                 <Button variant="secondary" onClick={() => apiDownload("/api/history/export")}>Export winners</Button>
               </div>

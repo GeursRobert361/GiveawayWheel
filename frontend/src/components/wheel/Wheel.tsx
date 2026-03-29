@@ -140,6 +140,15 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
   useEffect(() => { rotationRef.current = rotation; }, [rotation]);
 
+  // Clear winner when lastSpin becomes null (dismissed from dashboard)
+  useEffect(() => {
+    if (!lastSpin) {
+      setCelebrating(false);
+      setResolvedWinner(null);
+      handledSpinRef.current = null;
+    }
+  }, [lastSpin]);
+
   useEffect(() => {
     if (!lastSpin || handledSpinRef.current === lastSpin.eventId) return;
     handledSpinRef.current = lastSpin.eventId;
@@ -249,19 +258,6 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       setResolvedWinner(null);
     }
   }, [dismissKey]);
-
-  // Listen for dismiss event from dashboard (for overlay mode)
-  useEffect(() => {
-    if (!overlayMode) return;
-
-    const handleDismissEvent = () => {
-      setCelebrating(false);
-      setResolvedWinner(null);
-    };
-
-    window.addEventListener("tgw:dismiss-winner", handleDismissEvent);
-    return () => window.removeEventListener("tgw:dismiss-winner", handleDismissEvent);
-  }, [overlayMode]);
 
   const wheelEntrants = useMemo(
     () => (entrants.length > 0 ? entrants : [{ id: "empty", displayName: "Waiting for entrants" }]),

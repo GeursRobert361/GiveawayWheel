@@ -71,6 +71,12 @@ export async function registerGiveawayRoutes(app: FastifyInstance, options: Give
     return options.snapshotService.getDashboardSnapshot(userId);
   });
 
+  app.post("/api/giveaway/dismiss-winner", { config: { rateLimit: { max: 20, timeWindow: 60_000 } } }, async (request) => {
+    const userId = await requireUserId(request);
+    await options.giveawayService.dismissWinner(userId);
+    return options.snapshotService.getDashboardSnapshot(userId);
+  });
+
   app.post("/api/giveaway/clear", { config: { rateLimit: { max: 12, timeWindow: 60_000 } } }, async (request) => {
     const userId = await requireUserId(request);
     await options.giveawayService.clearCurrent(userId, { type: "DASHBOARD", login: "dashboard" });
