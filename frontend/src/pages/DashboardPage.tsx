@@ -266,30 +266,32 @@ export function DashboardPage() {
     setShowSetupModal(true);
   }, [giveaway]);
 
-  useEffect(() => {
-    const spin = giveaway?.lastSpin;
-    if (!spin) return;
-    const completedAt = new Date(spin.completedAt).getTime();
-    if (!bootstrappedSpinRef.current) {
-      bootstrappedSpinRef.current = true;
-      if (completedAt <= Date.now()) { handledWinnerPopupRef.current = spin.eventId; return; }
-    }
-    if (handledWinnerPopupRef.current === spin.eventId) return;
-    handleDismissWinner();
-    handledWinnerPopupRef.current = spin.eventId;
-    const timer = window.setTimeout(
-      () => setWinnerPopupName(spin.winnerDisplayName),
-      Math.max(0, completedAt - Date.now())
-    );
-    return () => window.clearTimeout(timer);
-  }, [giveaway?.lastSpin]);
+  // Disabled winner popup - wheel shows winner inline now
+  // useEffect(() => {
+  //   const spin = giveaway?.lastSpin;
+  //   if (!spin) return;
+  //   const completedAt = new Date(spin.completedAt).getTime();
+  //   if (!bootstrappedSpinRef.current) {
+  //     bootstrappedSpinRef.current = true;
+  //     if (completedAt <= Date.now()) { handledWinnerPopupRef.current = spin.eventId; return; }
+  //   }
+  //   if (handledWinnerPopupRef.current === spin.eventId) return;
+  //   handleDismissWinner();
+  //   handledWinnerPopupRef.current = spin.eventId;
+  //   const timer = window.setTimeout(
+  //     () => setWinnerPopupName(spin.winnerDisplayName),
+  //     Math.max(0, completedAt - Date.now())
+  //   );
+  //   return () => window.clearTimeout(timer);
+  // }, [giveaway?.lastSpin]);
 
-  useEffect(() => {
-    if (!winnerPopupName) return;
-    const handleKeyDown = (e: KeyboardEvent) => { if (e.key === "Escape") handleDismissWinner(); };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [winnerPopupName]);
+  // Disabled - winner popup removed
+  // useEffect(() => {
+  //   if (!winnerPopupName) return;
+  //   const handleKeyDown = (e: KeyboardEvent) => { if (e.key === "Escape") handleDismissWinner(); };
+  //   window.addEventListener("keydown", handleKeyDown);
+  //   return () => window.removeEventListener("keydown", handleKeyDown);
+  // }, [winnerPopupName]);
 
   if (!giveaway || !snapshot) {
     return (
@@ -686,29 +688,7 @@ export function DashboardPage() {
         </div>
       ) : null}
 
-      {/* Winner popup */}
-      {winnerPopupName ? (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/88 p-4 backdrop-blur-md"
-          onClick={() => handleDismissWinner()}>
-          <div className="relative w-full max-w-3xl overflow-hidden rounded-[40px] border border-violet-400/25 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,0.28),transparent_48%),linear-gradient(160deg,rgba(11,16,34,0.99),rgba(6,8,18,0.99))] px-8 py-10 text-center shadow-[0_48px_130px_rgba(0,0,0,0.65)]"
-            onClick={(e) => e.stopPropagation()}>
-            <div className="pointer-events-none absolute inset-x-1/2 top-0 h-48 w-48 -translate-x-1/2 rounded-full bg-violet-500/20 blur-[90px]" />
-            <div className="pointer-events-none absolute inset-x-10 bottom-0 h-px bg-gradient-to-r from-transparent via-violet-400/35 to-transparent" />
-
-            <p className="section-kicker">Winner locked in</p>
-            <h3 className="mt-4 text-xl font-semibold text-slate-200">The wheel landed on</h3>
-            <p className="mt-5 font-display text-5xl font-bold tracking-tight text-white sm:text-7xl">
-              {winnerPopupName}
-            </p>
-            <p className="mx-auto mt-5 max-w-xl text-sm text-slate-300">
-              Call it out on stream, then use Secondary actions if you need a reroll.
-            </p>
-            <div className="mt-8 flex justify-center">
-              <Button onClick={() => handleDismissWinner()}>Dismiss</Button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {/* Winner popup - disabled, wheel shows winner inline */}
     </div>
   );
 }
