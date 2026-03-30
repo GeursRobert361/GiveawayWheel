@@ -293,8 +293,11 @@ export class GiveawayService {
       where: {
         giveawaySessionId: session.id,
         isActive: true
-      }
+      },
+      orderBy: [{ createdAt: "asc" }, { username: "asc" }]
     });
+
+    if (entrants.length === 0) return;
 
     // Shuffle using Fisher-Yates algorithm
     const shuffled = [...entrants];
@@ -306,16 +309,14 @@ export class GiveawayService {
     }
 
     // Update createdAt to change order (entrants are sorted by createdAt, username)
-    // Use seconds apart to ensure proper ordering
+    // Sequential updates to ensure proper ordering without race conditions
     const baseTime = Date.now();
-    await Promise.all(
-      shuffled.map((entrant, index) =>
-        prisma.entrant.update({
-          where: { id: entrant.id },
-          data: { createdAt: new Date(baseTime + index * 1000) }
-        })
-      )
-    );
+    for (let index = 0; index < shuffled.length; index++) {
+      await prisma.entrant.update({
+        where: { id: shuffled[index]!.id },
+        data: { createdAt: new Date(baseTime + index * 2000) }
+      });
+    }
 
     await this.recordAudit(userId, actor, "giveaway.shuffle", `Shuffled ${entrants.length} entrants.`);
     await this.syncService.broadcastForUser(userId);

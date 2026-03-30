@@ -144,6 +144,8 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
     if (!lastSpin) {
       setCelebrating(false);
       setResolvedWinner(null);
+      setDuration(0);
+      setCountdown(null);
       handledSpinRef.current = null;
     }
   }, [lastSpin]);
