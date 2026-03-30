@@ -469,41 +469,44 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
   // Normal inline card
   return (
     <div className="relative overflow-hidden rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(71,215,255,0.16),_transparent_40%),linear-gradient(180deg,rgba(9,15,29,0.98),rgba(3,5,12,0.94))] p-5 sm:p-7">
-      <ConfettiCanvas active={celebrating} />
-      <div className="pointer-events-none absolute inset-x-1/2 top-1/2 h-[72%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-300/10 blur-[90px]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_52%,rgba(255,255,255,0.02)_100%)]" />
+      {/* Fullscreen-only wrapper for just the wheel */}
+      <div id="wheel-fullscreen-target" className="relative">
+        <ConfettiCanvas active={celebrating} />
+        <div className="pointer-events-none absolute inset-x-1/2 top-1/2 h-[72%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-300/10 blur-[90px]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_52%,rgba(255,255,255,0.02)_100%)]" />
 
-      <div className="absolute left-1/2 top-2 z-20 -translate-x-1/2 sm:top-4">
-        {pointerEl}
-      </div>
+        <div className="absolute left-1/2 top-2 z-20 -translate-x-1/2 sm:top-4">
+          {pointerEl}
+        </div>
 
-      <div className={compact ? "mx-auto max-w-[680px]" : "mx-auto max-w-[900px]"}>
-        <div className="relative">
-          {svgEl}
+        <div className={compact ? "mx-auto max-w-[680px]" : "mx-auto max-w-[900px]"}>
+          <div className="relative">
+            {svgEl}
 
-          {/* Countdown overlay */}
-          {countdown != null && countdown > 0 && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="text-center">
-                <p className="font-display text-8xl font-bold tabular-nums text-amber-200 drop-shadow-[0_0_40px_rgba(251,191,36,0.6)]">{countdown}</p>
-                <p className="mt-2 text-sm text-slate-300">Spin starting...</p>
+            {/* Countdown overlay */}
+            {countdown != null && countdown > 0 && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="text-center">
+                  <p className="font-display text-8xl font-bold tabular-nums text-amber-200 drop-shadow-[0_0_40px_rgba(251,191,36,0.6)]">{countdown}</p>
+                  <p className="mt-2 text-sm text-slate-300">Spin starting...</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Spin button overlay in center */}
-          {onSpin && !resolvedWinner && !isSpinActive && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <button
-                type="button"
-                disabled={spinDisabled}
-                onClick={onSpin}
-                className="pointer-events-auto rounded-full border-2 border-violet-400/30 bg-gradient-to-b from-violet-500 to-violet-700 px-8 py-4 text-lg font-bold text-white shadow-[0_20px_60px_rgba(124,58,237,0.5)] transition hover:scale-105 hover:shadow-[0_25px_70px_rgba(124,58,237,0.7)] disabled:opacity-40 disabled:hover:scale-100"
-              >
-                Spin Now
-              </button>
-            </div>
-          )}
+            {/* Spin button overlay in center */}
+            {onSpin && !resolvedWinner && !isSpinActive && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <button
+                  type="button"
+                  disabled={spinDisabled}
+                  onClick={onSpin}
+                  className="pointer-events-auto rounded-full border-2 border-violet-400/30 bg-gradient-to-b from-violet-500 to-violet-700 px-8 py-4 text-lg font-bold text-white shadow-[0_20px_60px_rgba(124,58,237,0.5)] transition hover:scale-105 hover:shadow-[0_25px_70px_rgba(124,58,237,0.7)] disabled:opacity-40 disabled:hover:scale-100"
+                >
+                  Spin Now
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

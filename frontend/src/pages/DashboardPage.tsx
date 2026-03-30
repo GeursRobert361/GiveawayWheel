@@ -403,16 +403,16 @@ export function DashboardPage() {
             <button
               className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-slate-700/60 text-slate-100 transition hover:border-slate-600 hover:bg-slate-700"
               onClick={() => {
-                const wheelContainer = document.getElementById("wheel-container");
-                if (wheelContainer) {
+                const wheelFullscreenTarget = document.getElementById("wheel-fullscreen-target");
+                if (wheelFullscreenTarget) {
                   if (document.fullscreenElement) {
                     document.exitFullscreen().catch(() => {});
                   } else {
-                    wheelContainer.requestFullscreen().catch(() => {});
+                    wheelFullscreenTarget.requestFullscreen().catch(() => {});
                   }
                 }
               }}
-              title="Fullscreen"
+              title="Fullscreen wheel only"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />

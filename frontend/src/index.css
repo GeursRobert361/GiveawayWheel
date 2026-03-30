@@ -80,3 +80,36 @@ body {
 .shadow-soft {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
+
+/* Fullscreen wheel styling */
+#wheel-fullscreen-target:fullscreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
+              linear-gradient(180deg, #09111f 0%, #030509 100%);
+}
+
+#wheel-fullscreen-target:-webkit-full-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
+              linear-gradient(180deg, #09111f 0%, #030509 100%);
+}
+
+#wheel-fullscreen-target:-moz-full-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
+              linear-gradient(180deg, #09111f 0%, #030509 100%);
+}
+
+#wheel-fullscreen-target:-ms-fullscreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
+              linear-gradient(180deg, #09111f 0%, #030509 100%);
+}
