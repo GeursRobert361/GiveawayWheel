@@ -86,6 +86,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2rem;
   background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
               linear-gradient(180deg, #09111f 0%, #030509 100%);
 }
@@ -94,6 +95,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2rem;
   background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
               linear-gradient(180deg, #09111f 0%, #030509 100%);
 }
@@ -102,6 +104,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2rem;
   background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
               linear-gradient(180deg, #09111f 0%, #030509 100%);
 }
@@ -110,6 +113,25 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 2rem;
   background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
               linear-gradient(180deg, #09111f 0%, #030509 100%);
+}
+
+/* Scale up the wheel container in fullscreen */
+#wheel-fullscreen-target:fullscreen > div,
+#wheel-fullscreen-target:-webkit-full-screen > div,
+#wheel-fullscreen-target:-moz-full-screen > div,
+#wheel-fullscreen-target:-ms-fullscreen > div {
+  width: 100%;
+  max-width: min(90vh, 90vw);
+  height: auto;
+}
+
+/* Scale up the inner wheel max-width containers */
+#wheel-fullscreen-target:fullscreen .mx-auto,
+#wheel-fullscreen-target:-webkit-full-screen .mx-auto,
+#wheel-fullscreen-target:-moz-full-screen .mx-auto,
+#wheel-fullscreen-target:-ms-fullscreen .mx-auto {
+  max-width: 100% !important;
 }
