@@ -478,9 +478,9 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
   // Normal inline card
   return (
-    <div className="relative overflow-hidden rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(71,215,255,0.16),_transparent_40%),linear-gradient(180deg,rgba(9,15,29,0.98),rgba(3,5,12,0.94))] p-5 sm:p-7">
+    <div className="relative overflow-visible rounded-[34px] border border-white/10 bg-[radial-gradient(circle_at_top,_rgba(71,215,255,0.16),_transparent_40%),linear-gradient(180deg,rgba(9,15,29,0.98),rgba(3,5,12,0.94))] p-5 sm:p-7">
       {/* Fullscreen-only wrapper for just the wheel */}
-      <div id="wheel-fullscreen-target" className="relative">
+      <div id="wheel-fullscreen-target" className="relative overflow-visible">
         <ConfettiCanvas active={celebrating} />
         <div className="pointer-events-none absolute inset-x-1/2 top-1/2 h-[72%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-300/10 blur-[90px]" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_52%,rgba(255,255,255,0.02)_100%)]" />
@@ -494,7 +494,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
           }}
         >
           {/* Pointer arrow - inside scaling container */}
-          <div className="absolute left-1/2 -top-14 z-20 -translate-x-1/2 sm:-top-16">
+          <div className="absolute left-1/2 -top-8 z-20 -translate-x-1/2 sm:-top-10">
             {pointerEl}
           </div>
 
