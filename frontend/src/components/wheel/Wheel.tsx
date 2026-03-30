@@ -217,7 +217,10 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
   useEffect(() => () => stopTickTrack(), []);
 
   // Idle spin animation - slow continuous rotation when not actively spinning
+  // Disabled in overlay mode to improve OBS performance
   useEffect(() => {
+    if (overlayMode) return; // Skip idle rotation in overlay mode for better OBS performance
+
     const isSpinning = countdown !== null || duration > 0;
     if (isSpinning) return;
 
@@ -233,7 +236,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
     frameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameId);
-  }, [countdown, duration]);
+  }, [countdown, duration, overlayMode]);
 
   // Handle winner dismissal callback
   useEffect(() => {
@@ -279,7 +282,54 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
   const isSpinActive = !celebrating && (countdown !== null || duration > 0);
   const totalRotation = rotation + (isSpinActive ? 0 : idleRotation);
 
-  const svgEl = (
+  // Simplified SVG for overlay mode (better OBS performance)
+  const svgEl = overlayMode ? (
+    <svg
+      viewBox={`0 0 ${size} ${size}`}
+      className="w-full"
+      style={{
+        transform: `rotate(${totalRotation}deg)`,
+        transition: duration ? `transform ${duration}ms cubic-bezier(0.12, 0.92, 0.14, 1)` : "none"
+      }}
+    >
+      <defs>
+        <radialGradient id="wheelCore" cx="50%" cy="50%" r="65%">
+          <stop offset="0%" stopColor="#12263f" />
+          <stop offset="65%" stopColor="#09111f" />
+          <stop offset="100%" stopColor="#050816" />
+        </radialGradient>
+      </defs>
+
+      <circle cx={center} cy={center} r={outerRadius} fill="#06101e" stroke="rgba(255,255,255,0.16)" strokeWidth="8" />
+
+      {wheelEntrants.map((entrant, index) => {
+        const textAngle = index * anglePerSegment + anglePerSegment / 2;
+        const textPoint = polarToCartesian(center, center, labelRadius, textAngle);
+        return (
+          <g key={entrant.id}>
+            <path d={describeSegment(index, wheelEntrants.length, segmentRadius, center)}
+              fill={segmentColors[index % segmentColors.length]} stroke="rgba(8,17,33,0.45)" strokeWidth="4" />
+            <line x1={center} y1={center}
+              x2={polarToCartesian(center, center, segmentRadius, index * anglePerSegment).x}
+              y2={polarToCartesian(center, center, segmentRadius, index * anglePerSegment).y}
+              stroke="rgba(255,255,255,0.16)" strokeWidth="1.5" />
+            <text x={textPoint.x} y={textPoint.y} fill="#07111d" fontSize={fontSize} fontWeight="800"
+              letterSpacing="0.02em" textAnchor="middle" dominantBaseline="middle"
+              transform={`rotate(${textAngle + 90} ${textPoint.x} ${textPoint.y})`}>
+              {truncateName(entrant.displayName, nameLength)}
+            </text>
+          </g>
+        );
+      })}
+
+      <circle cx={center} cy={center} r={innerRadius + 18} fill="url(#wheelCore)" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
+      <circle cx={center} cy={center} r={innerRadius} fill="#07101c" stroke="rgba(123,229,255,0.22)" strokeWidth="3" />
+      <text x={center} y={center - 12} textAnchor="middle" fill="#ecfbff" fontSize={compact ? "24" : "28"} fontWeight="800">LIVE DRAW</text>
+      <text x={center} y={center + 18} textAnchor="middle" fill="#7be5ff" fontSize={compact ? "15" : "18"} fontWeight="700">
+        {wheelEntrants.length} names in play
+      </text>
+    </svg>
+  ) : (
     <svg
       viewBox={`0 0 ${size} ${size}`}
       className="w-full drop-shadow-[0_45px_95px_rgba(0,0,0,0.55)]"
