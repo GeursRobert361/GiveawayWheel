@@ -82,6 +82,7 @@ export interface DashboardSnapshot {
     channelId: string | null;
     channelLogin: string | null;
     channelName: string | null;
+    hasCompletedSetup: boolean;
   };
   twitch: {
     status: PublicConnectionStatus;

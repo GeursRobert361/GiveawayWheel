@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { requireUserId } from "./helpers";
 import { SnapshotService } from "../services/snapshotService";
-import { prisma } from "../lib/prisma";
+import { prisma } from "../db/prisma";
 
 export async function registerMeRoutes(app: FastifyInstance, snapshotService: SnapshotService) {
   app.get("/api/me", async (request) => {
