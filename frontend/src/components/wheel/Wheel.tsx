@@ -69,6 +69,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
   const [countdown, setCountdown] = useState<number | null>(null);
   const [celebrating, setCelebrating] = useState(false);
   const [resolvedWinner, setResolvedWinner] = useState<string | null>(winnerLabel ?? null);
+  const [resolvedWinnerChance, setResolvedWinnerChance] = useState<number | null>(null);
   const [idleRotation, setIdleRotation] = useState(0);
   const handledSpinRef = useRef<string | null>(null);
   const rotationRef = useRef(0);
@@ -144,6 +145,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
     if (!lastSpin) {
       setCelebrating(false);
       setResolvedWinner(null);
+      setResolvedWinnerChance(null);
       setDuration(0);
       setCountdown(null);
       handledSpinRef.current = null;
@@ -163,12 +165,14 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       setDuration(0);
       setRotation(lastSpin.rotationDegrees);
       setResolvedWinner(overlayMode ? null : lastSpin.winnerDisplayName);
+      setResolvedWinnerChance(overlayMode ? null : lastSpin.winnerChancePercent);
       setCelebrating(false);
       setCountdown(null);
       return;
     }
 
     setResolvedWinner(null);
+    setResolvedWinnerChance(null);
     setCelebrating(false);
     setCountdown(Math.max(0, Math.ceil(delay / 1000)));
 
@@ -196,6 +200,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
     const celebrationTimeout = window.setTimeout(() => {
       stopTickTrack();
       setResolvedWinner(lastSpin.winnerDisplayName);
+      setResolvedWinnerChance(lastSpin.winnerChancePercent);
       setCelebrating(true);
     }, Math.max(0, completedAt - now));
 
@@ -203,6 +208,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       ? window.setTimeout(() => {
           setCelebrating(false);
           setResolvedWinner(null);
+          setResolvedWinnerChance(null);
         }, Math.max(0, completedAt - now) + 8000)
       : null;
 
@@ -244,6 +250,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       if (e.key === "Escape") {
         setCelebrating(false);
         setResolvedWinner(null);
+        setResolvedWinnerChance(null);
         onWinnerDismiss();
       }
     };
@@ -257,6 +264,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
     if (dismissKey && dismissKey > 0) {
       setCelebrating(false);
       setResolvedWinner(null);
+      setResolvedWinnerChance(null);
     }
   }, [dismissKey]);
 
@@ -445,6 +453,11 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
               <div>
                 <p className="text-2xl font-semibold uppercase tracking-[0.4em] text-violet-300">Winner</p>
                 <p className="mt-6 font-display text-9xl font-bold text-white break-words px-8">{resolvedWinner}</p>
+                {resolvedWinnerChance !== null && (
+                  <p className="mt-4 text-3xl font-semibold text-violet-300">
+                    {resolvedWinnerChance.toFixed(2)}% chance
+                  </p>
+                )}
               </div>
             </div>
           </div>

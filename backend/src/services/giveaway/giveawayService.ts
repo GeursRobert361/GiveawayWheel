@@ -732,6 +732,7 @@ export class GiveawayService {
       winnerEntrantId: winnerEntrant.id,
       winnerUsername: winnerEntrant.username,
       winnerDisplayName: winnerEntrant.displayName,
+      winnerChancePercent: winnerPreview.chancePercent,
       targetIndex: winnerIndex,
       entrantCount: preview.length,
       rotationDegrees,

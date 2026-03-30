@@ -242,6 +242,7 @@ export function DashboardPage() {
   const [savingSetup, setSavingSetup] = useState(false);
   const [setupForm, setSetupForm] = useState<SetupFormState | null>(null);
   const [winnerPopupName, setWinnerPopupName] = useState<string | null>(null);
+  const [winnerPopupChance, setWinnerPopupChance] = useState<number | null>(null);
   const [expandedEntrantId, setExpandedEntrantId] = useState<string | null>(null);
   const [dismissKey, setDismissKey] = useState(0);
   const bootstrappedSpinRef = useRef(false);
@@ -249,6 +250,7 @@ export function DashboardPage() {
 
   const handleDismissWinner = async () => {
     setWinnerPopupName(null);
+    setWinnerPopupChance(null);
     setDismissKey((k) => k + 1);
     // Call API to dismiss winner - will broadcast to overlay via WebSocket
     await apiPost("/api/giveaway/dismiss-winner").catch(() => {});
@@ -278,9 +280,13 @@ export function DashboardPage() {
     }
     if (handledWinnerPopupRef.current === spin.eventId) return;
     setWinnerPopupName(null);
+    setWinnerPopupChance(null);
     handledWinnerPopupRef.current = spin.eventId;
     const timer = window.setTimeout(
-      () => setWinnerPopupName(spin.winnerDisplayName),
+      () => {
+        setWinnerPopupName(spin.winnerDisplayName);
+        setWinnerPopupChance(spin.winnerChancePercent);
+      },
       Math.max(0, completedAt - Date.now())
     );
     return () => window.clearTimeout(timer);
@@ -731,6 +737,11 @@ export function DashboardPage() {
             <p className="mt-5 font-display text-5xl font-bold tracking-tight text-white sm:text-7xl">
               {winnerPopupName}
             </p>
+            {winnerPopupChance !== null && (
+              <p className="mt-3 text-lg font-semibold text-violet-300">
+                {winnerPopupChance.toFixed(2)}% chance to win
+              </p>
+            )}
             <p className="mx-auto mt-5 max-w-xl text-sm text-slate-300">
               Call it out on stream, then use Secondary actions if you need a reroll.
             </p>

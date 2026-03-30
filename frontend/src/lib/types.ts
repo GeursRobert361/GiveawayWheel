@@ -62,6 +62,7 @@ export interface LastSpinPayload {
   winnerEntrantId: string;
   winnerUsername: string;
   winnerDisplayName: string;
+  winnerChancePercent: number;
   targetIndex: number;
   entrantCount: number;
   rotationDegrees: number;
