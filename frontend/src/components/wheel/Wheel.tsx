@@ -491,7 +491,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
           }}
         >
           {/* Pointer arrow - inside scaling container */}
-          <div className="absolute left-1/2 top-0 z-20 -translate-x-1/2 sm:-top-1">
+          <div className="absolute left-1/2 top-3 z-20 -translate-x-1/2 sm:top-2">
             {pointerEl}
           </div>
 
