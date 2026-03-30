@@ -418,22 +418,46 @@ export function DashboardPage() {
                           left: 0 !important;
                           width: 100vw !important;
                           height: 100vh !important;
-                          display: flex !important;
-                          align-items: center !important;
-                          justify-content: center !important;
                           padding: 0 !important;
                           margin: 0 !important;
                           background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%), linear-gradient(180deg, #09111f 0%, #030509 100%) !important;
                           overflow: hidden !important;
                         `;
-                        // Make all children huge
+
+                        // Hide all children initially
                         const children = target.children;
                         for (let i = 0; i < children.length; i++) {
                           const child = children[i] as HTMLElement;
-                          child.style.width = '90vmin';
-                          child.style.height = '90vmin';
-                          child.style.maxWidth = 'none';
-                          child.style.maxHeight = 'none';
+                          child.style.display = 'none';
+                        }
+
+                        // Find and show only the pointer (4th child) and wheel container (5th child)
+                        const pointer = children[3] as HTMLElement;
+                        const wheelContainer = children[4] as HTMLElement;
+
+                        if (pointer) {
+                          pointer.style.cssText = `
+                            display: flex !important;
+                            position: fixed !important;
+                            top: 3vh !important;
+                            left: 50% !important;
+                            transform: translateX(-50%) scale(2) !important;
+                            z-index: 100 !important;
+                          `;
+                        }
+
+                        if (wheelContainer) {
+                          wheelContainer.style.cssText = `
+                            display: block !important;
+                            position: fixed !important;
+                            top: 50% !important;
+                            left: 50% !important;
+                            transform: translate(-50%, -50%) !important;
+                            width: 98vmin !important;
+                            height: 98vmin !important;
+                            max-width: none !important;
+                            max-height: none !important;
+                          `;
                         }
                       }
                     };
