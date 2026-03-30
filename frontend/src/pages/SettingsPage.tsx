@@ -563,7 +563,12 @@ export function SettingsPage() {
                 onClick={async () => {
                   const input = document.getElementById("test-entrants-count") as HTMLInputElement;
                   const count = Math.min(Math.max(1, parseInt(input?.value || "10")), 100);
-                  await apiPost("/api/giveaway/add-test-entrants", { count });
+                  try {
+                    await apiPost("/api/giveaway/add-test-entrants", { count });
+                    alert(`Successfully added ${count} test entrants!`);
+                  } catch (error) {
+                    alert(`Failed to add test entrants: ${error instanceof Error ? error.message : "Unknown error"}`);
+                  }
                 }}
               >
                 Add test entrants

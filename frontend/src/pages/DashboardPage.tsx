@@ -377,8 +377,16 @@ export function DashboardPage() {
             >
               {giveaway?.overlayVisible ? "Hide overlay" : "Show overlay"}
             </Button>
-            <Button
-              variant="secondary"
+          </div>
+        </div>
+      </Card>
+
+      {/* Wheel + side panel */}
+      <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
+        <div className="space-y-3">
+          <div className="flex justify-end">
+            <button
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1]"
               onClick={() => {
                 const wheelContainer = document.getElementById("wheel-container");
                 if (wheelContainer) {
@@ -389,16 +397,14 @@ export function DashboardPage() {
                   }
                 }
               }}
+              title="Fullscreen"
             >
-              Fullscreen
-            </Button>
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+              </svg>
+            </button>
           </div>
-        </div>
-      </Card>
-
-      {/* Wheel + side panel */}
-      <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
-        <div id="wheel-container">
+          <div id="wheel-container">
           <Wheel
           entrants={eligibleEntrants.map((e) => ({ id: e.id, displayName: e.displayName }))}
           lastSpin={giveaway.lastSpin}
@@ -408,6 +414,7 @@ export function DashboardPage() {
           onWinnerDismiss={() => handleDismissWinner()}
           dismissKey={dismissKey}
         />
+        </div>
         </div>
 
         {/* Side panel */}

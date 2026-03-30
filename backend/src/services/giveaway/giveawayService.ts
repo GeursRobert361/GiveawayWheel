@@ -344,7 +344,6 @@ export class GiveawayService {
         isModerator: false,
         isBroadcaster: false,
         accountCreatedAt: new Date(Date.now() - Math.floor(secureRandomFraction() * 365 * 24 * 60 * 60 * 1000)),
-        followedAt: secureRandomFraction() > 0.5 ? new Date(Date.now() - Math.floor(secureRandomFraction() * 180 * 24 * 60 * 60 * 1000)) : null,
         isActive: true
       });
     }
