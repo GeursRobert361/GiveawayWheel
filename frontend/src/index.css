@@ -134,7 +134,7 @@ body {
   width: 100vw;
   max-width: none;
   height: auto;
-  transform: scale(3.5);
+  transform: scale(8);
   transform-origin: center center;
 }
 
