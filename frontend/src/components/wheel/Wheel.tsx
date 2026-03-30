@@ -485,17 +485,19 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
         <div className="pointer-events-none absolute inset-x-1/2 top-1/2 h-[72%] w-[72%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-300/10 blur-[90px]" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_52%,rgba(255,255,255,0.02)_100%)]" />
 
-        <div className="absolute left-1/2 top-2 z-20 -translate-x-1/2 sm:top-4">
-          {pointerEl}
-        </div>
-
         <div
           className={compact ? "mx-auto max-w-[680px]" : "mx-auto max-w-[900px]"}
           style={{
             transform: isSpinActive ? 'scale(1.15)' : 'scale(1)',
-            transition: isSpinActive ? 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.5s ease-out'
+            transition: isSpinActive ? 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.5s ease-out',
+            transformOrigin: 'center center'
           }}
         >
+          {/* Pointer arrow - inside scaling container */}
+          <div className="absolute left-1/2 -top-20 z-20 -translate-x-1/2">
+            {pointerEl}
+          </div>
+
           <div className="relative">
             {svgEl}
 
