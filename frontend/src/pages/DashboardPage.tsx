@@ -742,9 +742,6 @@ export function DashboardPage() {
                 {winnerPopupChance.toFixed(2)}% chance to win
               </p>
             )}
-            <p className="mx-auto mt-5 max-w-xl text-sm text-slate-300">
-              Call it out on stream, then use Secondary actions if you need a reroll.
-            </p>
             <div className="mt-8 flex justify-center">
               <Button onClick={() => handleDismissWinner()}>Dismiss</Button>
             </div>
