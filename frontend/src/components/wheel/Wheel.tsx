@@ -433,10 +433,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
   const pointerEl = (
     <div className="flex flex-col items-center">
-      <div className="h-5 w-20 rounded-full bg-white/10 blur-md" />
-      <div className="relative -mt-1 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-slate-950/90 shadow-[0_20px_40px_rgba(0,0,0,0.45)]">
-        <div className="h-0 w-0 border-l-[18px] border-r-[18px] border-t-[34px] border-l-transparent border-r-transparent border-t-white drop-shadow-[0_12px_24px_rgba(255,255,255,0.35)]" />
-      </div>
+      <div className="h-0 w-0 border-l-[18px] border-r-[18px] border-t-[34px] border-l-transparent border-r-transparent border-t-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]" />
     </div>
   );
 
@@ -494,7 +491,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
           }}
         >
           {/* Pointer arrow - inside scaling container */}
-          <div className="absolute left-1/2 -top-5 z-20 -translate-x-1/2 sm:-top-6">
+          <div className="absolute left-1/2 -top-2 z-20 -translate-x-1/2 sm:-top-3">
             {pointerEl}
           </div>
 
