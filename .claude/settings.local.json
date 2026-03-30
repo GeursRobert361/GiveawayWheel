@@ -12,7 +12,9 @@
       "Bash(npx prisma:*)",
       "Bash(ls -la backend/*.env*)",
       "Bash(DATABASE_URL=\"file:./dev.db\" npx prisma migrate dev --name add_minimum_followage_days)",
-      "Bash(DATABASE_URL='file:./dev.db' npx prisma migrate dev --name add_overlay_visible)"
+      "Bash(DATABASE_URL='file:./dev.db' npx prisma migrate dev --name add_overlay_visible)",
+      "Bash(grep -r rounded-[3 C:/Users/rober/IdeaProjects/GiveawayWheel/frontend/src/)",
+      "Bash(grep -r bg-[linear-gradient C:/Users/rober/IdeaProjects/GiveawayWheel/frontend/src/)"
     ]
   }
 }

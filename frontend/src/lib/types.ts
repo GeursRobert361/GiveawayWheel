@@ -111,6 +111,7 @@ export interface DashboardSnapshot {
     channelId: string | null;
     channelLogin: string | null;
     channelName: string | null;
+    hasCompletedSetup: boolean;
   };
   twitch: {
     status: ConnectionStatus;
@@ -149,4 +150,5 @@ export interface MeResponse {
   broadcaster: DashboardSnapshot["broadcaster"];
   twitch: DashboardSnapshot["twitch"];
   overlayUrl: string | null;
+  hasCompletedSetup: boolean;
 }

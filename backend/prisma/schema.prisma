@@ -32,6 +32,7 @@ model User {
   profileImageUrl     String?
   broadcasterType     String?
   email               String?
+  hasCompletedSetup   Boolean              @default(false)
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   connection          TwitchConnection?

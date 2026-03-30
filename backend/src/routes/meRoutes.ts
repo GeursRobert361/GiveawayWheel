@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { requireUserId } from "./helpers";
 import { SnapshotService } from "../services/snapshotService";
+import { prisma } from "../lib/prisma";
 
 export async function registerMeRoutes(app: FastifyInstance, snapshotService: SnapshotService) {
   app.get("/api/me", async (request) => {
@@ -9,7 +10,17 @@ export async function registerMeRoutes(app: FastifyInstance, snapshotService: Sn
     return {
       broadcaster: snapshot.broadcaster,
       twitch: snapshot.twitch,
-      overlayUrl: snapshot.overlayUrl
+      overlayUrl: snapshot.overlayUrl,
+      hasCompletedSetup: snapshot.broadcaster.hasCompletedSetup
     };
+  });
+
+  app.post("/api/me/complete-setup", async (request) => {
+    const userId = await requireUserId(request);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { hasCompletedSetup: true }
+    });
+    return { success: true };
   });
 }

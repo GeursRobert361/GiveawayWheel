@@ -123,7 +123,8 @@ export class SnapshotService {
         profileImageUrl: user.profileImageUrl ?? null,
         channelId: user.connection?.channelId ?? null,
         channelLogin: user.connection?.channelLogin ?? null,
-        channelName: user.connection?.channelName ?? null
+        channelName: user.connection?.channelName ?? null,
+        hasCompletedSetup: user.hasCompletedSetup
       },
       twitch: {
         status: mapConnectionStatus(user.connection?.status),
