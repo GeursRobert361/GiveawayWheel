@@ -406,7 +406,7 @@ export function DashboardPage() {
           </div>
           <div id="wheel-container">
           <Wheel
-          entrants={eligibleEntrants.map((e) => ({ id: e.id, displayName: e.displayName }))}
+          entrants={eligibleEntrants.map((e) => ({ id: e.id, displayName: e.displayName, weight: e.effectiveWeight }))}
           lastSpin={giveaway.lastSpin}
           winnerLabel={spinActive ? null : giveaway.winners[0]?.displayName ?? null}
           onSpin={() => runAction("spin", () => apiPost("/api/giveaway/spin"))}

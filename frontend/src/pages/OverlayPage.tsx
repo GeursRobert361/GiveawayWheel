@@ -105,7 +105,7 @@ export function OverlayPage() {
   }, [overlayKey, snapshot?.lastSpin]);
 
   const entrants = useMemo(
-    () => snapshot?.entrants.map((entrant) => ({ id: entrant.id, displayName: entrant.displayName })) ?? [],
+    () => snapshot?.entrants.map((entrant) => ({ id: entrant.id, displayName: entrant.displayName, weight: entrant.effectiveWeight })) ?? [],
     [snapshot?.entrants]
   );
 

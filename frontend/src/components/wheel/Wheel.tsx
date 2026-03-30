@@ -5,6 +5,7 @@ import { ConfettiCanvas } from "./ConfettiCanvas";
 interface WheelEntrant {
   id: string;
   displayName: string;
+  weight?: number;
 }
 
 interface WheelProps {
@@ -45,10 +46,8 @@ function polarToCartesian(cx: number, cy: number, radius: number, angle: number)
   };
 }
 
-function describeSegment(index: number, count: number, radius: number, center: number) {
-  const angle = 360 / count;
-  const startAngle = index * angle;
-  const endAngle = startAngle + angle;
+function describeSegment(startAngle: number, endAngle: number, radius: number, center: number) {
+  const angle = endAngle - startAngle;
   const start = polarToCartesian(center, center, radius, endAngle);
   const end = polarToCartesian(center, center, radius, startAngle);
   const largeArcFlag = angle > 180 ? 1 : 0;
@@ -217,10 +216,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
   useEffect(() => () => stopTickTrack(), []);
 
   // Idle spin animation - slow continuous rotation when not actively spinning
-  // Disabled in overlay mode to improve OBS performance
   useEffect(() => {
-    if (overlayMode) return; // Skip idle rotation in overlay mode for better OBS performance
-
     const isSpinning = countdown !== null || duration > 0;
     if (isSpinning) return;
 
@@ -236,7 +232,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
     frameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameId);
-  }, [countdown, duration, overlayMode]);
+  }, [countdown, duration]);
 
   // Handle winner dismissal callback
   useEffect(() => {
@@ -266,6 +262,23 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
     () => (entrants.length > 0 ? entrants : [{ id: "empty", displayName: "Waiting for entrants" }]),
     [entrants]
   );
+
+  // Calculate segment angles based on weights
+  const segmentAngles = useMemo(() => {
+    const totalWeight = wheelEntrants.reduce((sum, e) => sum + (e.weight || 1), 0);
+    let currentAngle = 0;
+    return wheelEntrants.map((entrant) => {
+      const weight = entrant.weight || 1;
+      const angle = (weight / totalWeight) * 360;
+      const segment = {
+        startAngle: currentAngle,
+        endAngle: currentAngle + angle,
+        angle
+      };
+      currentAngle += angle;
+      return segment;
+    });
+  }, [wheelEntrants]);
 
   const size = compact ? 620 : 760;
   const center = size / 2;
@@ -303,15 +316,16 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       <circle cx={center} cy={center} r={outerRadius} fill="#06101e" stroke="rgba(255,255,255,0.16)" strokeWidth="8" />
 
       {wheelEntrants.map((entrant, index) => {
-        const textAngle = index * anglePerSegment + anglePerSegment / 2;
+        const segment = segmentAngles[index];
+        const textAngle = segment.startAngle + segment.angle / 2;
         const textPoint = polarToCartesian(center, center, labelRadius, textAngle);
         return (
           <g key={entrant.id}>
-            <path d={describeSegment(index, wheelEntrants.length, segmentRadius, center)}
+            <path d={describeSegment(segment.startAngle, segment.endAngle, segmentRadius, center)}
               fill={segmentColors[index % segmentColors.length]} stroke="rgba(8,17,33,0.45)" strokeWidth="4" />
             <line x1={center} y1={center}
-              x2={polarToCartesian(center, center, segmentRadius, index * anglePerSegment).x}
-              y2={polarToCartesian(center, center, segmentRadius, index * anglePerSegment).y}
+              x2={polarToCartesian(center, center, segmentRadius, segment.startAngle).x}
+              y2={polarToCartesian(center, center, segmentRadius, segment.startAngle).y}
               stroke="rgba(255,255,255,0.16)" strokeWidth="1.5" />
             <text x={textPoint.x} y={textPoint.y} fill="#07111d" fontSize={fontSize} fontWeight="800"
               letterSpacing="0.02em" textAnchor="middle" dominantBaseline="middle"
@@ -368,15 +382,16 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       })}
 
       {wheelEntrants.map((entrant, index) => {
-        const textAngle = index * anglePerSegment + anglePerSegment / 2;
+        const segment = segmentAngles[index];
+        const textAngle = segment.startAngle + segment.angle / 2;
         const textPoint = polarToCartesian(center, center, labelRadius, textAngle);
         return (
           <g key={entrant.id} filter="url(#segmentGlow)">
-            <path d={describeSegment(index, wheelEntrants.length, segmentRadius, center)}
+            <path d={describeSegment(segment.startAngle, segment.endAngle, segmentRadius, center)}
               fill={segmentColors[index % segmentColors.length]} stroke="rgba(8,17,33,0.45)" strokeWidth="4" />
             <line x1={center} y1={center}
-              x2={polarToCartesian(center, center, segmentRadius, index * anglePerSegment).x}
-              y2={polarToCartesian(center, center, segmentRadius, index * anglePerSegment).y}
+              x2={polarToCartesian(center, center, segmentRadius, segment.startAngle).x}
+              y2={polarToCartesian(center, center, segmentRadius, segment.startAngle).y}
               stroke="rgba(255,255,255,0.16)" strokeWidth="1.5" />
             <text x={textPoint.x} y={textPoint.y} fill="#07111d" fontSize={fontSize} fontWeight="800"
               letterSpacing="0.02em" textAnchor="middle" dominantBaseline="middle"

@@ -306,12 +306,13 @@ export class GiveawayService {
     }
 
     // Update createdAt to change order (entrants are sorted by createdAt, username)
-    const now = Date.now();
+    // Use seconds apart to ensure proper ordering
+    const baseTime = Date.now();
     await Promise.all(
       shuffled.map((entrant, index) =>
         prisma.entrant.update({
           where: { id: entrant.id },
-          data: { createdAt: new Date(now + index) }
+          data: { createdAt: new Date(baseTime + index * 1000) }
         })
       )
     );
