@@ -23,6 +23,14 @@ export function AppShell() {
       {/* Fixed header */}
       <header className="fixed top-0 z-40 w-full border-b border-slate-800 bg-slate-900 shadow-sm">
         <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-3 px-4 sm:px-6">{/* Header content */}
+        {/* Version */}
+        <div className="shrink-0 text-xs font-mono text-slate-500">
+          v{__BUILD_VERSION__}
+        </div>
+
+        {/* Divider */}
+        <div className="h-6 w-px bg-slate-800" />
+
         {/* Avatar + channel */}
         <div className="flex shrink-0 items-center gap-3">
           {snapshot?.broadcaster.profileImageUrl ? (
