@@ -326,11 +326,13 @@ export class GiveawayService {
     const nouns = ["Wolf", "Dragon", "Phoenix", "Tiger", "Falcon", "Bear", "Lion", "Eagle", "Fox", "Hawk"];
 
     const testEntrants = [];
+    const timestamp = Date.now();
     for (let i = 0; i < count; i++) {
       const adj = adjectives[Math.floor(secureRandomFraction() * adjectives.length)];
       const noun = nouns[Math.floor(secureRandomFraction() * nouns.length)];
       const num = Math.floor(secureRandomFraction() * 9999);
-      const username = `${adj}${noun}${num}`.toLowerCase();
+      const uniqueSuffix = `${timestamp}_${i}`;
+      const username = `${adj}${noun}${num}_${uniqueSuffix}`.toLowerCase();
       const displayName = `${adj}${noun}${num}`;
 
       testEntrants.push({
