@@ -118,14 +118,22 @@ body {
               linear-gradient(180deg, #09111f 0%, #030509 100%);
 }
 
-/* Scale up the wheel container in fullscreen */
+/* Scale up the wheel container in fullscreen - make it much larger */
+#wheel-fullscreen-target:fullscreen,
+#wheel-fullscreen-target:-webkit-full-screen,
+#wheel-fullscreen-target:-moz-full-screen,
+#wheel-fullscreen-target:-ms-fullscreen {
+  padding: 0;
+}
+
 #wheel-fullscreen-target:fullscreen > div,
 #wheel-fullscreen-target:-webkit-full-screen > div,
 #wheel-fullscreen-target:-moz-full-screen > div,
 #wheel-fullscreen-target:-ms-fullscreen > div {
-  width: 100%;
-  max-width: min(90vh, 90vw);
+  width: min(95vh, 95vw);
+  max-width: none;
   height: auto;
+  transform: scale(1.5);
 }
 
 /* Scale up the inner wheel max-width containers */
