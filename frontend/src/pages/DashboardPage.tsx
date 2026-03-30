@@ -58,7 +58,7 @@ function SetupToggle({ label, checked, onChange, description }: {
   label: string; checked: boolean; onChange: (value: boolean) => void; description: string;
 }) {
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-[20px] border border-white/[0.08] bg-white/[0.04] px-4 py-4 transition hover:border-violet-400/20 hover:bg-white/[0.06]">
+    <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-700/70 bg-slate-800/60 px-4 py-4 transition hover:border-slate-600 hover:bg-slate-700/60">
       <input type="checkbox" className="mt-1 h-4 w-4 accent-violet-500" checked={checked} onChange={(e) => onChange(e.target.checked)} />
       <span>
         <span className="block font-semibold text-white">{label}</span>
@@ -81,7 +81,7 @@ function NumberStepper({ label, value, onChange, min, max }: {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1] disabled:opacity-40"
+          className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-slate-700/60 text-slate-100 transition hover:border-slate-600 hover:bg-slate-700 disabled:opacity-40"
           onClick={() => onChange(Math.max(min, value - 1))}
           disabled={value <= min}
         >
@@ -97,7 +97,7 @@ function NumberStepper({ label, value, onChange, min, max }: {
         />
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1] disabled:opacity-40"
+          className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-slate-700/60 text-slate-100 transition hover:border-slate-600 hover:bg-slate-700 disabled:opacity-40"
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={value >= max}
         >
@@ -161,7 +161,7 @@ function TimeStepper({ label, days, onChange }: {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1] disabled:opacity-40"
+          className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-slate-700/60 text-slate-100 transition hover:border-slate-600 hover:bg-slate-700 disabled:opacity-40"
           onClick={() => handleValueChange(Math.max(0, displayValue - 1))}
           disabled={displayValue <= 0}
         >
@@ -176,7 +176,7 @@ function TimeStepper({ label, days, onChange }: {
         />
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1]"
+          className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-slate-700/60 text-slate-100 transition hover:border-slate-600 hover:bg-slate-700"
           onClick={() => handleValueChange(displayValue + 1)}
         >
           +
@@ -213,9 +213,9 @@ function ActivityCard({ entry }: { entry: AuditLogView }) {
     ? "border-amber-400/20 bg-amber-500/[0.08]"
     : entry.action.includes("spin") || entry.action.includes("reroll")
       ? "border-violet-400/20 bg-violet-500/[0.08]"
-      : "border-white/[0.08] bg-white/[0.04]";
+      : "border-slate-700/70 bg-slate-800/60";
   return (
-    <div className={cn("rounded-[22px] border px-4 py-3 text-sm", tone)}>
+    <div className={cn("rounded-lg border px-4 py-3 text-sm", tone)}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-semibold text-white">{entry.message}</p>
@@ -245,6 +245,7 @@ export function DashboardPage() {
   const [winnerPopupChance, setWinnerPopupChance] = useState<number | null>(null);
   const [expandedEntrantId, setExpandedEntrantId] = useState<string | null>(null);
   const [dismissKey, setDismissKey] = useState(0);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const bootstrappedSpinRef = useRef(false);
   const handledWinnerPopupRef = useRef<string | null>(null);
 
@@ -378,6 +379,14 @@ export function DashboardPage() {
             </Button>
             <Button
               variant="secondary"
+              disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
+              onClick={() => runAction("reroll", () => apiPost("/api/giveaway/reroll"))}
+              title="Spin again if winner doesn't respond"
+            >
+              Reroll
+            </Button>
+            <Button
+              variant="secondary"
               disabled={!giveaway}
               onClick={() => runAction("toggle-overlay", () => apiPost("/api/giveaway/toggle-overlay"))}
             >
@@ -392,7 +401,7 @@ export function DashboardPage() {
         <div className="space-y-3">
           <div className="flex justify-end">
             <button
-              className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1]"
+              className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-slate-700/60 text-slate-100 transition hover:border-slate-600 hover:bg-slate-700"
               onClick={() => {
                 const wheelContainer = document.getElementById("wheel-container");
                 if (wheelContainer) {
@@ -459,7 +468,7 @@ export function DashboardPage() {
                 : `${eligibleEntrants.length} eligible entrant${eligibleEntrants.length === 1 ? "" : "s"} on the wheel.`}
             </p>
             {latestJoinRejection ? (
-              <div className="rounded-[18px] border border-amber-400/20 bg-amber-500/[0.08] px-3 py-3 text-sm text-amber-200">
+              <div className="rounded-md border border-amber-400/20 bg-amber-500/[0.08] px-3 py-3 text-sm text-amber-200">
                 {latestJoinRejection.message}
               </div>
             ) : null}
@@ -468,18 +477,16 @@ export function DashboardPage() {
           {/* Secondary actions */}
           <DisclosurePanel kicker="More" title="Secondary actions" defaultOpen={false}>
             <div className="space-y-3">
-              <div className="grid gap-2 sm:grid-cols-4">
-                <Button variant="secondary" disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
-                  onClick={() => runAction("reroll", () => apiPost("/api/giveaway/reroll"))}>Reroll</Button>
+              <div className="grid gap-2 sm:grid-cols-3">
                 <Button variant="secondary" disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
                   onClick={() => runAction("shuffle", () => apiPost("/api/giveaway/shuffle"))}>Shuffle</Button>
                 <Button variant="secondary" disabled={busyAction !== null || spinActive}
                   onClick={() => runAction("chatters", () => apiPost("/api/entrants/import-chatters"))}>Import chatters</Button>
-                <Button variant="secondary" disabled={busyAction !== null || spinActive}
-                  onClick={() => runAction("clear", () => apiPost("/api/giveaway/clear"))}>Clear all</Button>
+                <Button variant="danger" disabled={busyAction !== null || spinActive}
+                  onClick={() => setShowClearConfirm(true)}>Clear all</Button>
               </div>
 
-              <div className="rounded-[20px] border border-white/[0.08] bg-white/[0.04] px-4 py-4">
+              <div className="rounded-lg border border-slate-700/70 bg-slate-800/60 px-4 py-4">
                 <label className="field-label">Manual add</label>
                 <div className="flex gap-2">
                   <input className="field-input" placeholder="Username" value={manualUsername}
@@ -493,7 +500,7 @@ export function DashboardPage() {
               </div>
 
               <div className="space-y-3">
-                <div className="rounded-[20px] border border-white/[0.08] bg-slate-950/40 px-4 py-3">
+                <div className="rounded-lg border border-slate-700/70 bg-slate-950/40 px-4 py-3">
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">OBS Setup</p>
                   <p className="text-xs text-slate-400 mb-2">Add a Browser Source with these settings:</p>
                   <ul className="text-xs text-slate-400 space-y-1 ml-4 list-disc">
@@ -531,8 +538,8 @@ export function DashboardPage() {
             {giveaway.entrants.length === 0 ? (
               <p className="text-sm text-slate-400">No entrants yet.</p>
             ) : giveaway.entrants.map((entrant) => (
-              <div key={entrant.id} className={cn("rounded-[22px] border px-4 py-3",
-                entrant.isEligible ? "border-white/[0.08] bg-white/[0.04]" : "border-amber-400/20 bg-amber-500/[0.07]")}>
+              <div key={entrant.id} className={cn("rounded-lg border px-4 py-3",
+                entrant.isEligible ? "border-slate-700/70 bg-slate-800/60" : "border-amber-400/20 bg-amber-500/[0.07]")}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="truncate font-semibold text-white">{entrant.displayName}</p>
@@ -557,7 +564,7 @@ export function DashboardPage() {
                   </div>
                 </div>
                 {expandedEntrantId === entrant.id ? (
-                  <div className="mt-3 flex flex-wrap gap-2 rounded-[18px] border border-white/[0.08] bg-slate-950/40 px-4 py-3">
+                  <div className="mt-3 flex flex-wrap gap-2 rounded-md border border-slate-700/70 bg-slate-950/40 px-4 py-3">
                     {entrant.entryCount > 1 ? (
                       <Button variant="secondary" disabled={busyAction !== null || spinActive}
                         onClick={() => runAction(`remove-one-${entrant.username}`, async () => {
@@ -585,14 +592,14 @@ export function DashboardPage() {
           </div>
           <div className="space-y-2.5">
             {spinActive ? (
-              <div className="rounded-[20px] border border-violet-400/20 bg-violet-500/[0.08] px-4 py-4 text-sm text-violet-200">
+              <div className="rounded-lg border border-violet-400/20 bg-violet-500/[0.08] px-4 py-4 text-sm text-violet-200">
                 Reveal in progress — winner appears here when the wheel stops.
               </div>
             ) : null}
             {visibleWinners.length === 0 ? (
               <p className="text-sm text-slate-400">No winners yet.</p>
             ) : visibleWinners.map((w) => (
-              <div key={w.id} className="rounded-[20px] border border-white/[0.08] bg-white/[0.04] px-4 py-3">
+              <div key={w.id} className="rounded-lg border border-slate-700/70 bg-slate-800/60 px-4 py-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-white">{w.displayName}</p>
@@ -624,7 +631,7 @@ export function DashboardPage() {
       {/* Setup modal */}
       {showSetupModal && setupForm ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-sm">
-          <div className="relative w-full max-w-4xl overflow-hidden rounded-[34px] border border-violet-400/15 bg-[linear-gradient(160deg,rgba(15,22,42,0.99),rgba(5,8,18,0.99))] p-6 shadow-[0_32px_100px_rgba(0,0,0,0.55)]">
+          <div className="relative w-full max-w-4xl overflow-hidden rounded-lg border border-slate-700 bg-slate-900 p-6 shadow-[0_32px_100px_rgba(0,0,0,0.55)]">
             <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/35 to-transparent" />
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -677,7 +684,7 @@ export function DashboardPage() {
               <SetupToggle label="Subscriber-only mode" checked={setupForm.subscriberOnlyMode} onChange={(v) => setSetupForm((c) => c ? { ...c, subscriberOnlyMode: v } : c)} description="Restrict entry to current subscribers." />
             </div>
 
-            <div className="mt-6 rounded-[24px] border border-white/[0.08] bg-white/[0.03] px-5 py-5">
+            <div className="mt-6 rounded-lg border border-slate-700/70 bg-slate-800/50 px-5 py-5">
               <p className="section-kicker">Role multipliers</p>
               <h4 className="mt-1.5 text-lg font-bold text-white">Weight each role</h4>
               <p className="mt-1.5 text-sm text-slate-400">Higher values increase that role's chances of winning.</p>
@@ -727,7 +734,7 @@ export function DashboardPage() {
       {winnerPopupName ? (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/88 p-4 backdrop-blur-md"
           onClick={() => handleDismissWinner()}>
-          <div className="relative w-full max-w-3xl overflow-hidden rounded-[40px] border border-violet-400/25 bg-[radial-gradient(ellipse_at_top,rgba(139,92,246,0.28),transparent_48%),linear-gradient(160deg,rgba(11,16,34,0.99),rgba(6,8,18,0.99))] px-8 py-10 text-center shadow-[0_48px_130px_rgba(0,0,0,0.65)]"
+          <div className="relative w-full max-w-3xl overflow-hidden rounded-lg border border-violet-400/25 bg-slate-900 px-8 py-10 text-center shadow-[0_48px_130px_rgba(0,0,0,0.65)]"
             onClick={(e) => e.stopPropagation()}>
             <div className="pointer-events-none absolute inset-x-1/2 top-0 h-48 w-48 -translate-x-1/2 rounded-full bg-violet-500/20 blur-[90px]" />
             <div className="pointer-events-none absolute inset-x-10 bottom-0 h-px bg-gradient-to-r from-transparent via-violet-400/35 to-transparent" />
@@ -744,6 +751,29 @@ export function DashboardPage() {
             )}
             <div className="mt-8 flex justify-center">
               <Button onClick={() => handleDismissWinner()}>Dismiss</Button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Clear All Confirmation */}
+      {showClearConfirm ? (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-sm"
+          onClick={() => setShowClearConfirm(false)}>
+          <div className="relative w-full max-w-md overflow-hidden rounded-lg border border-slate-700 bg-slate-900 px-6 py-6 text-center shadow-xl"
+            onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-bold text-white">Clear All Entrants?</h3>
+            <p className="mt-3 text-sm text-slate-300">
+              This will remove all {giveaway.entrantCount} entrants from the current giveaway. This action cannot be undone.
+            </p>
+            <div className="mt-6 flex justify-center gap-3">
+              <Button variant="ghost" onClick={() => setShowClearConfirm(false)}>Cancel</Button>
+              <Button variant="danger" onClick={async () => {
+                setShowClearConfirm(false);
+                await runAction("clear", () => apiPost("/api/giveaway/clear"));
+              }}>
+                Clear All
+              </Button>
             </div>
           </div>
         </div>

@@ -4,18 +4,18 @@ export function StatusPill({ status }: { status: "connected" | "reconnecting" | 
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em]",
-        status === "connected" && "border-emerald-400/25 bg-emerald-500/[0.12] text-emerald-300",
-        status === "reconnecting" && "border-amber-400/25 bg-amber-500/[0.12] text-amber-300",
-        status === "disconnected" && "border-rose-400/25 bg-rose-500/[0.12] text-rose-300"
+        "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-medium uppercase tracking-wide",
+        status === "connected" && "border-emerald-500/40 bg-emerald-500/[0.15] text-emerald-300",
+        status === "reconnecting" && "border-amber-500/40 bg-amber-500/[0.15] text-amber-300",
+        status === "disconnected" && "border-rose-500/40 bg-rose-500/[0.15] text-rose-300"
       )}
     >
       <span
         className={cn(
-          "h-2 w-2 rounded-full",
-          status === "connected" && "animate-pulse bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,1)]",
-          status === "reconnecting" && "animate-pulse bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.9)]",
-          status === "disconnected" && "bg-rose-400 shadow-[0_0_8px_rgba(251,113,133,0.7)]"
+          "h-1.5 w-1.5 rounded-full",
+          status === "connected" && "animate-pulse bg-emerald-400",
+          status === "reconnecting" && "animate-pulse bg-amber-400",
+          status === "disconnected" && "bg-rose-400"
         )}
       />
       {formatConnectionStatus(status)}

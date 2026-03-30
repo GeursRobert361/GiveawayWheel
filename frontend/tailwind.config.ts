@@ -6,6 +6,7 @@ export default {
     extend: {
       colors: {
         slate: {
+          925: "#0a0f1e",
           950: "#050816"
         },
         brand: {

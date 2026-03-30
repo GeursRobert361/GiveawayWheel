@@ -43,7 +43,7 @@ export function HistoryPage() {
           visibleHistory.map((winner) => (
             <div
               key={winner.id}
-              className="grid gap-2 rounded-[24px] border border-white/[0.08] bg-white/[0.04] px-4 py-4 transition hover:border-violet-400/15 hover:bg-white/[0.06] md:grid-cols-[1.1fr_0.9fr_0.6fr]"
+              className="grid gap-2 rounded-lg border border-slate-700/70 bg-slate-800/60 px-4 py-4 transition hover:border-slate-600 hover:bg-slate-700/60 md:grid-cols-[1.1fr_0.9fr_0.6fr]"
             >
               <div>
                 <p className="font-semibold text-white">{winner.displayName}</p>

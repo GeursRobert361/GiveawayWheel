@@ -24,14 +24,13 @@ export function DisclosurePanel({
   return (
     <section
       className={cn(
-        "relative overflow-hidden rounded-[30px] border border-white/[0.09] bg-[linear-gradient(160deg,rgba(18,26,50,0.88),rgba(5,8,18,0.92))] shadow-soft backdrop-blur-xl",
+        "relative overflow-hidden rounded-lg border border-slate-700/70 bg-slate-900/95 shadow-sm",
         className
       )}
     >
-      <div className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/30 to-transparent" />
       <button
         type="button"
-        className="flex w-full items-start justify-between gap-4 px-5 py-5 text-left transition hover:bg-white/[0.02] sm:px-6"
+        className="flex w-full items-start justify-between gap-4 px-4 py-4 text-left transition-colors hover:bg-slate-800/60 sm:px-5"
         onClick={() => setOpen((current) => !current)}
       >
         <div>
@@ -46,8 +45,8 @@ export function DisclosurePanel({
           {actions}
           <span
             className={cn(
-              "inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.04] text-sm font-bold text-slate-300 transition duration-200",
-              open && "rotate-90 border-violet-400/30 bg-violet-500/[0.12] text-violet-300"
+              "inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-700 bg-slate-800 text-sm font-bold text-slate-300 transition-all duration-200",
+              open && "rotate-90 border-violet-500/50 bg-violet-600/20 text-violet-300"
             )}
             aria-hidden="true"
           >
@@ -56,7 +55,7 @@ export function DisclosurePanel({
         </div>
       </button>
 
-      {open ? <div className="border-t border-white/[0.08] px-5 pb-5 pt-4 sm:px-6">{children}</div> : null}
+      {open ? <div className="border-t border-slate-800 px-4 pb-4 pt-4 sm:px-5">{children}</div> : null}
     </section>
   );
 }

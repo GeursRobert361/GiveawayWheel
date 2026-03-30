@@ -68,7 +68,7 @@ function Toggle({
   description: string;
 }) {
   return (
-    <label className="flex cursor-pointer items-start gap-3 rounded-[22px] border border-white/[0.08] bg-white/[0.04] px-4 py-4 transition hover:border-violet-400/20 hover:bg-white/[0.06]">
+    <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-slate-700/70 bg-slate-800/60 px-4 py-4 transition hover:border-slate-600 hover:bg-slate-700/60">
       <input
         type="checkbox"
         className="mt-1 h-4 w-4 accent-violet-500"
@@ -96,7 +96,7 @@ function NumberStepper({ label, value, onChange, min, max }: {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1] disabled:opacity-40"
+          className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-white/[0.06] text-slate-100 transition hover:border-slate-600 hover:bg-slate-700 disabled:opacity-40"
           onClick={() => onChange(Math.max(min, value - 1))}
           disabled={value <= min}
         >
@@ -112,7 +112,7 @@ function NumberStepper({ label, value, onChange, min, max }: {
         />
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1] disabled:opacity-40"
+          className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-white/[0.06] text-slate-100 transition hover:border-slate-600 hover:bg-slate-700 disabled:opacity-40"
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={value >= max}
         >
@@ -177,7 +177,7 @@ function TimeStepper({ label, days, onChange }: {
       <div className="flex items-center gap-2">
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1] disabled:opacity-40"
+          className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-white/[0.06] text-slate-100 transition hover:border-slate-600 hover:bg-slate-700 disabled:opacity-40"
           onClick={() => handleValueChange(Math.max(0, displayValue - 1))}
           disabled={displayValue <= 0}
         >
@@ -192,7 +192,7 @@ function TimeStepper({ label, days, onChange }: {
         />
         <button
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.1] bg-white/[0.06] text-slate-100 transition hover:border-violet-400/30 hover:bg-white/[0.1]"
+          className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-white/[0.06] text-slate-100 transition hover:border-slate-600 hover:bg-slate-700"
           onClick={() => handleValueChange(displayValue + 1)}
         >
           +
@@ -441,7 +441,7 @@ export function SettingsPage() {
             form.overrides.map((override, index) => (
               <div
                 key={`${override.username}-${index}`}
-                className="grid gap-3 rounded-[24px] border border-white/[0.08] bg-white/[0.04] p-4 md:grid-cols-[1.1fr_0.8fr_1fr_auto]"
+                className="grid gap-3 rounded-lg border border-slate-700/70 bg-slate-800/60 p-4 md:grid-cols-[1.1fr_0.8fr_1fr_auto]"
               >
                 <input
                   className="field-input"
@@ -480,7 +480,7 @@ export function SettingsPage() {
                     )
                   }
                 />
-                <label className="flex items-center gap-3 rounded-2xl border border-white/[0.08] px-4 py-3 text-sm transition hover:border-violet-400/20">
+                <label className="flex items-center gap-3 rounded-lg border border-slate-700/70 px-4 py-3 text-sm transition hover:border-slate-600">
                   <input
                     type="checkbox"
                     className="accent-violet-500"
