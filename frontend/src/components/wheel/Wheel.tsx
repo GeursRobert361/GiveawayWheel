@@ -451,10 +451,10 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="animate-in zoom-in duration-500 flex h-full w-full items-center justify-center rounded-full bg-slate-950/95 text-center shadow-[0_32px_90px_rgba(0,0,0,0.9)] backdrop-blur-md border-4 border-violet-400/40">
               <div>
-                <p className="text-4xl font-semibold uppercase tracking-[0.4em] text-violet-300">Winner</p>
+                <p className="text-7xl font-semibold uppercase tracking-[0.4em] text-violet-300">Winner</p>
                 <p className="mt-6 font-display text-9xl font-bold text-white break-words px-8">{resolvedWinner}</p>
                 {resolvedWinnerChance !== null && (
-                  <p className="mt-4 text-5xl font-semibold text-violet-300">
+                  <p className="mt-4 text-8xl font-semibold text-violet-300">
                     {resolvedWinnerChance.toFixed(2)}% chance
                   </p>
                 )}
