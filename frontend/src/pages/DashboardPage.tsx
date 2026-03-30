@@ -408,6 +408,38 @@ export function DashboardPage() {
                   if (document.fullscreenElement) {
                     document.exitFullscreen().catch(() => {});
                   } else {
+                    // Apply fullscreen styles
+                    const applyStyles = () => {
+                      const target = document.getElementById("wheel-fullscreen-target");
+                      if (target && document.fullscreenElement === target) {
+                        target.style.cssText = `
+                          position: fixed !important;
+                          top: 0 !important;
+                          left: 0 !important;
+                          width: 100vw !important;
+                          height: 100vh !important;
+                          display: flex !important;
+                          align-items: center !important;
+                          justify-content: center !important;
+                          padding: 0 !important;
+                          margin: 0 !important;
+                          background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%), linear-gradient(180deg, #09111f 0%, #030509 100%) !important;
+                          overflow: hidden !important;
+                        `;
+                        // Make all children huge
+                        const children = target.children;
+                        for (let i = 0; i < children.length; i++) {
+                          const child = children[i] as HTMLElement;
+                          child.style.width = '90vmin';
+                          child.style.height = '90vmin';
+                          child.style.maxWidth = 'none';
+                          child.style.maxHeight = 'none';
+                        }
+                      }
+                    };
+
+                    wheelFullscreenTarget.addEventListener("fullscreenchange", applyStyles, { once: true });
+                    setTimeout(applyStyles, 50);
                     wheelFullscreenTarget.requestFullscreen().catch(() => {});
                   }
                 }
