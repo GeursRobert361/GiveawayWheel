@@ -81,23 +81,24 @@ body {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-/* Fullscreen wheel styling - make HUGE by setting actual container size */
+/* Fullscreen wheel styling - make HUGE and perfectly centered */
 #wheel-fullscreen-target:fullscreen,
 #wheel-fullscreen-target:-webkit-full-screen,
 #wheel-fullscreen-target:-moz-full-screen,
 #wheel-fullscreen-target:-ms-fullscreen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  padding: 0 !important;
+  margin: 0 !important;
   background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
               linear-gradient(180deg, #09111f 0%, #030509 100%);
   overflow: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 /* Force all containers to be huge */
@@ -108,18 +109,49 @@ body {
   max-width: none !important;
 }
 
-#wheel-fullscreen-target:fullscreen > div,
-#wheel-fullscreen-target:-webkit-full-screen > div,
-#wheel-fullscreen-target:-moz-full-screen > div,
-#wheel-fullscreen-target:-ms-fullscreen > div {
-  width: 96vmin;
-  height: 96vmin;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* Hide decorative background elements in fullscreen */
+#wheel-fullscreen-target:fullscreen .pointer-events-none.absolute,
+#wheel-fullscreen-target:-webkit-full-screen .pointer-events-none.absolute,
+#wheel-fullscreen-target:-moz-full-screen .pointer-events-none.absolute,
+#wheel-fullscreen-target:-ms-fullscreen .pointer-events-none.absolute {
+  display: none !important;
 }
 
-/* Make SVG huge */
+/* Show only the pointer arrow at the top */
+#wheel-fullscreen-target:fullscreen .absolute.left-1\/2.top-2,
+#wheel-fullscreen-target:fullscreen .absolute.left-1\/2.top-4,
+#wheel-fullscreen-target:-webkit-full-screen .absolute.left-1\/2.top-2,
+#wheel-fullscreen-target:-webkit-full-screen .absolute.left-1\/2.top-4,
+#wheel-fullscreen-target:-moz-full-screen .absolute.left-1\/2.top-2,
+#wheel-fullscreen-target:-moz-full-screen .absolute.left-1\/2.top-4,
+#wheel-fullscreen-target:-ms-fullscreen .absolute.left-1\/2.top-2,
+#wheel-fullscreen-target:-ms-fullscreen .absolute.left-1\/2.top-4 {
+  display: flex !important;
+  position: fixed !important;
+  top: 3vh !important;
+  left: 50% !important;
+  transform: translateX(-50%) scale(1.8) !important;
+  z-index: 100 !important;
+}
+
+/* Main wheel container - perfectly centered and huge */
+#wheel-fullscreen-target:fullscreen .mx-auto,
+#wheel-fullscreen-target:-webkit-full-screen .mx-auto,
+#wheel-fullscreen-target:-moz-full-screen .mx-auto,
+#wheel-fullscreen-target:-ms-fullscreen .mx-auto {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 98vmin !important;
+  height: 98vmin !important;
+  max-width: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Make SVG fill container completely */
 #wheel-fullscreen-target:fullscreen svg,
 #wheel-fullscreen-target:-webkit-full-screen svg,
 #wheel-fullscreen-target:-moz-full-screen svg,
