@@ -81,76 +81,46 @@ body {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-/* Fullscreen wheel styling */
-#wheel-fullscreen-target:fullscreen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
-              linear-gradient(180deg, #09111f 0%, #030509 100%);
-}
-
-#wheel-fullscreen-target:-webkit-full-screen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
-              linear-gradient(180deg, #09111f 0%, #030509 100%);
-}
-
-#wheel-fullscreen-target:-moz-full-screen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
-              linear-gradient(180deg, #09111f 0%, #030509 100%);
-}
-
-#wheel-fullscreen-target:-ms-fullscreen {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
-              linear-gradient(180deg, #09111f 0%, #030509 100%);
-}
-
-/* Scale up the wheel container in fullscreen - make it HUGE */
+/* Fullscreen wheel styling - make HUGE by setting actual container size */
 #wheel-fullscreen-target:fullscreen,
 #wheel-fullscreen-target:-webkit-full-screen,
 #wheel-fullscreen-target:-moz-full-screen,
 #wheel-fullscreen-target:-ms-fullscreen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
+  background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
+              linear-gradient(180deg, #09111f 0%, #030509 100%);
   overflow: hidden;
+}
+
+/* Force all containers to be huge */
+#wheel-fullscreen-target:fullscreen *,
+#wheel-fullscreen-target:-webkit-full-screen *,
+#wheel-fullscreen-target:-moz-full-screen *,
+#wheel-fullscreen-target:-ms-fullscreen * {
+  max-width: none !important;
 }
 
 #wheel-fullscreen-target:fullscreen > div,
 #wheel-fullscreen-target:-webkit-full-screen > div,
 #wheel-fullscreen-target:-moz-full-screen > div,
 #wheel-fullscreen-target:-ms-fullscreen > div {
-  width: 100vw;
-  max-width: none;
-  height: auto;
-  transform: scale(8);
-  transform-origin: center center;
+  width: 90vmin;
+  height: 90vmin;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Scale up the inner wheel max-width containers */
-#wheel-fullscreen-target:fullscreen .mx-auto,
-#wheel-fullscreen-target:-webkit-full-screen .mx-auto,
-#wheel-fullscreen-target:-moz-full-screen .mx-auto,
-#wheel-fullscreen-target:-ms-fullscreen .mx-auto {
-  max-width: 100% !important;
-}
-
-/* Make SVG fill available space */
+/* Make SVG huge */
 #wheel-fullscreen-target:fullscreen svg,
 #wheel-fullscreen-target:-webkit-full-screen svg,
 #wheel-fullscreen-target:-moz-full-screen svg,
 #wheel-fullscreen-target:-ms-fullscreen svg {
-  width: 100%;
-  height: auto;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
 }
