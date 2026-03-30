@@ -101,57 +101,66 @@ body {
   justify-content: center !important;
 }
 
-/* Force all containers to be huge */
-#wheel-fullscreen-target:fullscreen *,
-#wheel-fullscreen-target:-webkit-full-screen *,
-#wheel-fullscreen-target:-moz-full-screen *,
-#wheel-fullscreen-target:-ms-fullscreen * {
-  max-width: none !important;
-}
-
-/* Hide decorative background elements in fullscreen */
-#wheel-fullscreen-target:fullscreen .pointer-events-none.absolute,
-#wheel-fullscreen-target:-webkit-full-screen .pointer-events-none.absolute,
-#wheel-fullscreen-target:-moz-full-screen .pointer-events-none.absolute,
-#wheel-fullscreen-target:-ms-fullscreen .pointer-events-none.absolute {
+/* Hide all children initially */
+#wheel-fullscreen-target:fullscreen > *,
+#wheel-fullscreen-target:-webkit-full-screen > *,
+#wheel-fullscreen-target:-moz-full-screen > *,
+#wheel-fullscreen-target:-ms-fullscreen > * {
   display: none !important;
 }
 
-/* Show only the pointer arrow at the top */
-#wheel-fullscreen-target:fullscreen .absolute.left-1\/2.top-2,
-#wheel-fullscreen-target:fullscreen .absolute.left-1\/2.top-4,
-#wheel-fullscreen-target:-webkit-full-screen .absolute.left-1\/2.top-2,
-#wheel-fullscreen-target:-webkit-full-screen .absolute.left-1\/2.top-4,
-#wheel-fullscreen-target:-moz-full-screen .absolute.left-1\/2.top-2,
-#wheel-fullscreen-target:-moz-full-screen .absolute.left-1\/2.top-4,
-#wheel-fullscreen-target:-ms-fullscreen .absolute.left-1\/2.top-2,
-#wheel-fullscreen-target:-ms-fullscreen .absolute.left-1\/2.top-4 {
-  display: flex !important;
+/* Show only the pointer and the wheel container */
+#wheel-fullscreen-target:fullscreen > div:nth-child(4),
+#wheel-fullscreen-target:fullscreen > div:nth-child(5),
+#wheel-fullscreen-target:-webkit-full-screen > div:nth-child(4),
+#wheel-fullscreen-target:-webkit-full-screen > div:nth-child(5),
+#wheel-fullscreen-target:-moz-full-screen > div:nth-child(4),
+#wheel-fullscreen-target:-moz-full-screen > div:nth-child(5),
+#wheel-fullscreen-target:-ms-fullscreen > div:nth-child(4),
+#wheel-fullscreen-target:-ms-fullscreen > div:nth-child(5) {
+  display: block !important;
+}
+
+/* Position pointer at top */
+#wheel-fullscreen-target:fullscreen > div:nth-child(4),
+#wheel-fullscreen-target:-webkit-full-screen > div:nth-child(4),
+#wheel-fullscreen-target:-moz-full-screen > div:nth-child(4),
+#wheel-fullscreen-target:-ms-fullscreen > div:nth-child(4) {
   position: fixed !important;
-  top: 3vh !important;
+  top: 4vh !important;
   left: 50% !important;
-  transform: translateX(-50%) scale(1.8) !important;
+  transform: translateX(-50%) scale(2) !important;
   z-index: 100 !important;
 }
 
-/* Main wheel container - perfectly centered and huge */
-#wheel-fullscreen-target:fullscreen .mx-auto,
-#wheel-fullscreen-target:-webkit-full-screen .mx-auto,
-#wheel-fullscreen-target:-moz-full-screen .mx-auto,
-#wheel-fullscreen-target:-ms-fullscreen .mx-auto {
+/* Main wheel container - perfectly centered and HUGE */
+#wheel-fullscreen-target:fullscreen > div:nth-child(5),
+#wheel-fullscreen-target:-webkit-full-screen > div:nth-child(5),
+#wheel-fullscreen-target:-moz-full-screen > div:nth-child(5),
+#wheel-fullscreen-target:-ms-fullscreen > div:nth-child(5) {
   position: fixed !important;
   top: 50% !important;
   left: 50% !important;
   transform: translate(-50%, -50%) !important;
-  width: 98vmin !important;
-  height: 98vmin !important;
+  width: 90vmin !important;
+  height: 90vmin !important;
   max-width: none !important;
+  margin: 0 !important;
+}
+
+/* Reset relative positioning on inner container */
+#wheel-fullscreen-target:fullscreen > div:nth-child(5) > div,
+#wheel-fullscreen-target:-webkit-full-screen > div:nth-child(5) > div,
+#wheel-fullscreen-target:-moz-full-screen > div:nth-child(5) > div,
+#wheel-fullscreen-target:-ms-fullscreen > div:nth-child(5) > div {
+  width: 100% !important;
+  height: 100% !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
 }
 
-/* Make SVG fill container completely */
+/* Make SVG huge */
 #wheel-fullscreen-target:fullscreen svg,
 #wheel-fullscreen-target:-webkit-full-screen svg,
 #wheel-fullscreen-target:-moz-full-screen svg,
