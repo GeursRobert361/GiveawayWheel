@@ -118,22 +118,24 @@ body {
               linear-gradient(180deg, #09111f 0%, #030509 100%);
 }
 
-/* Scale up the wheel container in fullscreen - make it much larger */
+/* Scale up the wheel container in fullscreen - make it HUGE */
 #wheel-fullscreen-target:fullscreen,
 #wheel-fullscreen-target:-webkit-full-screen,
 #wheel-fullscreen-target:-moz-full-screen,
 #wheel-fullscreen-target:-ms-fullscreen {
   padding: 0;
+  overflow: hidden;
 }
 
 #wheel-fullscreen-target:fullscreen > div,
 #wheel-fullscreen-target:-webkit-full-screen > div,
 #wheel-fullscreen-target:-moz-full-screen > div,
 #wheel-fullscreen-target:-ms-fullscreen > div {
-  width: min(95vh, 95vw);
+  width: 100vw;
   max-width: none;
   height: auto;
-  transform: scale(1.5);
+  transform: scale(3.5);
+  transform-origin: center center;
 }
 
 /* Scale up the inner wheel max-width containers */
@@ -142,4 +144,13 @@ body {
 #wheel-fullscreen-target:-moz-full-screen .mx-auto,
 #wheel-fullscreen-target:-ms-fullscreen .mx-auto {
   max-width: 100% !important;
+}
+
+/* Make SVG fill available space */
+#wheel-fullscreen-target:fullscreen svg,
+#wheel-fullscreen-target:-webkit-full-screen svg,
+#wheel-fullscreen-target:-moz-full-screen svg,
+#wheel-fullscreen-target:-ms-fullscreen svg {
+  width: 100%;
+  height: auto;
 }
