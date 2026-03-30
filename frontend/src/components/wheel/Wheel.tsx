@@ -304,6 +304,8 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
   const isSpinActive = !celebrating && (countdown !== null || duration > 0);
   const totalRotation = rotation + (isSpinActive ? 0 : idleRotation);
+  const showSpinButton = onSpin && !resolvedWinner && !isSpinActive;
+  const showCenterText = !showSpinButton && !countdown && countdown !== 0;
 
   // Simplified SVG for overlay mode (better OBS performance)
   const svgEl = overlayMode ? (
@@ -348,10 +350,14 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
       <circle cx={center} cy={center} r={innerRadius + 18} fill="url(#wheelCore)" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
       <circle cx={center} cy={center} r={innerRadius} fill="#07101c" stroke="rgba(123,229,255,0.22)" strokeWidth="3" />
-      <text x={center} y={center - 12} textAnchor="middle" fill="#ecfbff" fontSize={compact ? "24" : "28"} fontWeight="800">LIVE DRAW</text>
-      <text x={center} y={center + 18} textAnchor="middle" fill="#7be5ff" fontSize={compact ? "15" : "18"} fontWeight="700">
-        {wheelEntrants.length} names in play
-      </text>
+      {showCenterText && (
+        <>
+          <text x={center} y={center - 12} textAnchor="middle" fill="#ecfbff" fontSize={compact ? "24" : "28"} fontWeight="800">LIVE DRAW</text>
+          <text x={center} y={center + 18} textAnchor="middle" fill="#7be5ff" fontSize={compact ? "15" : "18"} fontWeight="700">
+            {wheelEntrants.length} names in play
+          </text>
+        </>
+      )}
     </svg>
   ) : (
     <svg
@@ -414,10 +420,14 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
       <circle cx={center} cy={center} r={innerRadius + 18} fill="url(#wheelCore)" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
       <circle cx={center} cy={center} r={innerRadius} fill="#07101c" stroke="rgba(123,229,255,0.22)" strokeWidth="3" />
-      <text x={center} y={center - 12} textAnchor="middle" fill="#ecfbff" fontSize={compact ? "24" : "28"} fontWeight="800">LIVE DRAW</text>
-      <text x={center} y={center + 18} textAnchor="middle" fill="#7be5ff" fontSize={compact ? "15" : "18"} fontWeight="700">
-        {wheelEntrants.length} names in play
-      </text>
+      {showCenterText && (
+        <>
+          <text x={center} y={center - 12} textAnchor="middle" fill="#ecfbff" fontSize={compact ? "24" : "28"} fontWeight="800">LIVE DRAW</text>
+          <text x={center} y={center + 18} textAnchor="middle" fill="#7be5ff" fontSize={compact ? "15" : "18"} fontWeight="700">
+            {wheelEntrants.length} names in play
+          </text>
+        </>
+      )}
     </svg>
   );
 
@@ -479,7 +489,13 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
           {pointerEl}
         </div>
 
-        <div className={compact ? "mx-auto max-w-[680px]" : "mx-auto max-w-[900px]"}>
+        <div
+          className={compact ? "mx-auto max-w-[680px]" : "mx-auto max-w-[900px]"}
+          style={{
+            transform: isSpinActive ? 'scale(1.15)' : 'scale(1)',
+            transition: isSpinActive ? 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.5s ease-out'
+          }}
+        >
           <div className="relative">
             {svgEl}
 
