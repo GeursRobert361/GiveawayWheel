@@ -81,14 +81,14 @@ body {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-/* Fullscreen wheel styling - MASSIVE scale and centered */
+/* Fullscreen wheel styling - MASSIVE and centered */
 #wheel-fullscreen-target:fullscreen,
 #wheel-fullscreen-target:-webkit-full-screen,
 #wheel-fullscreen-target:-moz-full-screen,
 #wheel-fullscreen-target:-ms-fullscreen {
   position: fixed !important;
-  top: 50% !important;
-  left: 50% !important;
+  top: 0 !important;
+  left: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
   padding: 0 !important;
@@ -96,6 +96,9 @@ body {
   background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
               linear-gradient(180deg, #09111f 0%, #030509 100%);
   overflow: hidden;
-  transform: translate(-50%, -50%) scale(2.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transform: scale(3) !important;
   transform-origin: center center !important;
 }
