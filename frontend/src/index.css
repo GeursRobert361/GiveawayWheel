@@ -81,14 +81,14 @@ body {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-/* Fullscreen wheel styling - make HUGE and perfectly centered */
+/* Fullscreen wheel styling - MASSIVE scale and centered */
 #wheel-fullscreen-target:fullscreen,
 #wheel-fullscreen-target:-webkit-full-screen,
 #wheel-fullscreen-target:-moz-full-screen,
 #wheel-fullscreen-target:-ms-fullscreen {
   position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
+  top: 50% !important;
+  left: 50% !important;
   width: 100vw !important;
   height: 100vh !important;
   padding: 0 !important;
@@ -96,77 +96,6 @@ body {
   background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
               linear-gradient(180deg, #09111f 0%, #030509 100%);
   overflow: hidden;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* Hide all children initially */
-#wheel-fullscreen-target:fullscreen > *,
-#wheel-fullscreen-target:-webkit-full-screen > *,
-#wheel-fullscreen-target:-moz-full-screen > *,
-#wheel-fullscreen-target:-ms-fullscreen > * {
-  display: none !important;
-}
-
-/* Show only the pointer and the wheel container */
-#wheel-fullscreen-target:fullscreen > div:nth-child(4),
-#wheel-fullscreen-target:fullscreen > div:nth-child(5),
-#wheel-fullscreen-target:-webkit-full-screen > div:nth-child(4),
-#wheel-fullscreen-target:-webkit-full-screen > div:nth-child(5),
-#wheel-fullscreen-target:-moz-full-screen > div:nth-child(4),
-#wheel-fullscreen-target:-moz-full-screen > div:nth-child(5),
-#wheel-fullscreen-target:-ms-fullscreen > div:nth-child(4),
-#wheel-fullscreen-target:-ms-fullscreen > div:nth-child(5) {
-  display: block !important;
-}
-
-/* Position pointer at top */
-#wheel-fullscreen-target:fullscreen > div:nth-child(4),
-#wheel-fullscreen-target:-webkit-full-screen > div:nth-child(4),
-#wheel-fullscreen-target:-moz-full-screen > div:nth-child(4),
-#wheel-fullscreen-target:-ms-fullscreen > div:nth-child(4) {
-  position: fixed !important;
-  top: 4vh !important;
-  left: 50% !important;
-  transform: translateX(-50%) scale(2) !important;
-  z-index: 100 !important;
-}
-
-/* Main wheel container - perfectly centered and HUGE */
-#wheel-fullscreen-target:fullscreen > div:nth-child(5),
-#wheel-fullscreen-target:-webkit-full-screen > div:nth-child(5),
-#wheel-fullscreen-target:-moz-full-screen > div:nth-child(5),
-#wheel-fullscreen-target:-ms-fullscreen > div:nth-child(5) {
-  position: fixed !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  width: 90vmin !important;
-  height: 90vmin !important;
-  max-width: none !important;
-  margin: 0 !important;
-}
-
-/* Reset relative positioning on inner container */
-#wheel-fullscreen-target:fullscreen > div:nth-child(5) > div,
-#wheel-fullscreen-target:-webkit-full-screen > div:nth-child(5) > div,
-#wheel-fullscreen-target:-moz-full-screen > div:nth-child(5) > div,
-#wheel-fullscreen-target:-ms-fullscreen > div:nth-child(5) > div {
-  width: 100% !important;
-  height: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-/* Make SVG huge */
-#wheel-fullscreen-target:fullscreen svg,
-#wheel-fullscreen-target:-webkit-full-screen svg,
-#wheel-fullscreen-target:-moz-full-screen svg,
-#wheel-fullscreen-target:-ms-fullscreen svg {
-  width: 100% !important;
-  height: 100% !important;
-  max-width: none !important;
-  max-height: none !important;
+  transform: translate(-50%, -50%) scale(2.5) !important;
+  transform-origin: center center !important;
 }
