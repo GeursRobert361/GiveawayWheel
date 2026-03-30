@@ -93,6 +93,11 @@ body {
   background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%),
               linear-gradient(180deg, #09111f 0%, #030509 100%);
   overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
 }
 
 /* Force all containers to be huge */
@@ -107,8 +112,8 @@ body {
 #wheel-fullscreen-target:-webkit-full-screen > div,
 #wheel-fullscreen-target:-moz-full-screen > div,
 #wheel-fullscreen-target:-ms-fullscreen > div {
-  width: 90vmin;
-  height: 90vmin;
+  width: 96vmin;
+  height: 96vmin;
   display: flex;
   align-items: center;
   justify-content: center;
