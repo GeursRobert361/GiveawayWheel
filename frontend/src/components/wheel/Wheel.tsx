@@ -444,7 +444,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
         <ConfettiCanvas active={celebrating} />
 
         {/* Pointer arrow */}
-        <div className="absolute left-1/2 top-6 z-20 -translate-x-1/2">
+        <div className="absolute left-1/2 top-12 z-20 -translate-x-1/2">
           {pointerEl}
         </div>
 
@@ -491,7 +491,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
           }}
         >
           {/* Pointer arrow - inside scaling container */}
-          <div className="absolute left-1/2 top-5 z-20 -translate-x-1/2 sm:top-4">
+          <div className="absolute left-1/2 top-7 z-20 -translate-x-1/2 sm:top-6">
             {pointerEl}
           </div>
 
