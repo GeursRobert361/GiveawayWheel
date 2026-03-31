@@ -720,7 +720,9 @@ export class GiveawayService {
     }
 
     const segmentAngle = 360 / preview.length;
-    const landingAngle = 360 - (winnerIndex * segmentAngle + segmentAngle / 2);
+    // Pointer is at 90 degrees (top). Calculate rotation needed to land winner segment under pointer.
+    const winnerSegmentCenter = winnerIndex * segmentAngle + segmentAngle / 2;
+    const landingAngle = 90 - winnerSegmentCenter;
     const rotationTurns = 9 + Math.floor(secureRandomFraction() * 4);
     const rotationDegrees = rotationTurns * 360 + landingAngle;
     const durationMs = 12_000 + Math.floor(secureRandomFraction() * 3_500);

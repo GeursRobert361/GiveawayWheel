@@ -273,7 +273,11 @@ export function DashboardPage() {
 
   useEffect(() => {
     const spin = giveaway?.lastSpin;
-    if (!spin) return;
+    if (!spin) {
+      // Reset when lastSpin is dismissed
+      handledWinnerPopupRef.current = null;
+      return;
+    }
     const completedAt = new Date(spin.completedAt).getTime();
     if (!bootstrappedSpinRef.current) {
       bootstrappedSpinRef.current = true;
