@@ -82,3 +82,12 @@ body {
 }
 
 /* Fullscreen wheel - completely removed, using inline styles instead */
+
+@keyframes idle-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
