@@ -152,7 +152,7 @@ function TimeStepper({ label, days, onChange }: {
         newDays = newValue * 365;
         break;
     }
-    onChange(Math.max(0, Math.min(3650, newDays)));
+    onChange(newDays);
   };
 
   return (
@@ -163,7 +163,6 @@ function TimeStepper({ label, days, onChange }: {
           type="button"
           className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-slate-700/60 text-slate-100 transition hover:border-slate-600 hover:bg-slate-700 disabled:opacity-40"
           onClick={() => handleValueChange(Math.max(0, displayValue - 1))}
-          disabled={displayValue <= 0}
         >
           −
         </button>
@@ -174,15 +173,8 @@ function TimeStepper({ label, days, onChange }: {
           onChange={(e) => handleValueChange(Math.max(0, Number(e.target.value) || 0))}
           min={0}
         />
-        <button
-          type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-slate-700/60 text-slate-100 transition hover:border-slate-600 hover:bg-slate-700"
-          onClick={() => handleValueChange(displayValue + 1)}
-        >
-          +
-        </button>
         <select
-          className="field-input w-28"
+          className="field-input"
           value={unit}
           onChange={(e) => setUnit(e.target.value as TimeUnit)}
         >
@@ -191,32 +183,38 @@ function TimeStepper({ label, days, onChange }: {
           <option value="months">Months</option>
           <option value="years">Years</option>
         </select>
+        <button
+          type="button"
+          className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-slate-700/60 text-slate-100 transition hover:border-slate-600 hover:bg-slate-700 disabled:opacity-40"
+          onClick={() => handleValueChange(displayValue + 1)}
+        >
+          +
+        </button>
       </div>
     </div>
   );
 }
 
 function RoleTags({ entrant }: { entrant: WeightedEntrantView }) {
-  const labels = [
-    entrant.roleFlags.broadcaster && "Broadcaster",
-    entrant.roleFlags.moderator && "Mod",
-    entrant.roleFlags.vip && "VIP",
-    entrant.roleFlags.subscriber && "Sub",
-    entrant.roleFlags.follower && "Follower"
-  ].filter(Boolean) as string[];
-  if (labels.length === 0) return <span className="pill-chip">Viewer</span>;
-  return <>{labels.map((l) => <span key={l} className="pill-chip">{l}</span>)}</>;
+  const tags = [];
+  if (entrant.roleFlags.follower) tags.push("Follower");
+  if (entrant.roleFlags.subscriber) tags.push("Sub");
+  if (entrant.roleFlags.vip) tags.push("VIP");
+  if (entrant.roleFlags.moderator) tags.push("Mod");
+  if (entrant.roleFlags.broadcaster) tags.push("Broadcaster");
+  return (
+    <>
+      {tags.map((tag) => (
+        <span key={tag} className="pill-chip">{tag}</span>
+      ))}
+    </>
+  );
 }
 
 function ActivityCard({ entry }: { entry: AuditLogView }) {
-  const tone = entry.action.includes("rejected")
-    ? "border-amber-400/20 bg-amber-500/[0.08]"
-    : entry.action.includes("spin") || entry.action.includes("reroll")
-      ? "border-violet-400/20 bg-violet-500/[0.08]"
-      : "border-slate-700/70 bg-slate-800/60";
   return (
-    <div className={cn("rounded-lg border px-4 py-3 text-sm", tone)}>
-      <div className="flex items-start justify-between gap-3">
+    <div className="rounded-lg border border-slate-700/70 bg-slate-800/60 px-4 py-3">
+      <div className="flex items-start justify-between gap-2">
         <div>
           <p className="font-semibold text-white">{entry.message}</p>
           <p className="mt-1 text-xs uppercase tracking-[0.18em] text-slate-500">
@@ -344,459 +342,646 @@ export function DashboardPage() {
   const dismissSetup = () => { window.localStorage.setItem(key, "1"); setShowSetupModal(false); };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {error ? (
-        <div className="rounded-2xl border border-rose-400/20 bg-rose-500/[0.08] px-4 py-3 text-sm text-rose-200">{error}</div>
+        <div className="rounded-xl border border-rose-400/20 bg-rose-500/[0.08] px-4 py-3 text-sm text-rose-200">{error}</div>
       ) : null}
 
-      {/* Control bar */}
-      <Card className="px-5 py-4">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div>
-              <p className="section-kicker">Live session</p>
-              <h2 className="mt-0.5 text-xl font-bold text-white">{giveaway.title}</h2>
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              <span className="pill-chip">{giveaway.entryCommand}</span>
-              <span className={cn("pill-chip", giveaway.status === "OPEN" && "border-emerald-400/30 bg-emerald-500/[0.1] text-emerald-300")}>
-                {giveaway.status === "OPEN" ? "Entry open" : "Entry closed"}
-              </span>
-              <span className="pill-chip">{eligibleEntrants.length} eligible</span>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" onClick={() => setShowSetupModal(true)}>Setup</Button>
-            <Button
-              variant="secondary"
-              disabled={busyAction !== null || spinActive}
-              onClick={() => runAction(giveaway.status === "OPEN" ? "close" : "open", () =>
-                apiPost(giveaway.status === "OPEN" ? "/api/giveaway/close" : "/api/giveaway/open")
-              )}
-              className={giveaway.status === "OPEN"
-                ? "!border-red-400/30 !bg-red-500/20 hover:!bg-red-500/30"
-                : "!border-emerald-400/30 !bg-emerald-500/20 hover:!bg-emerald-500/30 animate-pulse"}
-            >
-              {giveaway.status === "OPEN" ? "Close entry" : "Open entry"}
-            </Button>
-            <Button
-              disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
-              onClick={() => runAction("spin", () => apiPost("/api/giveaway/spin"))}
-            >
-              Spin now
-            </Button>
-            <Button
-              variant="secondary"
-              disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
-              onClick={() => runAction("reroll", () => apiPost("/api/giveaway/reroll"))}
-              title="Spin again if winner doesn't respond"
-            >
-              Reroll
-            </Button>
-            <Button
-              variant="secondary"
-              disabled={!giveaway}
-              onClick={() => runAction("toggle-overlay", () => apiPost("/api/giveaway/toggle-overlay"))}
-            >
-              {giveaway?.overlayVisible ? "Hide overlay" : "Show overlay"}
-            </Button>
-          </div>
+      {/* Compact status bar - streamer mission control style */}
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-700/50 bg-gradient-to-r from-slate-900/80 via-slate-900/60 to-slate-900/80 px-5 py-3 backdrop-blur-sm">
+        <div className="flex items-center gap-2">
+          <div className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]" />
+          <span className="font-mono text-sm font-bold uppercase tracking-wider text-white">{giveaway.title}</span>
         </div>
-      </Card>
+        <div className="h-4 w-px bg-slate-700" />
+        <span className="font-mono text-xs text-slate-400">{giveaway.entryCommand}</span>
+        <span className={cn(
+          "rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wide",
+          giveaway.status === "OPEN"
+            ? "bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/30"
+            : "bg-slate-700/50 text-slate-400"
+        )}>
+          {giveaway.status === "OPEN" ? "● Live" : "Closed"}
+        </span>
+        <div className="h-4 w-px bg-slate-700" />
+        <span className="text-sm text-slate-300">
+          <span className="font-bold text-white">{eligibleEntrants.length}</span>
+          <span className="text-slate-500"> / {giveaway.entrantCount}</span>
+          <span className="ml-1 text-slate-500">eligible</span>
+        </span>
 
-      {/* Wheel + side panel */}
-      <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
-        <div className="space-y-3">
-          <div className="flex justify-end">
-            <button
-              className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-700 bg-slate-700/60 text-slate-100 transition hover:border-slate-600 hover:bg-slate-700"
-              onClick={() => {
-                const wheelFullscreenTarget = document.getElementById("wheel-fullscreen-target");
-                if (wheelFullscreenTarget) {
-                  if (document.fullscreenElement) {
-                    document.exitFullscreen().catch(() => {});
-                  } else {
-                    // Apply fullscreen styles
-                    const applyStyles = () => {
-                      const target = document.getElementById("wheel-fullscreen-target");
-                      if (target && document.fullscreenElement === target) {
-                        target.style.cssText = `
-                          position: fixed !important;
-                          top: 0 !important;
-                          left: 0 !important;
-                          width: 100vw !important;
-                          height: 100vh !important;
-                          padding: 0 !important;
-                          margin: 0 !important;
-                          background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%), linear-gradient(180deg, #09111f 0%, #030509 100%) !important;
-                          overflow: hidden !important;
-                        `;
+        {/* Latest winner inline */}
+        {giveaway.winners[0] && !spinActive && (
+          <>
+            <div className="ml-auto h-4 w-px bg-slate-700" />
+            <div className="flex items-center gap-2">
+              <span className="text-xs uppercase tracking-wider text-violet-400">Last Win</span>
+              <span className="font-semibold text-white">{giveaway.winners[0].displayName}</span>
+              <span className="text-xs text-slate-500">{formatRelativeTime(giveaway.winners[0].createdAt)}</span>
+            </div>
+          </>
+        )}
+      </div>
 
-                        // Hide all children initially
-                        const children = target.children;
-                        for (let i = 0; i < children.length; i++) {
-                          const child = children[i] as HTMLElement;
-                          child.style.display = 'none';
-                        }
+      {/* HERO SECTION - Wheel with integrated controls */}
+      <div className="relative">
+        {/* Background accent */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-gradient-to-b from-violet-500/5 to-transparent blur-3xl" />
 
-                        // Find and show only the pointer (4th child) and wheel container (5th child)
-                        const pointer = children[3] as HTMLElement;
-                        const wheelContainer = children[4] as HTMLElement;
+        <div className="relative grid gap-6 lg:grid-cols-[1fr_380px]">
+          {/* Wheel - no card! Let it breathe */}
+          <div className="space-y-4">
+            {/* Primary action bar - above wheel */}
+            <div className="flex items-center justify-between">
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowSetupModal(true)}
+                  className="!border-slate-600/50"
+                >
+                  ⚙️ Setup
+                </Button>
+                <Button
+                  variant="secondary"
+                  disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
+                  onClick={() => runAction("reroll", () => apiPost("/api/giveaway/reroll"))}
+                  title="Spin again if winner doesn't respond"
+                  className="!border-slate-600/50"
+                >
+                  🔄 Reroll
+                </Button>
+              </div>
 
-                        if (pointer) {
-                          pointer.style.cssText = `
-                            display: flex !important;
+              <button
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-600/50 bg-slate-800/40 text-slate-300 transition hover:border-slate-500 hover:bg-slate-700/60"
+                onClick={() => {
+                  const wheelFullscreenTarget = document.getElementById("wheel-fullscreen-target");
+                  if (wheelFullscreenTarget) {
+                    if (document.fullscreenElement) {
+                      document.exitFullscreen().catch(() => {});
+                    } else {
+                      const applyStyles = () => {
+                        const target = document.getElementById("wheel-fullscreen-target");
+                        if (target && document.fullscreenElement === target) {
+                          target.style.cssText = `
                             position: fixed !important;
-                            top: 3vh !important;
-                            left: 50% !important;
-                            transform: translateX(-50%) scale(2) !important;
-                            z-index: 100 !important;
+                            top: 0 !important;
+                            left: 0 !important;
+                            width: 100vw !important;
+                            height: 100vh !important;
+                            padding: 0 !important;
+                            margin: 0 !important;
+                            background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%), linear-gradient(180deg, #09111f 0%, #030509 100%) !important;
+                            overflow: hidden !important;
                           `;
-                        }
 
-                        if (wheelContainer) {
-                          wheelContainer.style.cssText = `
-                            display: block !important;
-                            position: fixed !important;
-                            top: 50% !important;
-                            left: 50% !important;
-                            transform: translate(-50%, -50%) !important;
-                            width: 98vmin !important;
-                            height: 98vmin !important;
-                            max-width: none !important;
-                            max-height: none !important;
-                          `;
-                        }
-                      }
-                    };
+                          const children = target.children;
+                          for (let i = 0; i < children.length; i++) {
+                            const child = children[i] as HTMLElement;
+                            child.style.display = 'none';
+                          }
 
-                    wheelFullscreenTarget.addEventListener("fullscreenchange", applyStyles, { once: true });
-                    setTimeout(applyStyles, 50);
-                    wheelFullscreenTarget.requestFullscreen().catch(() => {});
+                          const pointer = children[3] as HTMLElement;
+                          const wheelContainer = children[4] as HTMLElement;
+
+                          if (pointer) {
+                            pointer.style.cssText = `
+                              display: flex !important;
+                              position: fixed !important;
+                              top: 3vh !important;
+                              left: 50% !important;
+                              transform: translateX(-50%) scale(2) !important;
+                              z-index: 100 !important;
+                            `;
+                          }
+
+                          if (wheelContainer) {
+                            wheelContainer.style.cssText = `
+                              display: block !important;
+                              position: fixed !important;
+                              top: 50% !important;
+                              left: 50% !important;
+                              transform: translate(-50%, -50%) !important;
+                              width: 98vmin !important;
+                              height: 98vmin !important;
+                              max-width: none !important;
+                              max-height: none !important;
+                            `;
+                          }
+                        }
+                      };
+
+                      wheelFullscreenTarget.addEventListener("fullscreenchange", applyStyles, { once: true });
+                      setTimeout(applyStyles, 50);
+                      wheelFullscreenTarget.requestFullscreen().catch(() => {});
+                    }
                   }
-                }
-              }}
-              title="Fullscreen wheel only"
-            >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-              </svg>
-            </button>
-          </div>
-          <div id="wheel-container">
-          <Wheel
-          entrants={eligibleEntrants.map((e) => ({ id: e.id, displayName: e.displayName, weight: e.effectiveWeight }))}
-          lastSpin={giveaway.lastSpin}
-          winnerLabel={spinActive ? null : giveaway.winners[0]?.displayName ?? null}
-          onSpin={() => runAction("spin", () => apiPost("/api/giveaway/spin"))}
-          spinDisabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
-          onWinnerDismiss={() => handleDismissWinner()}
-          dismissKey={dismissKey}
-        />
-        </div>
-        </div>
-
-        {/* Side panel */}
-        <div className="space-y-4">
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="metric-card">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Entrants</p>
-              <p className="mt-2 text-3xl font-bold text-white">{eligibleEntrants.length}</p>
-              <p className="mt-1 text-xs text-slate-500">{giveaway.entrantCount} total active</p>
+                }}
+                title="Fullscreen wheel"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+              </button>
             </div>
-            <div className="metric-card">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Latest win</p>
-              <p className="mt-2 text-lg font-bold leading-tight text-white">
-                {spinActive ? "Revealing..." : giveaway.winners[0]?.displayName ?? "—"}
-              </p>
-              <p className="mt-1 text-xs text-slate-500">
-                {giveaway.winners[0] ? formatRelativeTime(giveaway.winners[0].createdAt) : "No winners yet"}
-              </p>
+
+            {/* Wheel - THE centerpiece */}
+            <div id="wheel-container">
+              <Wheel
+                entrants={eligibleEntrants.map((e) => ({ id: e.id, displayName: e.displayName, weight: e.effectiveWeight }))}
+                lastSpin={giveaway.lastSpin}
+                winnerLabel={spinActive ? null : giveaway.winners[0]?.displayName ?? null}
+                onSpin={() => runAction("spin", () => apiPost("/api/giveaway/spin"))}
+                spinDisabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
+                onWinnerDismiss={() => handleDismissWinner()}
+                dismissKey={dismissKey}
+              />
             </div>
+
+            {/* Hero action buttons - below wheel */}
+            <div className="flex gap-3">
+              <Button
+                disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
+                onClick={() => runAction("spin", () => apiPost("/api/giveaway/spin"))}
+                className="flex-1 !h-14 !text-lg !font-bold !shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:!shadow-[0_0_30px_rgba(139,92,246,0.5)]"
+              >
+                🎯 SPIN NOW
+              </Button>
+              <Button
+                variant="secondary"
+                disabled={busyAction !== null || spinActive}
+                onClick={() => runAction(giveaway.status === "OPEN" ? "close" : "open", () =>
+                  apiPost(giveaway.status === "OPEN" ? "/api/giveaway/close" : "/api/giveaway/open")
+                )}
+                className={cn(
+                  "flex-1 !h-14 !text-lg !font-bold",
+                  giveaway.status === "OPEN"
+                    ? "!border-red-400/30 !bg-red-500/20 hover:!bg-red-500/30"
+                    : "!border-emerald-400/30 !bg-emerald-500/20 hover:!bg-emerald-500/30 animate-pulse"
+                )}
+              >
+                {giveaway.status === "OPEN" ? "🔴 CLOSE ENTRY" : "🟢 OPEN ENTRY"}
+              </Button>
+            </div>
+
+            {latestJoinRejection && (
+              <div className="rounded-lg border border-amber-400/20 bg-amber-500/[0.08] px-4 py-3 text-sm text-amber-200">
+                ⚠️ {latestJoinRejection.message}
+              </div>
+            )}
           </div>
 
-          {/* Next move */}
-          <Card className="space-y-3 px-5 py-5">
-            <p className="section-kicker">Next move</p>
-            <p className="text-base font-semibold text-white">
-              {spinActive
-                ? "Winner reveal is running"
-                : giveaway.status === "OPEN"
-                  ? `Chat can enter with ${giveaway.entryCommand}`
-                  : "Open entry when you're ready"}
-            </p>
-            <p className="text-sm text-slate-400">
-              {spinActive
-                ? "The winner popup lands when the wheel finishes."
-                : `${eligibleEntrants.length} eligible entrant${eligibleEntrants.length === 1 ? "" : "s"} on the wheel.`}
-            </p>
-            {latestJoinRejection ? (
-              <div className="rounded-md border border-amber-400/20 bg-amber-500/[0.08] px-3 py-3 text-sm text-amber-200">
-                {latestJoinRejection.message}
-              </div>
-            ) : null}
-          </Card>
-
-          {/* Secondary actions */}
-          <DisclosurePanel kicker="More" title="Secondary actions" defaultOpen={false}>
-            <div className="space-y-3">
-              <div className="grid gap-2 sm:grid-cols-3">
-                <Button variant="secondary" disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
-                  onClick={() => runAction("shuffle", () => apiPost("/api/giveaway/shuffle"))}>Shuffle</Button>
-                <Button variant="secondary" disabled={busyAction !== null || spinActive}
-                  onClick={() => runAction("chatters", () => apiPost("/api/entrants/import-chatters"))}>Import chatters</Button>
-                <Button variant="danger" disabled={busyAction !== null || spinActive}
-                  onClick={() => setShowClearConfirm(true)}>Clear all</Button>
-              </div>
-
-              <div className="rounded-lg border border-slate-700/70 bg-slate-800/60 px-4 py-4">
-                <label className="field-label">Manual add</label>
-                <div className="flex gap-2">
-                  <input className="field-input" placeholder="Username" value={manualUsername}
-                    onChange={(e) => setManualUsername(e.target.value)} />
-                  <Button variant="secondary" disabled={busyAction !== null || spinActive || manualUsername.trim().length < 2}
-                    onClick={() => runAction("add-entrant", async () => {
-                      await apiPost("/api/entrants/add", { username: manualUsername.trim() });
-                      setManualUsername("");
-                    })}>Add</Button>
+          {/* Right panel - OBS SETUP (not hidden!) + quick actions */}
+          <div className="space-y-4">
+            {/* OBS Setup - PROMINENT! */}
+            <div className="rounded-xl border border-violet-500/30 bg-gradient-to-br from-violet-500/10 to-purple-500/5 p-5">
+              <div className="mb-4 flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-500/20 text-violet-300">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
                 </div>
+                <h3 className="font-bold text-white">OBS Browser Source</h3>
               </div>
 
               <div className="space-y-3">
-                <div className="rounded-lg border border-slate-700/70 bg-slate-950/40 px-4 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-2">OBS Setup</p>
-                  <p className="text-xs text-slate-400 mb-2">Add a Browser Source with these settings:</p>
-                  <ul className="text-xs text-slate-400 space-y-1 ml-4 list-disc">
-                    <li>Width: 2500px, Height: 2500px</li>
-                    <li>URL: {snapshot.overlayUrl ? <span className="text-white font-mono break-all">{snapshot.overlayUrl}</span> : "Generate overlay first"}</li>
-                  </ul>
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-violet-300">Overlay URL</label>
+                  {snapshot.overlayUrl ? (
+                    <div className="rounded-lg border border-violet-500/20 bg-slate-900/50 p-2">
+                      <p className="break-all font-mono text-xs text-slate-300">{snapshot.overlayUrl}</p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-slate-400">Configure overlay in Settings</p>
+                  )}
                 </div>
-              </div>
 
-              <div className="grid gap-2 sm:grid-cols-4">
-                <Button variant="secondary" disabled={!snapshot.overlayUrl}
-                  onClick={() => snapshot.overlayUrl && copyToClipboard(snapshot.overlayUrl)}>Copy URL</Button>
-                <Button variant="secondary" disabled={!snapshot.overlayUrl}
-                  onClick={() => snapshot.overlayUrl && window.open(snapshot.overlayUrl, "GiveawayOverlay", "width=1920,height=1080")}>Preview</Button>
-                <Button variant="secondary" onClick={() => apiDownload("/api/entrants/export")}>Export entrants</Button>
-                <Button variant="secondary" onClick={() => apiDownload("/api/history/export")}>Export winners</Button>
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-violet-300">Size</label>
+                  <div className="flex gap-2 text-sm">
+                    <div className="flex-1 rounded-lg border border-violet-500/20 bg-slate-900/50 px-3 py-2 text-center">
+                      <span className="text-slate-400">Width:</span>{" "}
+                      <span className="font-mono font-bold text-white">2500px</span>
+                    </div>
+                    <div className="flex-1 rounded-lg border border-violet-500/20 bg-slate-900/50 px-3 py-2 text-center">
+                      <span className="text-slate-400">Height:</span>{" "}
+                      <span className="font-mono font-bold text-white">2500px</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="secondary"
+                    disabled={!snapshot.overlayUrl}
+                    onClick={() => snapshot.overlayUrl && copyToClipboard(snapshot.overlayUrl)}
+                    className="!border-violet-500/30 !bg-violet-500/10 hover:!bg-violet-500/20"
+                  >
+                    📋 Copy
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    disabled={!snapshot.overlayUrl}
+                    onClick={() => snapshot.overlayUrl && window.open(snapshot.overlayUrl, "GiveawayOverlay", "width=1920,height=1080")}
+                    className="!border-violet-500/30 !bg-violet-500/10 hover:!bg-violet-500/20"
+                  >
+                    👁️ Preview
+                  </Button>
+                </div>
+
+                <Button
+                  variant="secondary"
+                  disabled={!giveaway}
+                  onClick={() => runAction("toggle-overlay", () => apiPost("/api/giveaway/toggle-overlay"))}
+                  className="w-full !border-slate-600/50"
+                >
+                  {giveaway?.overlayVisible ? "Hide on Stream" : "Show on Stream"}
+                </Button>
               </div>
             </div>
-          </DisclosurePanel>
+
+            {/* Quick actions */}
+            <div className="rounded-xl border border-slate-700/50 bg-slate-900/40 p-4">
+              <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-400">Quick Actions</h3>
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant="secondary"
+                    disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
+                    onClick={() => runAction("shuffle", () => apiPost("/api/giveaway/shuffle"))}
+                    className="!border-slate-600/50 !text-sm"
+                  >
+                    🔀 Shuffle
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    disabled={busyAction !== null || spinActive}
+                    onClick={() => runAction("chatters", () => apiPost("/api/entrants/import-chatters"))}
+                    className="!border-slate-600/50 !text-sm"
+                  >
+                    👥 Import
+                  </Button>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-400">Manual Add</label>
+                  <div className="flex gap-2">
+                    <input
+                      className="field-input flex-1 !text-sm"
+                      placeholder="Username"
+                      value={manualUsername}
+                      onChange={(e) => setManualUsername(e.target.value)}
+                    />
+                    <Button
+                      variant="secondary"
+                      disabled={busyAction !== null || spinActive || manualUsername.trim().length < 2}
+                      onClick={() => runAction("add-entrant", async () => {
+                        await apiPost("/api/entrants/add", { username: manualUsername.trim() });
+                        setManualUsername("");
+                      })}
+                      className="!border-slate-600/50"
+                    >
+                      ✚
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 pt-2">
+                  <Button
+                    variant="secondary"
+                    onClick={() => apiDownload("/api/entrants/export")}
+                    className="!border-slate-600/50 !text-sm"
+                  >
+                    💾 Export
+                  </Button>
+                  <Button
+                    variant="danger"
+                    disabled={busyAction !== null || spinActive}
+                    onClick={() => setShowClearConfirm(true)}
+                    className="!text-sm"
+                  >
+                    🗑️ Clear
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Bottom grid: entrants | winners | activity */}
-      <div className="grid gap-5 xl:grid-cols-3">
+      {/* Bottom grid - Entrants, Winners, Activity */}
+      <div className="grid gap-4 lg:grid-cols-3">
         {/* Entrants */}
-        <Card className="space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="section-kicker">Entrants</p>
-              <h3 className="mt-1 text-lg font-bold text-white">Live pool</h3>
-            </div>
-            <span className="pill-chip">{giveaway.entrantCount} active</span>
+        <div className="rounded-xl border border-slate-700/50 bg-slate-900/40 p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-slate-400">Entrants</h3>
+            <span className="rounded-full bg-slate-800 px-2.5 py-0.5 font-mono text-xs font-bold text-slate-300">
+              {giveaway.entrantCount}
+            </span>
           </div>
-          <div className="max-h-[32rem] space-y-2.5 overflow-auto pr-1">
+          <div className="max-h-[32rem] space-y-2 overflow-auto pr-1">
             {giveaway.entrants.length === 0 ? (
-              <p className="text-sm text-slate-400">No entrants yet.</p>
+              <p className="py-8 text-center text-sm text-slate-500">No entrants yet</p>
             ) : giveaway.entrants.map((entrant) => (
-              <div key={entrant.id} className={cn("rounded-lg border px-4 py-3",
-                entrant.isEligible ? "border-slate-700/70 bg-slate-800/60" : "border-amber-400/20 bg-amber-500/[0.07]")}>
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+              <div
+                key={entrant.id}
+                className={cn(
+                  "rounded-lg border px-3 py-2.5 transition",
+                  entrant.isEligible
+                    ? "border-slate-700/70 bg-slate-800/40 hover:border-slate-600 hover:bg-slate-800/60"
+                    : "border-amber-400/20 bg-amber-500/[0.05]"
+                )}
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold text-white">{entrant.displayName}</p>
-                    <p className="mt-0.5 text-xs text-slate-400">{entrant.roleLabel} · {entrant.entryCount} entr{entrant.entryCount === 1 ? "y" : "ies"}</p>
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      {entrant.roleLabel} · {entrant.entryCount}×
+                    </p>
                   </div>
-                  <Button variant="ghost" disabled={busyAction !== null || spinActive}
-                    onClick={() => setExpandedEntrantId((c) => c === entrant.id ? null : entrant.id)}>
-                    {expandedEntrantId === entrant.id ? "Hide" : "Manage"}
+                  <Button
+                    variant="ghost"
+                    disabled={busyAction !== null || spinActive}
+                    onClick={() => setExpandedEntrantId((c) => c === entrant.id ? null : entrant.id)}
+                    className="!h-7 !px-2 !text-xs"
+                  >
+                    {expandedEntrantId === entrant.id ? "−" : "+"}
                   </Button>
                 </div>
-                <div className="mt-2.5 flex flex-wrap gap-1.5">
+
+                <div className="mt-2 flex flex-wrap gap-1">
                   <RoleTags entrant={entrant} />
-                  {!entrant.isEligible ? <span className="pill-chip">Ineligible</span> : null}
+                  {!entrant.isEligible && <span className="pill-chip !bg-amber-500/20 !text-amber-300">Ineligible</span>}
                 </div>
-                <div className="mt-2.5">
+
+                <div className="mt-2">
                   <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span>Chance</span><span>{formatPercent(entrant.chancePercent)}</span>
+                    <span>Chance</span>
+                    <span>{formatPercent(entrant.chancePercent)}</span>
                   </div>
-                  <div className="mt-1.5 h-2 rounded-full bg-slate-950/70">
-                    <div className={cn("h-full rounded-full", entrant.isEligible ? "bg-brand-300" : "bg-amber-300")}
-                      style={{ width: `${Math.max(Math.min(entrant.chancePercent, 100), entrant.isEligible ? 5 : 0)}%` }} />
+                  <div className="mt-1 h-1.5 rounded-full bg-slate-950/70">
+                    <div
+                      className={cn("h-full rounded-full", entrant.isEligible ? "bg-cyan-400" : "bg-amber-300")}
+                      style={{ width: `${Math.max(Math.min(entrant.chancePercent, 100), entrant.isEligible ? 5 : 0)}%` }}
+                    />
                   </div>
                 </div>
-                {expandedEntrantId === entrant.id ? (
-                  <div className="mt-3 flex flex-wrap gap-2 rounded-md border border-slate-700/70 bg-slate-950/40 px-4 py-3">
-                    {entrant.entryCount > 1 ? (
-                      <Button variant="secondary" disabled={busyAction !== null || spinActive}
+
+                {expandedEntrantId === entrant.id && (
+                  <div className="mt-3 flex flex-wrap gap-2 rounded-md border border-slate-700/50 bg-slate-950/40 px-3 py-2">
+                    {entrant.entryCount > 1 && (
+                      <Button
+                        variant="secondary"
+                        disabled={busyAction !== null || spinActive}
                         onClick={() => runAction(`remove-one-${entrant.username}`, async () => {
                           await apiPost("/api/entrants/remove", { username: entrant.username, mode: "single" });
                           setExpandedEntrantId(null);
-                        })}>Remove 1 entry</Button>
-                    ) : null}
-                    <Button variant="ghost" disabled={busyAction !== null || spinActive}
+                        })}
+                        className="!h-7 !text-xs"
+                      >
+                        Remove 1
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      disabled={busyAction !== null || spinActive}
                       onClick={() => runAction(`remove-${entrant.username}`, async () => {
                         await apiPost("/api/entrants/remove", { username: entrant.username, mode: "all" });
                         setExpandedEntrantId(null);
-                      })}>Remove entrant</Button>
+                      })}
+                      className="!h-7 !text-xs"
+                    >
+                      Remove All
+                    </Button>
                   </div>
-                ) : null}
+                )}
               </div>
             ))}
           </div>
-        </Card>
+        </div>
 
         {/* Winners */}
-        <Card className="space-y-4">
-          <div>
-            <p className="section-kicker">Winners</p>
-            <h3 className="mt-1 text-lg font-bold text-white">Recent picks</h3>
+        <div className="rounded-xl border border-slate-700/50 bg-slate-900/40 p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-slate-400">Winners</h3>
+            <Button
+              variant="secondary"
+              onClick={() => apiDownload("/api/history/export")}
+              className="!h-7 !border-slate-600/50 !px-2 !text-xs"
+            >
+              💾
+            </Button>
           </div>
-          <div className="space-y-2.5">
-            {spinActive ? (
-              <div className="rounded-lg border border-violet-400/20 bg-violet-500/[0.08] px-4 py-4 text-sm text-violet-200">
-                Reveal in progress — winner appears here when the wheel stops.
+          <div className="space-y-2">
+            {spinActive && (
+              <div className="rounded-lg border border-violet-400/20 bg-violet-500/[0.08] px-4 py-3 text-sm text-violet-200">
+                🎲 Revealing winner...
               </div>
-            ) : null}
+            )}
             {visibleWinners.length === 0 ? (
-              <p className="text-sm text-slate-400">No winners yet.</p>
+              <p className="py-8 text-center text-sm text-slate-500">No winners yet</p>
             ) : visibleWinners.map((w) => (
-              <div key={w.id} className="rounded-lg border border-slate-700/70 bg-slate-800/60 px-4 py-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-white">{w.displayName}</p>
+              <div key={w.id} className="rounded-lg border border-slate-700/70 bg-slate-800/40 px-3 py-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold text-white">{w.displayName}</p>
                     <p className="mt-0.5 text-xs text-slate-500">{giveaway.title}</p>
                     <p className="mt-0.5 text-xs text-slate-400">{w.source} · {formatRelativeTime(w.createdAt)}</p>
                   </div>
-                  <span className="shrink-0 rounded-full border border-violet-400/20 bg-violet-500/[0.08] px-2.5 py-1 text-xs font-semibold text-violet-200">
+                  <span className="shrink-0 rounded-full bg-violet-500/20 px-2 py-0.5 text-xs font-bold text-violet-300">
                     {w.selectedWeight.toFixed(2)}×
                   </span>
                 </div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
 
         {/* Activity */}
-        <Card className="space-y-4">
-          <div>
-            <p className="section-kicker">Activity</p>
-            <h3 className="mt-1 text-lg font-bold text-white">Command log</h3>
-          </div>
-          <div className="max-h-[32rem] space-y-2.5 overflow-auto pr-1">
+        <div className="rounded-xl border border-slate-700/50 bg-slate-900/40 p-5">
+          <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-400">Activity Log</h3>
+          <div className="max-h-[32rem] space-y-2 overflow-auto pr-1">
             {giveaway.recentActivity.length === 0 ? (
-              <p className="text-sm text-slate-400">No recent activity.</p>
-            ) : giveaway.recentActivity.map((e) => <ActivityCard key={e.id} entry={e} />)}
+              <p className="py-8 text-center text-sm text-slate-500">No recent activity</p>
+            ) : giveaway.recentActivity.map((e) => (
+              <div key={e.id} className="rounded-lg border border-slate-700/70 bg-slate-800/40 px-3 py-2.5">
+                <p className="text-sm font-medium text-white">{e.message}</p>
+                <div className="mt-1 flex items-center justify-between">
+                  <p className="text-xs uppercase tracking-wider text-slate-500">
+                    {e.actorType.toLowerCase()} · @{e.actorLogin}
+                  </p>
+                  <span className="text-xs text-slate-500">{formatRelativeTime(e.createdAt)}</span>
+                </div>
+              </div>
+            ))}
           </div>
-        </Card>
+        </div>
       </div>
 
-      {/* Setup modal */}
+      {/* Setup modal - preserved as-is */}
       {showSetupModal && setupForm ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-sm">
-          <div className="relative w-full max-w-4xl overflow-hidden rounded-lg border border-slate-700 bg-slate-900 p-6 shadow-[0_32px_100px_rgba(0,0,0,0.55)]">
-            <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/35 to-transparent" />
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="section-kicker">Quick setup</p>
-                <h3 className="mt-1.5 text-2xl font-bold text-white">Tune the giveaway</h3>
-              </div>
-              <Button variant="ghost" onClick={dismissSetup}>Close</Button>
+          <div className="relative w-full max-w-5xl overflow-hidden rounded-xl border border-slate-700/70 bg-slate-900 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
+              <h2 className="text-xl font-bold text-white">Giveaway Setup</h2>
+              <button
+                onClick={dismissSetup}
+                className="rounded-md p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
 
-            <div className="mt-5 space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div><label className="field-label">Title</label><input className="field-input" value={setupForm.title} onChange={(e) => setSetupForm((c) => c ? { ...c, title: e.target.value } : c)} /></div>
-                <div><label className="field-label">Entry command</label><input className="field-input" value={setupForm.entryCommand} onChange={(e) => setSetupForm((c) => c ? { ...c, entryCommand: e.target.value } : c)} /></div>
-                <div><label className="field-label">Leave command</label><input className="field-input" value={setupForm.leaveCommand} onChange={(e) => setSetupForm((c) => c ? { ...c, leaveCommand: e.target.value } : c)} /></div>
-                <NumberStepper
-                  label="Max entries per user"
-                  value={setupForm.maxEntriesPerUser}
-                  onChange={(v) => setSetupForm((c) => c ? { ...c, maxEntriesPerUser: v } : c)}
-                  min={1}
-                  max={100}
-                />
-                <NumberStepper
-                  label="Spin countdown (s)"
-                  value={setupForm.spinCountdownSeconds}
-                  onChange={(v) => setSetupForm((c) => c ? { ...c, spinCountdownSeconds: v } : c)}
-                  min={0}
-                  max={15}
-                />
-              </div>
-              <div className="grid gap-4 md:grid-cols-2">
-                <TimeStepper
-                  label="Min account age"
-                  days={setupForm.minimumAccountAgeDays}
-                  onChange={(v) => setSetupForm((c) => c ? { ...c, minimumAccountAgeDays: v } : c)}
-                />
-                <TimeStepper
-                  label="Min followage"
-                  days={setupForm.minimumFollowageDays}
-                  onChange={(v) => setSetupForm((c) => c ? { ...c, minimumFollowageDays: v } : c)}
-                />
-              </div>
-            </div>
+            <div className="max-h-[70vh] overflow-y-auto p-6">
+              <div className="space-y-6">
+                <div>
+                  <label className="field-label">Giveaway Title</label>
+                  <input
+                    className="field-input"
+                    value={setupForm.title}
+                    onChange={(e) => setSetupForm((c) => c ? { ...c, title: e.target.value } : c)}
+                  />
+                </div>
 
-            <div className="mt-4 grid gap-3 md:grid-cols-2">
-              <SetupToggle label="Allow duplicate entries" checked={setupForm.allowDuplicateEntries} onChange={(v) => setSetupForm((c) => c ? { ...c, allowDuplicateEntries: v } : c)} description="Let viewers stack entries up to the per-user cap." />
-              <SetupToggle label="Remove winner after draw" checked={setupForm.removeWinnerAfterDraw} onChange={(v) => setSetupForm((c) => c ? { ...c, removeWinnerAfterDraw: v } : c)} description="Remove the winner from the pool once revealed." />
-              <SetupToggle label="Announce winner in chat" checked={setupForm.announceWinnerInChat} onChange={(v) => setSetupForm((c) => c ? { ...c, announceWinnerInChat: v } : c)} description="Post the winner into Twitch chat after the spin." />
-              <SetupToggle label="Exclude broadcaster" checked={setupForm.excludeBroadcaster} onChange={(v) => setSetupForm((c) => c ? { ...c, excludeBroadcaster: v } : c)} description="Block broadcaster self-entry." />
-              <SetupToggle label="Follower-only mode" checked={setupForm.followerOnlyMode} onChange={(v) => setSetupForm((c) => c ? { ...c, followerOnlyMode: v } : c)} description="Require entrants to follow the channel." />
-              <SetupToggle label="Subscriber-only mode" checked={setupForm.subscriberOnlyMode} onChange={(v) => setSetupForm((c) => c ? { ...c, subscriberOnlyMode: v } : c)} description="Restrict entry to current subscribers." />
-            </div>
-
-            <div className="mt-6 rounded-lg border border-slate-700/70 bg-slate-800/50 px-5 py-5">
-              <p className="section-kicker">Role multipliers</p>
-              <h4 className="mt-1.5 text-lg font-bold text-white">Weight each role</h4>
-              <p className="mt-1.5 text-sm text-slate-400">Higher values increase that role's chances of winning.</p>
-
-              <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                {(
-                  [
-                    ["viewerWeight", "Viewer"],
-                    ["followerWeight", "Follower"],
-                    ["subscriberWeight", "Subscriber"],
-                    ["vipWeight", "VIP"],
-                    ["moderatorWeight", "Moderator"],
-                    ["broadcasterWeight", "Broadcaster"]
-                  ] as const
-                ).map(([key, label]) => (
-                  <div key={key}>
-                    <div className="flex items-center justify-between">
-                      <label className="field-label">{label}</label>
-                      <span className="text-sm font-bold text-violet-300">{setupForm.weights[key].toFixed(2)}×</span>
-                    </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="field-label">Entry Command</label>
                     <input
-                      type="range"
-                      min="0"
-                      max="10"
-                      step="0.25"
-                      value={setupForm.weights[key]}
-                      onChange={(e) => setSetupForm((c) => c ? {
-                        ...c,
-                        weights: { ...c.weights, [key]: Number(e.target.value) }
-                      } : c)}
-                      className="mt-2 h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-800 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-violet-500 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-violet-500"
+                      className="field-input"
+                      value={setupForm.entryCommand}
+                      onChange={(e) => setSetupForm((c) => c ? { ...c, entryCommand: e.target.value } : c)}
                     />
                   </div>
-                ))}
+                  <div>
+                    <label className="field-label">Leave Command</label>
+                    <input
+                      className="field-input"
+                      value={setupForm.leaveCommand}
+                      onChange={(e) => setSetupForm((c) => c ? { ...c, leaveCommand: e.target.value } : c)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-slate-400">Entry Rules</p>
+                  <SetupToggle
+                    label="Follower-only mode"
+                    checked={setupForm.followerOnlyMode}
+                    onChange={(v) => setSetupForm((c) => c ? { ...c, followerOnlyMode: v } : c)}
+                    description="Only followers can enter the giveaway."
+                  />
+                  <SetupToggle
+                    label="Subscriber-only mode"
+                    checked={setupForm.subscriberOnlyMode}
+                    onChange={(v) => setSetupForm((c) => c ? { ...c, subscriberOnlyMode: v } : c)}
+                    description="Only subscribers can enter the giveaway."
+                  />
+                  <SetupToggle
+                    label="Exclude broadcaster"
+                    checked={setupForm.excludeBroadcaster}
+                    onChange={(v) => setSetupForm((c) => c ? { ...c, excludeBroadcaster: v } : c)}
+                    description="Prevent the broadcaster from entering."
+                  />
+                  <SetupToggle
+                    label="Allow duplicate entries"
+                    checked={setupForm.allowDuplicateEntries}
+                    onChange={(v) => setSetupForm((c) => c ? { ...c, allowDuplicateEntries: v } : c)}
+                    description="Allow users to enter multiple times."
+                  />
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <NumberStepper
+                    label="Max entries per user"
+                    value={setupForm.maxEntriesPerUser}
+                    onChange={(v) => setSetupForm((c) => c ? { ...c, maxEntriesPerUser: v } : c)}
+                    min={1}
+                    max={100}
+                  />
+                  <NumberStepper
+                    label="Spin countdown (seconds)"
+                    value={setupForm.spinCountdownSeconds}
+                    onChange={(v) => setSetupForm((c) => c ? { ...c, spinCountdownSeconds: v } : c)}
+                    min={0}
+                    max={15}
+                  />
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <TimeStepper
+                    label="Minimum account age"
+                    days={setupForm.minimumAccountAgeDays}
+                    onChange={(v) => setSetupForm((c) => c ? { ...c, minimumAccountAgeDays: v } : c)}
+                  />
+                  <TimeStepper
+                    label="Minimum follow duration"
+                    days={setupForm.minimumFollowageDays}
+                    onChange={(v) => setSetupForm((c) => c ? { ...c, minimumFollowageDays: v } : c)}
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-sm font-semibold uppercase tracking-wide text-slate-400">Behavior</p>
+                  <SetupToggle
+                    label="Remove winner after draw"
+                    checked={setupForm.removeWinnerAfterDraw}
+                    onChange={(v) => setSetupForm((c) => c ? { ...c, removeWinnerAfterDraw: v } : c)}
+                    description="Remove the winner from the pool once revealed."
+                  />
+                  <SetupToggle
+                    label="Announce winner in chat"
+                    checked={setupForm.announceWinnerInChat}
+                    onChange={(v) => setSetupForm((c) => c ? { ...c, announceWinnerInChat: v } : c)}
+                    description="Post the winner into Twitch chat after the spin."
+                  />
+                </div>
+
+                <div>
+                  <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Role Weights</p>
+                  <div className="space-y-2">
+                    {[
+                      { key: "viewerWeight" as const, label: "Viewer" },
+                      { key: "followerWeight" as const, label: "Follower" },
+                      { key: "subscriberWeight" as const, label: "Subscriber" },
+                      { key: "vipWeight" as const, label: "VIP" },
+                      { key: "moderatorWeight" as const, label: "Moderator" },
+                      { key: "broadcasterWeight" as const, label: "Broadcaster" }
+                    ].map(({ key, label }) => (
+                      <div key={key} className="flex items-center gap-3 rounded-lg border border-slate-700/70 bg-slate-800/60 px-4 py-3">
+                        <label className="flex-1 font-semibold text-white">{label}</label>
+                        <input
+                          type="number"
+                          className="field-input w-24 text-center"
+                          value={setupForm.weights[key]}
+                          onChange={(e) => setSetupForm((c) => c ? {
+                            ...c,
+                            weights: { ...c.weights, [key]: Number(e.target.value) || 1 }
+                          } : c)}
+                          min={1}
+                          max={100}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="mt-5 flex justify-end gap-2">
-              <Button variant="ghost" onClick={dismissSetup}>Later</Button>
-              <Button disabled={savingSetup} onClick={saveSetup}>{savingSetup ? "Saving..." : "Save"}</Button>
+            <div className="flex justify-end gap-3 border-t border-slate-800 px-6 py-4">
+              <Button variant="secondary" onClick={dismissSetup}>
+                Cancel
+              </Button>
+              <Button onClick={saveSetup} disabled={savingSetup}>
+                {savingSetup ? "Saving..." : "Save Changes"}
+              </Button>
             </div>
           </div>
         </div>
       ) : null}
 
-      {/* Winner popup */}
+      {/* Winner popup - preserved as-is */}
       {winnerPopupName ? (
         <div className="fixed inset-0 z-[100] h-screen w-screen flex items-center justify-center bg-slate-950/95 p-4 backdrop-blur-xl"
           onClick={() => handleDismissWinner()}>
@@ -822,22 +1007,25 @@ export function DashboardPage() {
         </div>
       ) : null}
 
-      {/* Clear All Confirmation */}
+      {/* Clear All Confirmation - preserved as-is */}
       {showClearConfirm ? (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-sm"
-          onClick={() => setShowClearConfirm(false)}>
-          <div className="relative w-full max-w-md overflow-hidden rounded-lg border border-slate-700 bg-slate-900 px-6 py-6 text-center shadow-xl"
-            onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-lg border border-rose-400/30 bg-slate-900 px-6 py-6 shadow-xl">
             <h3 className="text-lg font-bold text-white">Clear All Entrants?</h3>
-            <p className="mt-3 text-sm text-slate-300">
+            <p className="mt-2 text-sm text-slate-300">
               This will remove all {giveaway.entrantCount} entrants from the current giveaway. This action cannot be undone.
             </p>
-            <div className="mt-6 flex justify-center gap-3">
-              <Button variant="ghost" onClick={() => setShowClearConfirm(false)}>Cancel</Button>
-              <Button variant="danger" onClick={async () => {
-                setShowClearConfirm(false);
-                await runAction("clear", () => apiPost("/api/giveaway/clear"));
-              }}>
+            <div className="mt-6 flex justify-end gap-3">
+              <Button variant="secondary" onClick={() => setShowClearConfirm(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                onClick={() => {
+                  setShowClearConfirm(false);
+                  runAction("clear-all", () => apiPost("/api/entrants/clear"));
+                }}
+              >
                 Clear All
               </Button>
             </div>
