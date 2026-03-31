@@ -193,6 +193,15 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       if (delta <= 0) delta += 360;
       const extraTurns = Math.max(Math.floor(lastSpin.rotationDegrees / 360), 6);
       const totalRotation = extraTurns * 360 + delta;
+      console.log('[WHEEL] Spin starting:', {
+        winner: lastSpin.winnerDisplayName,
+        targetIndex: lastSpin.targetIndex,
+        totalEntrants: lastSpin.entrantCount,
+        rotationDegrees: lastSpin.rotationDegrees,
+        targetNormalized,
+        currentNormalized,
+        finalRotation: current + totalRotation
+      });
       startTickTrack(lastSpin.durationMs, totalRotation);
       setRotation(current + totalRotation);
     }, delay);

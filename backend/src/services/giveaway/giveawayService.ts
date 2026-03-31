@@ -731,11 +731,14 @@ export class GiveawayService {
       currentAngle += segmentSize;
     }
 
-    // Pointer is at top (180 degrees in segment coordinate system)
-    // Segments start at bottom (0 degrees) and go clockwise
-    const landingAngle = 180 - winnerSegmentCenter;
+    // Pointer is at top (0 degrees). Segments start at 0 and go clockwise.
+    // To land segment center at 0, rotate by: 0 = segmentCenter + rotation -> rotation = -segmentCenter
+    // Add full turns: rotation = turns * 360 - segmentCenter
     const rotationTurns = 9 + Math.floor(secureRandomFraction() * 4);
+    const landingAngle = -winnerSegmentCenter;
     const rotationDegrees = rotationTurns * 360 + landingAngle;
+
+    console.log(`[SPIN] Winner: ${winnerEntrant.displayName} at index ${winnerIndex}/${preview.length}, segment center: ${winnerSegmentCenter}°, landing angle: ${landingAngle}°, total rotation: ${rotationDegrees}°`);
     const durationMs = 12_000 + Math.floor(secureRandomFraction() * 3_500);
     const scheduledAt = new Date(Date.now() + session.spinCountdownSeconds * 1000);
     const completedAt = new Date(scheduledAt.getTime() + durationMs);

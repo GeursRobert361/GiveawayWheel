@@ -274,9 +274,8 @@ export function DashboardPage() {
   useEffect(() => {
     const spin = giveaway?.lastSpin;
     if (!spin) {
-      // Reset when lastSpin is dismissed
+      // Reset when lastSpin is dismissed to allow next spin
       handledWinnerPopupRef.current = null;
-      bootstrappedSpinRef.current = false;
       return;
     }
     const completedAt = new Date(spin.completedAt).getTime();
@@ -285,15 +284,20 @@ export function DashboardPage() {
       if (completedAt <= Date.now()) { handledWinnerPopupRef.current = spin.eventId; return; }
     }
     if (handledWinnerPopupRef.current === spin.eventId) return;
+
+    console.log('[POPUP] Scheduling winner popup for:', spin.winnerDisplayName, 'eventId:', spin.eventId);
     setWinnerPopupName(null);
     setWinnerPopupChance(null);
     handledWinnerPopupRef.current = spin.eventId;
+    const delay = Math.max(0, completedAt - Date.now());
+    console.log('[POPUP] Delay:', delay, 'ms');
     const timer = window.setTimeout(
       () => {
+        console.log('[POPUP] Showing winner popup:', spin.winnerDisplayName);
         setWinnerPopupName(spin.winnerDisplayName);
         setWinnerPopupChance(spin.winnerChancePercent);
       },
-      Math.max(0, completedAt - Date.now())
+      delay
     );
     return () => window.clearTimeout(timer);
   }, [giveaway?.lastSpin]);
