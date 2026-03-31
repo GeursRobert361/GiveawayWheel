@@ -300,7 +300,7 @@ export function DashboardPage() {
       delay
     );
     return () => window.clearTimeout(timer);
-  }, [giveaway?.lastSpin]);
+  }, [giveaway?.lastSpin?.eventId]);
 
   useEffect(() => {
     if (!winnerPopupName) return;

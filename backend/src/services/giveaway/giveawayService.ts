@@ -720,6 +720,8 @@ export class GiveawayService {
     }
 
     // Calculate WEIGHTED segment positions (must match frontend rendering)
+    // Frontend uses polarToCartesian where angle-90 determines position:
+    // angle=0 is bottom, angle=90 is right, angle=180 is top, angle=270 is left
     let currentAngle = 0;
     let winnerSegmentCenter = 0;
     for (let i = 0; i < preview.length; i++) {
@@ -731,11 +733,10 @@ export class GiveawayService {
       currentAngle += segmentSize;
     }
 
-    // Pointer is at top (0 degrees). Segments start at 0 and go clockwise.
-    // To land segment center at 0, rotate by: 0 = segmentCenter + rotation -> rotation = -segmentCenter
-    // Add full turns: rotation = turns * 360 - segmentCenter
+    // Pointer is at 180° (top). To land winner segment under pointer:
+    // finalPosition = 180, so rotation = 180 - winnerSegmentCenter + (turns * 360)
     const rotationTurns = 9 + Math.floor(secureRandomFraction() * 4);
-    const landingAngle = -winnerSegmentCenter;
+    const landingAngle = 180 - winnerSegmentCenter;
     const rotationDegrees = rotationTurns * 360 + landingAngle;
 
     console.log(`[SPIN] Winner: ${winnerEntrant.displayName} at index ${winnerIndex}/${preview.length}, segment center: ${winnerSegmentCenter}°, landing angle: ${landingAngle}°, total rotation: ${rotationDegrees}°`);
