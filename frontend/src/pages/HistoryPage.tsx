@@ -47,11 +47,11 @@ export function HistoryPage() {
             >
               <div>
                 <p className="font-semibold text-white">{winner.displayName}</p>
-                <p className="mt-1 text-sm text-slate-400">{winner.sessionTitle}</p>
+                <p className="mt-1 text-xs text-slate-500">{winner.sessionTitle}</p>
+                <p className="mt-1 text-xs text-slate-400">{winner.source}</p>
               </div>
               <div className="text-sm text-slate-300">
                 <p>{winner.selectedWeight.toFixed(2)} effective weight</p>
-                <p className="mt-1 text-slate-500">{winner.source}</p>
               </div>
               <div className="text-sm text-slate-400 md:text-right">{formatRelativeTime(winner.createdAt)}</div>
             </div>

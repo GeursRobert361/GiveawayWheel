@@ -659,6 +659,7 @@ export function DashboardPage() {
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="font-semibold text-white">{w.displayName}</p>
+                    <p className="mt-0.5 text-xs text-slate-500">{giveaway.title}</p>
                     <p className="mt-0.5 text-xs text-slate-400">{w.source} · {formatRelativeTime(w.createdAt)}</p>
                   </div>
                   <span className="shrink-0 rounded-full border border-violet-400/20 bg-violet-500/[0.08] px-2.5 py-1 text-xs font-semibold text-violet-200">
