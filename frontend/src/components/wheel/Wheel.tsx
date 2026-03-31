@@ -437,6 +437,12 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
     </div>
   );
 
+  const overlayPointerEl = (
+    <div className="flex flex-col items-center">
+      <div className="h-0 w-0 border-l-[32px] border-r-[32px] border-t-[60px] border-l-transparent border-r-transparent border-t-white drop-shadow-[0_6px_12px_rgba(0,0,0,0.4)]" />
+    </div>
+  );
+
   // Overlay mode — just wheel, transparent background (check first so it stays in overlay mode even when spinning)
   if (overlayMode) {
     return (
@@ -444,8 +450,8 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
         <ConfettiCanvas active={celebrating} />
 
         {/* Pointer arrow */}
-        <div className="absolute left-1/2 top-18 z-20 -translate-x-1/2">
-          {pointerEl}
+        <div className="absolute left-1/2 top-20 z-20 -translate-x-1/2">
+          {overlayPointerEl}
         </div>
 
         {/* Wheel SVG - full width */}
