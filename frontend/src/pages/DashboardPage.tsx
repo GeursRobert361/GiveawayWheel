@@ -276,6 +276,7 @@ export function DashboardPage() {
     if (!spin) {
       // Reset when lastSpin is dismissed
       handledWinnerPopupRef.current = null;
+      bootstrappedSpinRef.current = false;
       return;
     }
     const completedAt = new Date(spin.completedAt).getTime();

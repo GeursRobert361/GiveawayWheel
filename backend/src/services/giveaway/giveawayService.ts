@@ -719,10 +719,21 @@ export class GiveawayService {
       throw new AppError(500, "Winner resolution failed", "WINNER_RESOLUTION");
     }
 
-    const segmentAngle = 360 / preview.length;
-    // Pointer is at 90 degrees (top). Calculate rotation needed to land winner segment under pointer.
-    const winnerSegmentCenter = winnerIndex * segmentAngle + segmentAngle / 2;
-    const landingAngle = 90 - winnerSegmentCenter;
+    // Calculate WEIGHTED segment positions (must match frontend rendering)
+    let currentAngle = 0;
+    let winnerSegmentCenter = 0;
+    for (let i = 0; i < preview.length; i++) {
+      const segmentSize = (preview[i]!.effectiveWeight / totalWeight) * 360;
+      if (i === winnerIndex) {
+        winnerSegmentCenter = currentAngle + segmentSize / 2;
+        break;
+      }
+      currentAngle += segmentSize;
+    }
+
+    // Pointer is at top (180 degrees in segment coordinate system)
+    // Segments start at bottom (0 degrees) and go clockwise
+    const landingAngle = 180 - winnerSegmentCenter;
     const rotationTurns = 9 + Math.floor(secureRandomFraction() * 4);
     const rotationDegrees = rotationTurns * 360 + landingAngle;
     const durationMs = 12_000 + Math.floor(secureRandomFraction() * 3_500);
