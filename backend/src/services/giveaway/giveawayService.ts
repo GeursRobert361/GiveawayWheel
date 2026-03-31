@@ -86,7 +86,7 @@ export class GiveawayService {
         title: "Community Giveaway",
         entryCommand: "!ticket",
         leaveCommand: "!leave",
-        spinCountdownSeconds: 1
+        spinCountdownSeconds: 3
       }
     });
   }

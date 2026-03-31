@@ -189,7 +189,7 @@ export class TwitchService {
               title: `${sanitizeDisplayName(profile.display_name)} Giveaway`,
               entryCommand: "!ticket",
               leaveCommand: "!leave",
-              spinCountdownSeconds: 1
+              spinCountdownSeconds: 3
             }
           });
         }
