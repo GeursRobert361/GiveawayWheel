@@ -224,7 +224,10 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
   useEffect(() => () => stopTickTrack(), []);
 
   // Idle spin animation - slow continuous rotation when not actively spinning
+  // Skip RAF loop for overlay mode (use CSS animation instead for better OBS performance)
   useEffect(() => {
+    if (overlayMode) return;
+
     const isSpinning = countdown !== null || duration > 0;
     if (isSpinning) return;
 
@@ -240,7 +243,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
     frameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frameId);
-  }, [countdown, duration]);
+  }, [countdown, duration, overlayMode]);
 
   // Handle winner dismissal callback
   useEffect(() => {
@@ -313,7 +316,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       viewBox={`0 0 ${size} ${size}`}
       className="w-full"
       style={{
-        transform: `rotate(${totalRotation}deg)`,
+        transform: `rotate(${rotation}deg)`,
         transition: duration ? `transform ${duration}ms cubic-bezier(0.12, 0.92, 0.14, 1)` : "none"
       }}
     >
