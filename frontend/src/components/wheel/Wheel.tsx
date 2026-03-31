@@ -433,7 +433,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
   const pointerEl = (
     <div className="flex flex-col items-center">
-      <div className="h-0 w-0 border-l-[18px] border-r-[18px] border-t-[34px] border-l-transparent border-r-transparent border-t-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]" />
+      <div className="h-0 w-0 border-l-[24px] border-r-[24px] border-t-[45px] border-l-transparent border-r-transparent border-t-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]" />
     </div>
   );
 
@@ -444,7 +444,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
         <ConfettiCanvas active={celebrating} />
 
         {/* Pointer arrow */}
-        <div className="absolute left-1/2 top-12 z-20 -translate-x-1/2">
+        <div className="absolute left-1/2 top-18 z-20 -translate-x-1/2">
           {pointerEl}
         </div>
 
