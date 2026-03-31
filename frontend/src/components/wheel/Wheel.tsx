@@ -318,7 +318,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       style={{
         transform: `rotate(${rotation}deg)`,
         transition: duration ? `transform ${duration}ms cubic-bezier(0.12, 0.92, 0.14, 1)` : "none",
-        animation: isSpinActive ? "none" : "idle-spin 100s linear infinite",
+        animation: isSpinActive ? "none" : "idle-spin 24s linear infinite",
         willChange: "transform"
       }}
     >
