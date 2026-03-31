@@ -789,7 +789,7 @@ export function DashboardPage() {
 
       {/* Winner popup */}
       {winnerPopupName ? (
-        <div className="fixed left-0 right-0 top-0 bottom-0 z-[100] flex items-center justify-center bg-slate-950/88 p-4 backdrop-blur-md"
+        <div className="fixed left-0 right-0 top-0 bottom-0 z-[100] flex items-center justify-center bg-slate-950/95 p-4 backdrop-blur-xl"
           onClick={() => handleDismissWinner()}>
           <div className="relative w-full max-w-3xl overflow-hidden rounded-lg border border-violet-400/25 bg-slate-900 px-8 py-10 text-center shadow-[0_48px_130px_rgba(0,0,0,0.65)]"
             onClick={(e) => e.stopPropagation()}>
