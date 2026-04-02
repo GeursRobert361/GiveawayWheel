@@ -70,7 +70,14 @@
     "rerollWinner": "Girar novamente",
     "shuffleWheel": "Embaralhar roleta",
     "dismissWinnerKey": "Dispensar vencedor",
-    "toggleShortcuts": "Alternar atalhos"
+    "toggleShortcuts": "Alternar atalhos",
+    "liveDraw": "LIVE DRAW",
+    "namesInPlay": "names in play",
+    "waitingForEntrants": "Waiting for entrants",
+    "spinStarting": "Spin starting...",
+    "spinNowButton": "Spin Now",
+    "winner": "Winner",
+    "percentChance": "% chance"
   },
   "setup": {
     "title": "Configuração do Sorteio",

@@ -70,7 +70,14 @@
     "rerollWinner": "当選者を再抽選",
     "shuffleWheel": "ルーレットをシャッフル",
     "dismissWinnerKey": "当選者を閉じる",
-    "toggleShortcuts": "ショートカットを切り替え"
+    "toggleShortcuts": "ショートカットを切り替え",
+    "liveDraw": "LIVE DRAW",
+    "namesInPlay": "names in play",
+    "waitingForEntrants": "Waiting for entrants",
+    "spinStarting": "Spin starting...",
+    "spinNowButton": "Spin Now",
+    "winner": "Winner",
+    "percentChance": "% chance"
   },
   "setup": {
     "title": "プレゼント設定",

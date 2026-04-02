@@ -70,7 +70,14 @@
     "rerollWinner": "Kazananı tekrar çevir",
     "shuffleWheel": "Çarkı karıştır",
     "dismissWinnerKey": "Kazananı kapat",
-    "toggleShortcuts": "Kısayolları değiştir"
+    "toggleShortcuts": "Kısayolları değiştir",
+    "liveDraw": "LIVE DRAW",
+    "namesInPlay": "names in play",
+    "waitingForEntrants": "Waiting for entrants",
+    "spinStarting": "Spin starting...",
+    "spinNowButton": "Spin Now",
+    "winner": "Winner",
+    "percentChance": "% chance"
   },
   "setup": {
     "title": "Çekiliş Kurulumu",

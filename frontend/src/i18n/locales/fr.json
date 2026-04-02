@@ -70,7 +70,14 @@
     "rerollWinner": "Relancer le gagnant",
     "shuffleWheel": "Mélanger la roue",
     "dismissWinnerKey": "Ignorer le gagnant",
-    "toggleShortcuts": "Basculer les raccourcis"
+    "toggleShortcuts": "Basculer les raccourcis",
+    "liveDraw": "LIVE DRAW",
+    "namesInPlay": "names in play",
+    "waitingForEntrants": "Waiting for entrants",
+    "spinStarting": "Spin starting...",
+    "spinNowButton": "Spin Now",
+    "winner": "Winner",
+    "percentChance": "% chance"
   },
   "setup": {
     "title": "Configuration du Concours",

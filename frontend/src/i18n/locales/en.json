@@ -70,7 +70,14 @@
     "rerollWinner": "Reroll winner",
     "shuffleWheel": "Shuffle wheel",
     "dismissWinnerKey": "Dismiss winner",
-    "toggleShortcuts": "Toggle shortcuts"
+    "toggleShortcuts": "Toggle shortcuts",
+    "liveDraw": "LIVE DRAW",
+    "namesInPlay": "names in play",
+    "waitingForEntrants": "Waiting for entrants",
+    "spinStarting": "Spin starting...",
+    "spinNowButton": "Spin Now",
+    "winner": "Winner",
+    "percentChance": "% chance"
   },
   "setup": {
     "title": "Giveaway Setup",

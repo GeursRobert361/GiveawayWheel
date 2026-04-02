@@ -70,7 +70,14 @@
     "rerollWinner": "Gewinner neu auslosen",
     "shuffleWheel": "Rad mischen",
     "dismissWinnerKey": "Gewinner verwerfen",
-    "toggleShortcuts": "Kürzel umschalten"
+    "toggleShortcuts": "Kürzel umschalten",
+    "liveDraw": "LIVE DRAW",
+    "namesInPlay": "names in play",
+    "waitingForEntrants": "Waiting for entrants",
+    "spinStarting": "Spin starting...",
+    "spinNowButton": "Spin Now",
+    "winner": "Winner",
+    "percentChance": "% chance"
   },
   "setup": {
     "title": "Gewinnspiel-Einrichtung",

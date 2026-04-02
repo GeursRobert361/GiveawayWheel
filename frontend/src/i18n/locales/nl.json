@@ -70,7 +70,14 @@
     "rerollWinner": "Draai winnaar opnieuw",
     "shuffleWheel": "Shuffle rad",
     "dismissWinnerKey": "Winnaar wegdoen",
-    "toggleShortcuts": "Schakel sneltoetsen"
+    "toggleShortcuts": "Schakel sneltoetsen",
+    "liveDraw": "LIVE TREKKING",
+    "namesInPlay": "namen actief",
+    "waitingForEntrants": "Wachten op deelnemers",
+    "spinStarting": "Draai start...",
+    "spinNowButton": "Draai Nu",
+    "winner": "Winnaar",
+    "percentChance": "% kans"
   },
   "setup": {
     "title": "Giveaway Instellingen",

@@ -70,7 +70,14 @@
     "rerollWinner": "당첨자 재추첨",
     "shuffleWheel": "룰렛 섞기",
     "dismissWinnerKey": "당첨자 닫기",
-    "toggleShortcuts": "단축키 전환"
+    "toggleShortcuts": "단축키 전환",
+    "liveDraw": "LIVE DRAW",
+    "namesInPlay": "names in play",
+    "waitingForEntrants": "Waiting for entrants",
+    "spinStarting": "Spin starting...",
+    "spinNowButton": "Spin Now",
+    "winner": "Winner",
+    "percentChance": "% chance"
   },
   "setup": {
     "title": "경품 설정",

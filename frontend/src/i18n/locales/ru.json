@@ -70,7 +70,14 @@
     "rerollWinner": "Перекрутить победителя",
     "shuffleWheel": "Перемешать колесо",
     "dismissWinnerKey": "Отклонить победителя",
-    "toggleShortcuts": "Переключить горячие клавиши"
+    "toggleShortcuts": "Переключить горячие клавиши",
+    "liveDraw": "LIVE DRAW",
+    "namesInPlay": "names in play",
+    "waitingForEntrants": "Waiting for entrants",
+    "spinStarting": "Spin starting...",
+    "spinNowButton": "Spin Now",
+    "winner": "Winner",
+    "percentChance": "% chance"
   },
   "setup": {
     "title": "Настройка Розыгрыша",
