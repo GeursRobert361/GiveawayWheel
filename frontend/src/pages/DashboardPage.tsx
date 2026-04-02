@@ -404,6 +404,59 @@ export function DashboardPage() {
     };
   }, [winnerPopupName]);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    if (!giveaway) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if typing in input/textarea
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
+
+      // Don't trigger if modal is open
+      if (showSetupModal || showClearConfirm) return;
+
+      const key = e.key.toLowerCase();
+      const spinActive = isSpinInProgress(giveaway.lastSpin);
+
+      if (key === 'f') {
+        e.preventDefault();
+        toggleFullscreen();
+      } else if (key === ' ') {
+        e.preventDefault();
+        if (!busyAction && !spinActive && eligibleEntrants.length > 0) {
+          apiPost("/api/giveaway/spin");
+        }
+      } else if (key === 'o') {
+        e.preventDefault();
+        if (!busyAction && !spinActive) {
+          apiPost(giveaway.status === "OPEN" ? "/api/giveaway/close" : "/api/giveaway/open");
+        }
+      } else if (key === 'r') {
+        e.preventDefault();
+        if (!busyAction && !spinActive && eligibleEntrants.length > 0) {
+          apiPost("/api/giveaway/reroll");
+        }
+      } else if (key === 's' && e.shiftKey) {
+        e.preventDefault();
+        if (!busyAction && eligibleEntrants.length > 0) {
+          apiPost("/api/giveaway/shuffle");
+        }
+      } else if (key === 'd' || key === 'escape') {
+        if (winnerPopupName) {
+          e.preventDefault();
+          handleDismissWinner();
+        }
+      } else if (key === '?') {
+        e.preventDefault();
+        setShowHotkeys((prev) => !prev);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [giveaway, busyAction, eligibleEntrants.length, winnerPopupName, showSetupModal, showClearConfirm, showHotkeys]);
+
   if (!giveaway || !snapshot) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -437,58 +490,6 @@ export function DashboardPage() {
   };
 
   const dismissSetup = () => { window.localStorage.setItem(key, "1"); setShowSetupModal(false); };
-
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't trigger if typing in input/textarea
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
-
-      // Don't trigger if modal is open
-      if (showSetupModal || showClearConfirm) return;
-
-      const key = e.key.toLowerCase();
-
-      if (key === 'f') {
-        e.preventDefault();
-        toggleFullscreen();
-      } else if (key === ' ') {
-        e.preventDefault();
-        if (!busyAction && !spinActive && eligibleEntrants.length > 0) {
-          runAction("spin", () => apiPost("/api/giveaway/spin"));
-        }
-      } else if (key === 'o') {
-        e.preventDefault();
-        if (!busyAction && !spinActive) {
-          runAction(giveaway.status === "OPEN" ? "close" : "open", () =>
-            apiPost(giveaway.status === "OPEN" ? "/api/giveaway/close" : "/api/giveaway/open")
-          );
-        }
-      } else if (key === 'r') {
-        e.preventDefault();
-        if (!busyAction && !spinActive && eligibleEntrants.length > 0) {
-          runAction("reroll", () => apiPost("/api/giveaway/reroll"));
-        }
-      } else if (key === 's' && e.shiftKey) {
-        e.preventDefault();
-        if (!busyAction && eligibleEntrants.length > 0) {
-          runAction("shuffle", () => apiPost("/api/giveaway/shuffle"));
-        }
-      } else if (key === 'd' || key === 'escape') {
-        if (winnerPopupName) {
-          e.preventDefault();
-          handleDismissWinner();
-        }
-      } else if (key === '?') {
-        e.preventDefault();
-        setShowHotkeys(!showHotkeys);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [busyAction, spinActive, eligibleEntrants.length, winnerPopupName, showSetupModal, showClearConfirm, showHotkeys]);
 
   return (
     <div className="space-y-6">
