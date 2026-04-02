@@ -76,7 +76,40 @@ export class GiveawayService {
       orderBy: { createdAt: "desc" }
     });
 
+    // Auto-reset after 12 hours of inactivity
+    const RESET_AFTER_HOURS = 12;
+    const RESET_THRESHOLD_MS = RESET_AFTER_HOURS * 60 * 60 * 1000;
+
     if (existing) {
+      const timeSinceUpdate = Date.now() - new Date(existing.updatedAt).getTime();
+
+      // If session is stale (>12 hours since last activity), create a new one
+      if (timeSinceUpdate > RESET_THRESHOLD_MS) {
+        this.logger.info({
+          sessionId: existing.id,
+          hoursSinceUpdate: (timeSinceUpdate / (60 * 60 * 1000)).toFixed(1)
+        }, 'Auto-resetting stale giveaway session');
+
+        return prisma.giveawaySession.create({
+          data: {
+            broadcasterId: userId,
+            title: existing.title,
+            entryCommand: existing.entryCommand,
+            leaveCommand: existing.leaveCommand,
+            spinCountdownSeconds: existing.spinCountdownSeconds,
+            removeWinnerAfterDraw: existing.removeWinnerAfterDraw,
+            allowDuplicateEntries: existing.allowDuplicateEntries,
+            maxEntriesPerUser: existing.maxEntriesPerUser,
+            followerOnlyMode: existing.followerOnlyMode,
+            subscriberOnlyMode: existing.subscriberOnlyMode,
+            announceWinnerInChat: existing.announceWinnerInChat,
+            excludeBroadcaster: existing.excludeBroadcaster,
+            minimumAccountAgeDays: existing.minimumAccountAgeDays,
+            minimumFollowageDays: existing.minimumFollowageDays
+          }
+        });
+      }
+
       return existing;
     }
 
