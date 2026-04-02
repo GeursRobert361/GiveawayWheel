@@ -108,9 +108,70 @@ html.light [class*="bg-slate-600"] {
   background-color: rgb(241 245 249) !important;
 }
 
-/* Light mode: Ensure all white text becomes dark */
+html.light [class*="bg-slate-500"] {
+  background-color: rgb(226 232 240) !important;
+}
+
+html.light [class*="bg-gray-"],
+html.light [class*="bg-zinc-"] {
+  background-color: rgb(248 250 252) !important;
+}
+
+/* Light mode: Fix all dark text colors */
 html.light .page-title {
   color: rgb(15 23 42) !important;
+}
+
+/* Light mode: Fix table headers and cells */
+html.light th,
+html.light td {
+  border-color: rgb(226 232 240) !important;
+}
+
+html.light thead {
+  background-color: rgb(248 250 252) !important;
+}
+
+/* Light mode: Fix buttons */
+html.light button {
+  border-color: rgb(203 213 225) !important;
+}
+
+html.light button[class*="bg-violet"] {
+  /* Keep violet buttons as-is for primary actions */
+}
+
+html.light button[class*="bg-slate"] {
+  background-color: rgb(241 245 249) !important;
+  color: rgb(15 23 42) !important;
+}
+
+/* Light mode: Fix dropdown menus */
+html.light [role="menu"],
+html.light [role="listbox"] {
+  background-color: rgb(255 255 255) !important;
+  border-color: rgb(203 213 225) !important;
+}
+
+html.light [role="menuitem"],
+html.light [role="option"] {
+  color: rgb(15 23 42) !important;
+}
+
+html.light [role="menuitem"]:hover,
+html.light [role="option"]:hover {
+  background-color: rgb(241 245 249) !important;
+}
+
+/* Light mode: Fix borders */
+html.light .border-white\/10,
+html.light .border-white\/20 {
+  border-color: rgb(226 232 240) !important;
+}
+
+/* Light mode: Fix dividers */
+html.light .glow-divider {
+  background: linear-gradient(to right, transparent, rgb(203 213 225), transparent) !important;
 }
 
 /* Light mode: Fix scrollbar */
@@ -135,11 +196,12 @@ html.overlay-mode body {
 }
 
 body {
-  @apply min-h-screen bg-transparent font-sans text-slate-100 antialiased;
+  @apply min-h-screen bg-transparent font-sans antialiased;
+  color: rgb(226 232 240);
 }
 
 html.light body {
-  @apply text-slate-900;
+  color: rgb(15 23 42);
 }
 
 #root {

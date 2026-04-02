@@ -219,6 +219,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
     const celebrationTimeout = window.setTimeout(() => {
       stopTickTrack();
+      setDuration(0);
       setResolvedWinner(lastSpin.winnerDisplayName);
       setResolvedWinnerChance(lastSpin.winnerChancePercent);
       setCelebrating(true);
