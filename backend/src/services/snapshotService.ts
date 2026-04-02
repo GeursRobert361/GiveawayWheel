@@ -178,6 +178,7 @@ export class SnapshotService {
             weightSettings: mapWeightSettings(user.roleWeightSettings),
             overrides: mapOverrides(user.userWeightOverrides),
             lastSpin: parseLastSpin(session.lastSpinPayloadJson),
+            resetCount: session.resetCount,
             createdAt: session.createdAt.toISOString(),
             updatedAt: session.updatedAt.toISOString()
           }

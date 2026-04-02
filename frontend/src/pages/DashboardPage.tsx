@@ -348,7 +348,7 @@ export function DashboardPage() {
 
   useEffect(() => {
     if (!giveaway) return;
-    const key = `tgw:setup-dismissed:${giveaway.id}`;
+    const key = `tgw:setup-dismissed:${giveaway.id}:${giveaway.resetCount}`;
     if (window.localStorage.getItem(key)) return;
     setShowSetupModal(true);
   }, [giveaway]);
@@ -465,7 +465,7 @@ export function DashboardPage() {
     );
   }
 
-  const key = `tgw:setup-dismissed:${giveaway.id}`;
+  const key = `tgw:setup-dismissed:${giveaway.id}:${giveaway.resetCount}`;
   const latestJoinRejection = giveaway.recentActivity.find((e) => e.action === "entrant.chat_join_rejected");
   const spinActive = isSpinInProgress(giveaway.lastSpin);
   const visibleWinners = spinActive ? giveaway.winners.slice(1) : giveaway.winners;

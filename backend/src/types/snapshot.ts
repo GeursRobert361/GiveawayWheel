@@ -115,6 +115,7 @@ export interface DashboardSnapshot {
     weightSettings: WeightSettingsView;
     overrides: WeightOverrideView[];
     lastSpin: LastSpinPayload | null;
+    resetCount: number;
     createdAt: string;
     updatedAt: string;
   } | null;

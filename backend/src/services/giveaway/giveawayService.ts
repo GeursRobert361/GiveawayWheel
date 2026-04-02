@@ -83,30 +83,32 @@ export class GiveawayService {
     if (existing) {
       const timeSinceUpdate = Date.now() - new Date(existing.updatedAt).getTime();
 
-      // If session is stale (>12 hours since last activity), create a new one
+      // If session is stale (>12 hours since last activity), reset it in place
       if (timeSinceUpdate > RESET_THRESHOLD_MS) {
         this.logger.info({
           sessionId: existing.id,
           hoursSinceUpdate: (timeSinceUpdate / (60 * 60 * 1000)).toFixed(1)
-        }, 'Auto-resetting stale giveaway session');
+        }, 'Auto-resetting stale giveaway session (preserving overlay key)');
 
-        return prisma.giveawaySession.create({
-          data: {
-            broadcasterId: userId,
-            title: existing.title,
-            entryCommand: existing.entryCommand,
-            leaveCommand: existing.leaveCommand,
-            spinCountdownSeconds: existing.spinCountdownSeconds,
-            removeWinnerAfterDraw: existing.removeWinnerAfterDraw,
-            allowDuplicateEntries: existing.allowDuplicateEntries,
-            maxEntriesPerUser: existing.maxEntriesPerUser,
-            followerOnlyMode: existing.followerOnlyMode,
-            subscriberOnlyMode: existing.subscriberOnlyMode,
-            announceWinnerInChat: existing.announceWinnerInChat,
-            excludeBroadcaster: existing.excludeBroadcaster,
-            minimumAccountAgeDays: existing.minimumAccountAgeDays,
-            minimumFollowageDays: existing.minimumFollowageDays
-          }
+        // Clear all entrants and winners, reset state, but keep the same session/overlayKey
+        await prisma.$transaction([
+          prisma.entrant.deleteMany({ where: { giveawaySessionId: existing.id } }),
+          prisma.winner.deleteMany({ where: { giveawaySessionId: existing.id } }),
+          prisma.giveawaySession.update({
+            where: { id: existing.id },
+            data: {
+              status: "CLOSED",
+              lastSpinPayloadJson: null,
+              lastWinnerId: null,
+              resetCount: { increment: 1 },
+              updatedAt: new Date()
+            }
+          })
+        ]);
+
+        // Return fresh session data
+        return prisma.giveawaySession.findUniqueOrThrow({
+          where: { id: existing.id }
         });
       }
 
