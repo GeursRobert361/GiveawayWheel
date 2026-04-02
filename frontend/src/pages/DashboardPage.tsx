@@ -503,19 +503,26 @@ export function DashboardPage() {
                             justify-content: center !important;
                           `;
 
-                          // Find the main wheel container (child 3 in structure)
+                          // Find the main wheel container (child 3 - the one with max-w-[900px])
                           const mainContainer = target.children[3] as HTMLElement;
                           if (mainContainer) {
                             childOriginalStyles.set(mainContainer, mainContainer.getAttribute('style') || '');
                             mainContainer.style.cssText = `
-                              width: 95vmin !important;
-                              height: 95vmin !important;
+                              width: 90vmin !important;
+                              height: 90vmin !important;
                               max-width: none !important;
-                              display: flex !important;
-                              flex-direction: column !important;
-                              align-items: center !important;
-                              justify-content: center !important;
+                              margin: 0 !important;
                             `;
+
+                            // Find the inner wrapper with the wheel SVG
+                            const innerWrapper = mainContainer.children[1] as HTMLElement;
+                            if (innerWrapper) {
+                              childOriginalStyles.set(innerWrapper, innerWrapper.getAttribute('style') || '');
+                              innerWrapper.style.cssText = `
+                                width: 100% !important;
+                                height: 100% !important;
+                              `;
+                            }
                           }
                         }
                       };
