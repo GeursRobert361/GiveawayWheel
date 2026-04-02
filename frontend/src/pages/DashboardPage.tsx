@@ -244,6 +244,7 @@ export function DashboardPage() {
   const [expandedEntrantId, setExpandedEntrantId] = useState<string | null>(null);
   const [dismissKey, setDismissKey] = useState(0);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showHotkeys, setShowHotkeys] = useState(false);
   const bootstrappedSpinRef = useRef(false);
   const handledWinnerPopupRef = useRef<string | null>(null);
 
@@ -253,6 +254,81 @@ export function DashboardPage() {
     setDismissKey((k) => k + 1);
     // Call API to dismiss winner - will broadcast to overlay via WebSocket
     await apiPost("/api/giveaway/dismiss-winner").catch(() => {});
+  };
+
+  const toggleFullscreen = () => {
+    const wheelFullscreenTarget = document.getElementById("wheel-fullscreen-target");
+    if (!wheelFullscreenTarget) return;
+
+    if (document.fullscreenElement) {
+      document.exitFullscreen().catch(() => {});
+    } else {
+      const originalStyles = wheelFullscreenTarget.getAttribute('style') || '';
+      const childOriginalStyles = new Map<Element, string>();
+
+      const applyFullscreenStyles = () => {
+        const target = document.getElementById("wheel-fullscreen-target");
+        if (target && document.fullscreenElement === target) {
+          target.style.cssText = `
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%), linear-gradient(180deg, #09111f 0%, #030509 100%) !important;
+            overflow: hidden !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          `;
+
+          const mainContainer = target.children[3] as HTMLElement;
+          if (mainContainer) {
+            childOriginalStyles.set(mainContainer, mainContainer.getAttribute('style') || '');
+            mainContainer.style.cssText = `
+              width: 90vmin !important;
+              height: 90vmin !important;
+              max-width: none !important;
+              margin: 0 !important;
+            `;
+
+            const innerWrapper = mainContainer.children[1] as HTMLElement;
+            if (innerWrapper) {
+              childOriginalStyles.set(innerWrapper, innerWrapper.getAttribute('style') || '');
+              innerWrapper.style.cssText = `
+                width: 100% !important;
+                height: 100% !important;
+              `;
+            }
+          }
+        }
+      };
+
+      const restoreStyles = () => {
+        const target = document.getElementById("wheel-fullscreen-target");
+        if (target) {
+          target.setAttribute('style', originalStyles);
+          childOriginalStyles.forEach((style, element) => {
+            (element as HTMLElement).setAttribute('style', style);
+          });
+        }
+      };
+
+      const handleFullscreenChange = () => {
+        if (!document.fullscreenElement) {
+          restoreStyles();
+          wheelFullscreenTarget.removeEventListener("fullscreenchange", handleFullscreenChange);
+        } else {
+          applyFullscreenStyles();
+        }
+      };
+
+      wheelFullscreenTarget.addEventListener("fullscreenchange", handleFullscreenChange);
+      setTimeout(applyFullscreenStyles, 50);
+      wheelFullscreenTarget.requestFullscreen().catch(() => {});
+    }
   };
 
   const eligibleEntrants = useMemo(() => getEligibleEntrants(snapshot), [snapshot]);
@@ -361,6 +437,58 @@ export function DashboardPage() {
   };
 
   const dismissSetup = () => { window.localStorage.setItem(key, "1"); setShowSetupModal(false); };
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if typing in input/textarea
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
+
+      // Don't trigger if modal is open
+      if (showSetupModal || showClearConfirm) return;
+
+      const key = e.key.toLowerCase();
+
+      if (key === 'f') {
+        e.preventDefault();
+        toggleFullscreen();
+      } else if (key === ' ') {
+        e.preventDefault();
+        if (!busyAction && !spinActive && eligibleEntrants.length > 0) {
+          runAction("spin", () => apiPost("/api/giveaway/spin"));
+        }
+      } else if (key === 'o') {
+        e.preventDefault();
+        if (!busyAction && !spinActive) {
+          runAction(giveaway.status === "OPEN" ? "close" : "open", () =>
+            apiPost(giveaway.status === "OPEN" ? "/api/giveaway/close" : "/api/giveaway/open")
+          );
+        }
+      } else if (key === 'r') {
+        e.preventDefault();
+        if (!busyAction && !spinActive && eligibleEntrants.length > 0) {
+          runAction("reroll", () => apiPost("/api/giveaway/reroll"));
+        }
+      } else if (key === 's' && e.shiftKey) {
+        e.preventDefault();
+        if (!busyAction && eligibleEntrants.length > 0) {
+          runAction("shuffle", () => apiPost("/api/giveaway/shuffle"));
+        }
+      } else if (key === 'd' || key === 'escape') {
+        if (winnerPopupName) {
+          e.preventDefault();
+          handleDismissWinner();
+        }
+      } else if (key === '?') {
+        e.preventDefault();
+        setShowHotkeys(!showHotkeys);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [busyAction, spinActive, eligibleEntrants.length, winnerPopupName, showSetupModal, showClearConfirm, showHotkeys]);
 
   return (
     <div className="space-y-6">
@@ -475,88 +603,8 @@ export function DashboardPage() {
 
               <button
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-600/50 bg-slate-800/40 text-slate-300 transition hover:border-slate-500 hover:bg-slate-700/60"
-                onClick={() => {
-                  const wheelFullscreenTarget = document.getElementById("wheel-fullscreen-target");
-                  if (wheelFullscreenTarget) {
-                    if (document.fullscreenElement) {
-                      document.exitFullscreen().catch(() => {});
-                    } else {
-                      const originalStyles = wheelFullscreenTarget.getAttribute('style') || '';
-                      const childOriginalStyles = new Map<Element, string>();
-
-                      const applyFullscreenStyles = () => {
-                        const target = document.getElementById("wheel-fullscreen-target");
-                        if (target && document.fullscreenElement === target) {
-                          // Apply fullscreen styles to container
-                          target.style.cssText = `
-                            position: fixed !important;
-                            top: 0 !important;
-                            left: 0 !important;
-                            width: 100vw !important;
-                            height: 100vh !important;
-                            padding: 0 !important;
-                            margin: 0 !important;
-                            background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%), linear-gradient(180deg, #09111f 0%, #030509 100%) !important;
-                            overflow: hidden !important;
-                            display: flex !important;
-                            align-items: center !important;
-                            justify-content: center !important;
-                          `;
-
-                          // Find the main wheel container (child 3 - the one with max-w-[900px])
-                          const mainContainer = target.children[3] as HTMLElement;
-                          if (mainContainer) {
-                            childOriginalStyles.set(mainContainer, mainContainer.getAttribute('style') || '');
-                            mainContainer.style.cssText = `
-                              width: 90vmin !important;
-                              height: 90vmin !important;
-                              max-width: none !important;
-                              margin: 0 !important;
-                            `;
-
-                            // Find the inner wrapper with the wheel SVG
-                            const innerWrapper = mainContainer.children[1] as HTMLElement;
-                            if (innerWrapper) {
-                              childOriginalStyles.set(innerWrapper, innerWrapper.getAttribute('style') || '');
-                              innerWrapper.style.cssText = `
-                                width: 100% !important;
-                                height: 100% !important;
-                              `;
-                            }
-                          }
-                        }
-                      };
-
-                      const restoreStyles = () => {
-                        const target = document.getElementById("wheel-fullscreen-target");
-                        if (target) {
-                          // Restore original styles
-                          target.setAttribute('style', originalStyles);
-
-                          // Restore child styles
-                          childOriginalStyles.forEach((style, element) => {
-                            (element as HTMLElement).setAttribute('style', style);
-                          });
-                        }
-                      };
-
-                      // Listen for fullscreen change to restore styles on exit
-                      const handleFullscreenChange = () => {
-                        if (!document.fullscreenElement) {
-                          restoreStyles();
-                          wheelFullscreenTarget.removeEventListener("fullscreenchange", handleFullscreenChange);
-                        } else {
-                          applyFullscreenStyles();
-                        }
-                      };
-
-                      wheelFullscreenTarget.addEventListener("fullscreenchange", handleFullscreenChange);
-                      setTimeout(applyFullscreenStyles, 50);
-                      wheelFullscreenTarget.requestFullscreen().catch(() => {});
-                    }
-                  }
-                }}
-                title="Fullscreen wheel"
+                onClick={toggleFullscreen}
+                title="Fullscreen wheel (F)"
               >
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
@@ -1118,6 +1166,68 @@ export function DashboardPage() {
           </div>
         </div>
       ) : null}
+
+      {/* Hotkeys menu */}
+      <button
+        onClick={() => setShowHotkeys(!showHotkeys)}
+        className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 shadow-lg backdrop-blur-sm transition hover:border-violet-400/50 hover:bg-violet-500/20 hover:text-violet-200"
+        title="Keyboard shortcuts (?)"
+      >
+        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        </svg>
+      </button>
+
+      {showHotkeys && (
+        <div className="fixed bottom-20 right-6 z-50 w-80 rounded-xl border border-violet-500/30 bg-slate-900/95 p-5 shadow-2xl backdrop-blur-md">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="font-bold text-white">Keyboard Shortcuts</h3>
+            <button
+              onClick={() => setShowHotkeys(false)}
+              className="text-slate-400 transition hover:text-white"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
+              <span className="text-slate-300">Fullscreen wheel</span>
+              <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">F</kbd>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
+              <span className="text-slate-300">Spin wheel</span>
+              <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">Space</kbd>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
+              <span className="text-slate-300">Open/Close entry</span>
+              <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">O</kbd>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
+              <span className="text-slate-300">Reroll winner</span>
+              <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">R</kbd>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
+              <span className="text-slate-300">Shuffle wheel</span>
+              <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">Shift + S</kbd>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
+              <span className="text-slate-300">Dismiss winner</span>
+              <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">D</kbd>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
+              <span className="text-slate-300">Toggle shortcuts</span>
+              <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">?</kbd>
+            </div>
+          </div>
+
+          <p className="mt-4 text-xs text-slate-500">
+            Shortcuts work when not typing in text fields
+          </p>
+        </div>
+      )}
     </div>
   );
 }
