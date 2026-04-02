@@ -15,12 +15,28 @@ export function AppShell() {
   const snapshot = useDashboardStore((state) => state.snapshot);
   const reset = useDashboardStore((state) => state.reset);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [langMenuOpen, setLangMenuOpen] = useState(false);
 
   const links = [
     { to: "/dashboard", label: t('nav.dashboard') },
     { to: "/settings", label: t('nav.settings') },
     { to: "/history", label: t('nav.history') }
   ];
+
+  const languages = [
+    { code: 'en', name: 'English', flag: '🇬🇧' },
+    { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
+    { code: 'es', name: 'Español', flag: '🇪🇸' },
+    { code: 'pt', name: 'Português', flag: '🇵🇹' },
+    { code: 'fr', name: 'Français', flag: '🇫🇷' },
+    { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+    { code: 'ru', name: 'Русский', flag: '🇷🇺' },
+    { code: 'ja', name: '日本語', flag: '🇯🇵' },
+    { code: 'ko', name: '한국어', flag: '🇰🇷' },
+    { code: 'tr', name: 'Türkçe', flag: '🇹🇷' }
+  ];
+
+  const currentLang = languages.find(lang => lang.code === i18n.language) || languages[0];
 
   return (
     <div className="relative min-h-screen text-slate-100">
@@ -100,13 +116,49 @@ export function AppShell() {
           </button>
 
           {/* Language switcher */}
-          <button
-            onClick={() => i18n.changeLanguage(i18n.language === 'en' ? 'nl' : 'en')}
-            className="flex h-8 items-center justify-center rounded-md border border-slate-700 bg-slate-800 px-2.5 text-xs font-semibold text-slate-300 transition-colors hover:border-slate-600 hover:bg-slate-750 hover:text-white"
-            title={t('settings.language')}
-          >
-            {i18n.language === 'en' ? '🇬🇧 EN' : '🇳🇱 NL'}
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setLangMenuOpen(!langMenuOpen)}
+              className="flex h-8 items-center justify-center gap-1 rounded-md border border-slate-700 bg-slate-800 px-2.5 text-xs font-semibold text-slate-300 transition-colors hover:border-slate-600 hover:bg-slate-750 hover:text-white"
+              title={t('settings.language')}
+            >
+              <span>{currentLang.flag}</span>
+              <span>{currentLang.code.toUpperCase()}</span>
+              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {langMenuOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setLangMenuOpen(false)} />
+                <div className="absolute right-0 top-10 z-50 w-48 rounded-lg border border-slate-700 bg-slate-900 py-1 shadow-2xl">
+                  {languages.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => {
+                        i18n.changeLanguage(lang.code);
+                        setLangMenuOpen(false);
+                      }}
+                      className={`flex w-full items-center gap-2 px-4 py-2 text-sm transition-colors ${
+                        i18n.language === lang.code
+                          ? 'bg-violet-500/20 text-violet-300'
+                          : 'text-slate-300 hover:bg-slate-800'
+                      }`}
+                    >
+                      <span>{lang.flag}</span>
+                      <span>{lang.name}</span>
+                      {i18n.language === lang.code && (
+                        <svg className="ml-auto h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
 
           <button
             onClick={() => setHelpOpen(true)}
