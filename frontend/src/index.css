@@ -58,6 +58,17 @@ html.light .rounded-\[34px\] {
   border-color: rgb(226 232 240) !important;
 }
 
+/* Light mode: Fix status bar (compact giveaway info bar) */
+html.light .bg-gradient-to-r {
+  background: linear-gradient(to right, rgba(241, 245, 249, 0.8), rgba(248, 250, 252, 0.6), rgba(241, 245, 249, 0.8)) !important;
+  border-color: rgb(226 232 240) !important;
+}
+
+/* Light mode: Fix vertical dividers in status bar */
+html.light .bg-slate-700 {
+  background-color: rgb(203 213 225) !important;
+}
+
 html.light .border-slate-800,
 html.light .border-slate-700,
 html.light .border-slate-700\/50,
