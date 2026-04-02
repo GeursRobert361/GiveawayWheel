@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DisclosurePanel } from "../components/ui/DisclosurePanel";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
@@ -130,6 +131,7 @@ function TimeStepper({ label, days, onChange }: {
   days: number;
   onChange: (days: number) => void;
 }) {
+  const { t } = useTranslation();
   const [unit, setUnit] = useState<TimeUnit>("days");
   const [displayValue, setDisplayValue] = useState(days);
 
@@ -202,10 +204,10 @@ function TimeStepper({ label, days, onChange }: {
           value={unit}
           onChange={(e) => setUnit(e.target.value as TimeUnit)}
         >
-          <option value="hours">Hours</option>
-          <option value="days">Days</option>
-          <option value="months">Months</option>
-          <option value="years">Years</option>
+          <option value="hours">{t('common.hours')}</option>
+          <option value="days">{t('common.days')}</option>
+          <option value="months">{t('common.months')}</option>
+          <option value="years">{t('common.years')}</option>
         </select>
       </div>
     </div>
@@ -213,6 +215,7 @@ function TimeStepper({ label, days, onChange }: {
 }
 
 export function SettingsPage() {
+  const { t } = useTranslation();
   const snapshot = useDashboardStore((state) => state.snapshot);
   const [form, setForm] = useState<SettingsFormState | null>(null);
   const [saving, setSaving] = useState(false);
@@ -226,7 +229,7 @@ export function SettingsPage() {
   if (!snapshot?.giveaway || !form) {
     return (
       <Card>
-        <p className="text-sm text-slate-300">Waiting for settings data...</p>
+        <p className="text-sm text-slate-300">{t('common.loading')}</p>
       </Card>
     );
   }
@@ -238,36 +241,35 @@ export function SettingsPage() {
   return (
     <div className="space-y-6">
       <Card className="px-6 py-6 sm:px-7">
-        <p className="section-kicker">Configuration studio</p>
-        <h2 className="page-title">Giveaway settings</h2>
+        <p className="section-kicker">{t('settings.preferences')}</p>
+        <h2 className="page-title">{t('settings.giveawaySettings')}</h2>
         <p className="mt-3 max-w-3xl text-sm text-slate-300 sm:text-base">
-          The most-used controls stay up front. Heavier configuration lives behind expandable panels so the page
-          stays fast to scan during a stream.
+          {t('settings.configDescription')}
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          <span className="pill-chip">Join: {form.entryCommand}</span>
-          <span className="pill-chip">Leave: {form.leaveCommand}</span>
+          <span className="pill-chip">{t('settings.joinCommand')}: {form.entryCommand}</span>
+          <span className="pill-chip">{t('settings.leaveCommandLabel')}: {form.leaveCommand}</span>
           <span className="pill-chip">
-            {form.allowDuplicateEntries ? `Up to ${form.maxEntriesPerUser} entries` : "Single entry only"}
+            {form.allowDuplicateEntries ? t('settings.upToEntries', { count: form.maxEntriesPerUser }) : t('settings.singleEntryOnly')}
           </span>
-          <span className="pill-chip">{form.spinCountdownSeconds}s countdown</span>
+          <span className="pill-chip">{form.spinCountdownSeconds}s {t('settings.countdown')}</span>
         </div>
       </Card>
 
       <DisclosurePanel
-        kicker="Core setup"
-        title="Session identity"
-        description="The title and the two chat commands stream viewers actually see."
+        kicker={t('settings.coreSetup')}
+        title={t('settings.sessionIdentity')}
+        description={t('settings.sessionIdentityDesc')}
         defaultOpen
       >
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="field-label">Title</label>
+            <label className="field-label">{t('settings.titleLabel')}</label>
             <input className="field-input" value={form.title} onChange={(event) => updateForm("title", event.target.value)} />
           </div>
           <div>
-            <label className="field-label">Entry command</label>
+            <label className="field-label">{t('settings.entryCommandLabel')}</label>
             <input
               className="field-input"
               value={form.entryCommand}
@@ -275,7 +277,7 @@ export function SettingsPage() {
             />
           </div>
           <div>
-            <label className="field-label">Leave command</label>
+            <label className="field-label">{t('settings.leaveCommandInput')}</label>
             <input
               className="field-input"
               value={form.leaveCommand}
@@ -283,7 +285,7 @@ export function SettingsPage() {
             />
           </div>
           <div>
-            <label className="field-label">Spin countdown (seconds)</label>
+            <label className="field-label">{t('settings.spinCountdownLabel')}</label>
             <input
               className="field-input"
               type="number"
@@ -292,19 +294,19 @@ export function SettingsPage() {
               value={form.spinCountdownSeconds}
               onChange={(event) => updateForm("spinCountdownSeconds", Number(event.target.value))}
             />
-            <p className="field-hint">Controls how long the audience sees the pre-spin suspense countdown.</p>
+            <p className="field-hint">{t('settings.spinCountdownHint')}</p>
           </div>
         </div>
       </DisclosurePanel>
 
       <DisclosurePanel
-        kicker="Entry rules"
-        title="Eligibility and behavior"
-        description="Keep the common stream-time rules available, but out of the way when you do not need them."
+        kicker={t('settings.entryRulesKicker')}
+        title={t('settings.eligibilityAndBehavior')}
+        description={t('settings.eligibilityDesc')}
         defaultOpen
       >
         <NumberStepper
-          label="Max entries per user"
+          label={t('settings.maxEntriesLabel')}
           value={form.maxEntriesPerUser}
           onChange={(value) => updateForm("maxEntriesPerUser", value)}
           min={1}
@@ -313,12 +315,12 @@ export function SettingsPage() {
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <TimeStepper
-            label="Minimum account age"
+            label={t('settings.minAccountAgeLabel')}
             days={form.minimumAccountAgeDays}
             onChange={(days) => updateForm("minimumAccountAgeDays", days)}
           />
           <TimeStepper
-            label="Minimum followage"
+            label={t('settings.minFollowageLabel')}
             days={form.minimumFollowageDays}
             onChange={(days) => updateForm("minimumFollowageDays", days)}
           />
@@ -326,58 +328,58 @@ export function SettingsPage() {
 
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <Toggle
-            label="Remove winner after draw"
+            label={t('settings.removeWinnerLabel')}
             checked={form.removeWinnerAfterDraw}
             onChange={(checked) => updateForm("removeWinnerAfterDraw", checked)}
-            description="Automatically remove the winner from the live entrant pool after each spin."
+            description={t('settings.removeWinnerDescription')}
           />
           <Toggle
-            label="Allow duplicate entries"
+            label={t('settings.allowDuplicatesLabel')}
             checked={form.allowDuplicateEntries}
             onChange={(checked) => updateForm("allowDuplicateEntries", checked)}
-            description="Allow repeated join commands up to the configured per-user entry cap."
+            description={t('settings.allowDuplicatesDescription')}
           />
           <Toggle
-            label="Follower-only mode"
+            label={t('settings.followerOnlyLabel')}
             checked={form.followerOnlyMode}
             onChange={(checked) => updateForm("followerOnlyMode", checked)}
-            description="Require the entrant to follow the channel before they can join."
+            description={t('settings.followerOnlyDescription')}
           />
           <Toggle
-            label="Subscriber-only mode"
+            label={t('settings.subscriberOnlyLabel')}
             checked={form.subscriberOnlyMode}
             onChange={(checked) => updateForm("subscriberOnlyMode", checked)}
-            description="Restrict the giveaway to current channel subscribers."
+            description={t('settings.subscriberOnlyDescription')}
           />
           <Toggle
-            label="Announce winner in chat"
+            label={t('settings.announceWinnerLabel')}
             checked={form.announceWinnerInChat}
             onChange={(checked) => updateForm("announceWinnerInChat", checked)}
-            description="Send the winner message back into Twitch chat after the wheel finishes."
+            description={t('settings.announceWinnerDescription')}
           />
           <Toggle
-            label="Exclude broadcaster"
+            label={t('settings.excludeBroadcasterLabel')}
             checked={form.excludeBroadcaster}
             onChange={(checked) => updateForm("excludeBroadcaster", checked)}
-            description="Disable broadcaster self-entry unless you intentionally want to test from your own account."
+            description={t('settings.excludeBroadcasterDescription')}
           />
         </div>
       </DisclosurePanel>
 
       <DisclosurePanel
-        kicker="Weight studio"
-        title="Role multipliers"
-        description="These weights directly shape the chance preview on the dashboard and the final winner selection."
+        kicker={t('settings.weightStudioKicker')}
+        title={t('settings.roleMultipliersTitle')}
+        description={t('settings.roleMultipliersDesc')}
       >
         <div className="grid gap-5 md:grid-cols-2">
           {(
             [
-              ["viewerWeight", "Viewer"],
-              ["followerWeight", "Follower"],
-              ["subscriberWeight", "Subscriber"],
-              ["vipWeight", "VIP"],
-              ["moderatorWeight", "Moderator"],
-              ["broadcasterWeight", "Broadcaster"]
+              ["viewerWeight", t('setup.viewer')],
+              ["followerWeight", t('setup.follower')],
+              ["subscriberWeight", t('setup.subscriber')],
+              ["vipWeight", t('setup.vip')],
+              ["moderatorWeight", t('setup.moderator')],
+              ["broadcasterWeight", t('setup.broadcaster')]
             ] as const
           ).map(([key, label]) => (
             <div key={key}>
@@ -412,9 +414,9 @@ export function SettingsPage() {
       </DisclosurePanel>
 
       <DisclosurePanel
-        kicker="Per-user rules"
-        title="Overrides and blacklist"
-        description="Use overrides for sponsor boosts, trusted community members, or permanent blocks."
+        kicker={t('settings.perUserRulesKicker')}
+        title={t('settings.overridesTitle')}
+        description={t('settings.overridesDesc')}
       >
         <div className="flex justify-end">
           <Button
@@ -430,13 +432,13 @@ export function SettingsPage() {
               )
             }
           >
-            Add override
+            {t('settings.addOverride')}
           </Button>
         </div>
 
         <div className="mt-4 space-y-3">
           {form.overrides.length === 0 ? (
-            <p className="text-sm text-slate-400">No overrides yet.</p>
+            <p className="text-sm text-slate-400">{t('settings.noOverrides')}</p>
           ) : (
             form.overrides.map((override, index) => (
               <div
@@ -445,7 +447,7 @@ export function SettingsPage() {
               >
                 <input
                   className="field-input"
-                  placeholder="username"
+                  placeholder={t('settings.usernamePlaceholder')}
                   value={override.username}
                   onChange={(event) =>
                     setForm((current) =>
@@ -465,7 +467,7 @@ export function SettingsPage() {
                   type="number"
                   min={0}
                   step="0.25"
-                  placeholder="weight"
+                  placeholder={t('settings.weightPlaceholder')}
                   value={override.weight}
                   onChange={(event) =>
                     setForm((current) =>
@@ -498,7 +500,7 @@ export function SettingsPage() {
                       )
                     }
                   />
-                  Block user
+                  {t('settings.blockUser')}
                 </label>
                 <Button
                   variant="ghost"
@@ -513,11 +515,11 @@ export function SettingsPage() {
                     )
                   }
                 >
-                  Remove
+                  {t('settings.remove')}
                 </Button>
                 <input
                   className="field-input md:col-span-4"
-                  placeholder="Optional notes"
+                  placeholder={t('settings.optionalNotes')}
                   value={override.notes ?? ""}
                   onChange={(event) =>
                     setForm((current) =>
@@ -539,16 +541,16 @@ export function SettingsPage() {
       </DisclosurePanel>
 
       <DisclosurePanel
-        kicker="Testing"
-        title="Test utilities"
+        kicker={t('settings.testingKicker')}
+        title={t('settings.testUtilities')}
         defaultOpen={false}
       >
         <div className="space-y-4">
           <p className="text-sm text-slate-400">
-            Add random test entrants to verify the wheel is working correctly.
+            {t('settings.testDescription')}
           </p>
           <div>
-            <label className="field-label">Number of test entrants</label>
+            <label className="field-label">{t('settings.numberOfTestEntrants')}</label>
             <div className="flex items-center gap-2">
               <input
                 type="number"
@@ -565,16 +567,16 @@ export function SettingsPage() {
                   const count = Math.min(Math.max(1, parseInt(input?.value || "10")), 100);
                   try {
                     await apiPost("/api/giveaway/add-test-entrants", { count });
-                    alert(`Successfully added ${count} test entrants!`);
+                    alert(t('settings.testEntrantsSuccess', { count }));
                   } catch (error) {
-                    alert(`Failed to add test entrants: ${error instanceof Error ? error.message : "Unknown error"}`);
+                    alert(t('settings.testEntrantsFailed', { error: error instanceof Error ? error.message : t('settings.unknownError') }));
                   }
                 }}
               >
-                Add test entrants
+                {t('settings.addTestEntrants')}
               </Button>
             </div>
-            <p className="field-hint">Add between 1 and 100 random test entrants with random roles.</p>
+            <p className="field-hint">{t('settings.testEntrantsHint')}</p>
           </div>
         </div>
       </DisclosurePanel>
@@ -592,7 +594,7 @@ export function SettingsPage() {
             }
           }}
         >
-          {saving ? "Saving..." : "Save settings"}
+          {saving ? t('settings.saving') : t('settings.saveSettings')}
         </Button>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { logout } from "../../lib/api";
 import { useDashboardStore } from "../../store/useDashboardStore";
 import { Button } from "../ui/Button";
@@ -7,17 +8,18 @@ import { StatusPill } from "../ui/StatusPill";
 import { HelpModal } from "../ui/HelpModal";
 import { PreferencesPanel } from "../ui/PreferencesPanel";
 
-const links = [
-  { to: "/dashboard", label: "Dashboard" },
-  { to: "/settings", label: "Settings" },
-  { to: "/history", label: "History" }
-];
-
 export function AppShell() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const snapshot = useDashboardStore((state) => state.snapshot);
   const reset = useDashboardStore((state) => state.reset);
   const [helpOpen, setHelpOpen] = useState(false);
+
+  const links = [
+    { to: "/dashboard", label: t('nav.dashboard') },
+    { to: "/settings", label: t('nav.settings') },
+    { to: "/history", label: t('nav.history') }
+  ];
 
   return (
     <div className="relative min-h-screen text-slate-100">
@@ -49,7 +51,7 @@ export function AppShell() {
             <p className="text-sm font-semibold leading-tight text-white">
               {snapshot?.broadcaster.channelName ?? snapshot?.broadcaster.displayName ?? "Giveaway Wheel"}
             </p>
-            <p className="text-xs leading-tight text-slate-500">Stream giveaway tool</p>
+            <p className="text-xs leading-tight text-slate-500">{t('nav.appSubtitle')}</p>
           </div>
         </div>
 
@@ -82,7 +84,7 @@ export function AppShell() {
           <button
             onClick={() => setHelpOpen(true)}
             className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-700 bg-slate-800 text-slate-300 transition-colors hover:border-slate-600 hover:bg-slate-750 hover:text-white"
-            title="Help & Tutorials"
+            title={t('nav.helpTitle')}
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -98,7 +100,7 @@ export function AppShell() {
               navigate("/");
             }}
           >
-            Logout
+            {t('nav.logout')}
           </Button>
         </div>
         </div>
@@ -108,7 +110,7 @@ export function AppShell() {
       <div className="mx-auto flex min-h-screen max-w-[1920px] flex-col px-4 pt-16 sm:px-6">
         {snapshot?.twitch.lastError ? (
           <div className="mt-4 rounded-lg border border-rose-400/20 bg-rose-500/[0.08] px-4 py-3 text-sm text-rose-200">
-            Twitch: {snapshot.twitch.lastError}
+            {t('nav.twitchError')}: {snapshot.twitch.lastError}
           </div>
         ) : null}
 

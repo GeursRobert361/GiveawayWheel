@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DisclosurePanel } from "../components/ui/DisclosurePanel";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
@@ -232,6 +233,7 @@ function getEligibleEntrants(snapshot: DashboardSnapshot | null) {
 }
 
 export function DashboardPage() {
+  const { t } = useTranslation();
   const snapshot = useDashboardStore((state) => state.snapshot);
   const error = useDashboardStore((state) => state.error);
   const [busyAction, setBusyAction] = useState<string | null>(null);
@@ -561,7 +563,7 @@ export function DashboardPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
                   </svg>
-                  CLOSE ENTRY
+                  {t('dashboard.closeEntry')}
                 </>
               ) : (
                 <>
@@ -569,7 +571,7 @@ export function DashboardPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  OPEN ENTRY
+                  {t('dashboard.openEntry')}
                 </>
               )}
             </Button>
@@ -586,19 +588,19 @@ export function DashboardPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  Setup
+                  {t('dashboard.setup')}
                 </Button>
                 <Button
                   variant="secondary"
                   disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
                   onClick={() => runAction("reroll", () => apiPost("/api/giveaway/reroll"))}
-                  title="Spin again if winner doesn't respond"
+                  title={t('dashboard.reroll')}
                   className="!border-slate-600/50"
                 >
                   <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  Reroll
+                  {t('dashboard.reroll')}
                 </Button>
               </div>
 
@@ -646,12 +648,12 @@ export function DashboardPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                   </svg>
                 </div>
-                <h3 className="font-bold text-white">OBS Browser Source</h3>
+                <h3 className="font-bold text-white">{t('dashboard.obsSetup')}</h3>
               </div>
 
               <div className="space-y-3">
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-violet-300">Overlay URL</label>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-violet-300">{t('dashboard.overlayUrl')}</label>
                   {snapshot.overlayUrl ? (
                     <div className="flex gap-2">
                       <div className="flex-1 rounded-lg border border-violet-500/20 bg-slate-900/50 p-2">
@@ -661,7 +663,7 @@ export function DashboardPage() {
                         variant="secondary"
                         onClick={() => snapshot.overlayUrl && copyToClipboard(snapshot.overlayUrl)}
                         className="!h-auto !border-violet-500/30 !bg-violet-500/10 !px-3 hover:!bg-violet-500/20"
-                        title="Copy URL"
+                        title={t('dashboard.copyUrl')}
                       >
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -713,7 +715,7 @@ export function DashboardPage() {
 
             {/* Quick actions */}
             <div className="rounded-xl border border-slate-700/50 bg-slate-900/40 p-4">
-              <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-400">Quick Actions</h3>
+              <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-400">{t('dashboard.quickActions')}</h3>
               <div className="space-y-2">
                 <div className="grid grid-cols-2 gap-2">
                   <Button
@@ -725,7 +727,7 @@ export function DashboardPage() {
                     <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                     </svg>
-                    Shuffle
+                    {t('dashboard.shuffle')}
                   </Button>
                   <Button
                     variant="secondary"
@@ -736,16 +738,16 @@ export function DashboardPage() {
                     <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
-                    Import
+                    {t('dashboard.importChatters')}
                   </Button>
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-slate-400">Manual Add</label>
+                  <label className="mb-1.5 block text-xs font-medium text-slate-400">{t('dashboard.addManual')}</label>
                   <div className="flex gap-2">
                     <input
                       className="field-input flex-1 !text-sm"
-                      placeholder="Username"
+                      placeholder={t('dashboard.username')}
                       value={manualUsername}
                       onChange={(e) => setManualUsername(e.target.value)}
                     />
@@ -774,7 +776,7 @@ export function DashboardPage() {
                     <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
-                    Export
+                    {t('history.exportCSV')}
                   </Button>
                   <Button
                     variant="danger"
@@ -785,7 +787,7 @@ export function DashboardPage() {
                     <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    Clear
+                    {t('dashboard.clearAll')}
                   </Button>
                 </div>
               </div>
@@ -799,14 +801,14 @@ export function DashboardPage() {
         {/* Entrants */}
         <div className="rounded-xl border border-slate-700/50 bg-slate-900/40 p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-bold uppercase tracking-wide text-slate-400">Entrants</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-slate-400">{t('dashboard.entrants')}</h3>
             <span className="rounded-full bg-slate-800 px-2.5 py-0.5 font-mono text-xs font-bold text-slate-300">
               {giveaway.entrantCount}
             </span>
           </div>
           <div className="max-h-[32rem] space-y-2 overflow-auto pr-1">
             {giveaway.entrants.length === 0 ? (
-              <p className="py-8 text-center text-sm text-slate-500">No entrants yet</p>
+              <p className="py-8 text-center text-sm text-slate-500">{t('dashboard.noEntrants')}</p>
             ) : giveaway.entrants.map((entrant) => (
               <div
                 key={entrant.id}
@@ -836,12 +838,12 @@ export function DashboardPage() {
 
                 <div className="mt-2 flex flex-wrap gap-1">
                   <RoleTags entrant={entrant} />
-                  {!entrant.isEligible && <span className="pill-chip !bg-amber-500/20 !text-amber-300">Ineligible</span>}
+                  {!entrant.isEligible && <span className="pill-chip !bg-amber-500/20 !text-amber-300">{t('dashboard.ineligible')}</span>}
                 </div>
 
                 <div className="mt-2">
                   <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span>Chance</span>
+                    <span>{t('dashboard.chance')}</span>
                     <span>{formatPercent(entrant.chancePercent)}</span>
                   </div>
                   <div className="mt-1 h-1.5 rounded-full bg-slate-950/70">
@@ -864,7 +866,7 @@ export function DashboardPage() {
                         })}
                         className="!h-7 !text-xs"
                       >
-                        Remove 1
+                        {t('dashboard.removeOne')}
                       </Button>
                     )}
                     <Button
@@ -876,7 +878,7 @@ export function DashboardPage() {
                       })}
                       className="!h-7 !text-xs"
                     >
-                      Remove All
+                      {t('dashboard.removeAll')}
                     </Button>
                   </div>
                 )}
@@ -888,7 +890,7 @@ export function DashboardPage() {
         {/* Winners */}
         <div className="rounded-xl border border-slate-700/50 bg-slate-900/40 p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-sm font-bold uppercase tracking-wide text-slate-400">Winners</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-slate-400">{t('dashboard.recentWinners')}</h3>
             <Button
               variant="secondary"
               onClick={() => apiDownload("/api/history/export")}
@@ -902,11 +904,11 @@ export function DashboardPage() {
           <div className="space-y-2">
             {spinActive && (
               <div className="rounded-lg border border-violet-400/20 bg-violet-500/[0.08] px-4 py-3 text-sm text-violet-200">
-                🎲 Revealing winner...
+                {t('dashboard.spinStarting')}
               </div>
             )}
             {visibleWinners.length === 0 ? (
-              <p className="py-8 text-center text-sm text-slate-500">No winners yet</p>
+              <p className="py-8 text-center text-sm text-slate-500">{t('dashboard.noWinners')}</p>
             ) : visibleWinners.map((w) => (
               <div key={w.id} className="rounded-lg border border-slate-700/70 bg-slate-800/40 px-3 py-2.5">
                 <div className="flex items-start justify-between gap-2">
@@ -926,10 +928,10 @@ export function DashboardPage() {
 
         {/* Activity */}
         <div className="rounded-xl border border-slate-700/50 bg-slate-900/40 p-5">
-          <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-400">Activity Log</h3>
+          <h3 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-400">{t('dashboard.activityLog')}</h3>
           <div className="max-h-[32rem] space-y-2 overflow-auto pr-1">
             {giveaway.recentActivity.length === 0 ? (
-              <p className="py-8 text-center text-sm text-slate-500">No recent activity</p>
+              <p className="py-8 text-center text-sm text-slate-500">{t('dashboard.noActivity')}</p>
             ) : giveaway.recentActivity.map((e) => (
               <div key={e.id} className="rounded-lg border border-slate-700/70 bg-slate-800/40 px-3 py-2.5">
                 <p className="text-sm font-medium text-white">{e.message}</p>
@@ -950,7 +952,7 @@ export function DashboardPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 p-4 backdrop-blur-sm">
           <div className="relative w-full max-w-5xl overflow-hidden rounded-xl border border-slate-700/70 bg-slate-900 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 px-6 py-4">
-              <h2 className="text-xl font-bold text-white">Giveaway Setup</h2>
+              <h2 className="text-xl font-bold text-white">{t('setup.title')}</h2>
               <button
                 onClick={dismissSetup}
                 className="rounded-md p-2 text-slate-400 transition hover:bg-slate-800 hover:text-white"
@@ -964,7 +966,7 @@ export function DashboardPage() {
             <div className="max-h-[70vh] overflow-y-auto p-6">
               <div className="space-y-6">
                 <div>
-                  <label className="field-label">Giveaway Title</label>
+                  <label className="field-label">{t('setup.giveawayTitle')}</label>
                   <input
                     className="field-input"
                     value={setupForm.title}
@@ -974,7 +976,7 @@ export function DashboardPage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="field-label">Entry Command</label>
+                    <label className="field-label">{t('setup.entryCommand')}</label>
                     <input
                       className="field-input"
                       value={setupForm.entryCommand}
@@ -982,7 +984,7 @@ export function DashboardPage() {
                     />
                   </div>
                   <div>
-                    <label className="field-label">Leave Command</label>
+                    <label className="field-label">{t('setup.leaveCommand')}</label>
                     <input
                       className="field-input"
                       value={setupForm.leaveCommand}
@@ -992,43 +994,43 @@ export function DashboardPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <p className="text-sm font-semibold uppercase tracking-wide text-slate-400">Entry Rules</p>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-slate-400">{t('setup.entryRules')}</p>
                   <SetupToggle
-                    label="Follower-only mode"
+                    label={t('setup.followerOnly')}
                     checked={setupForm.followerOnlyMode}
                     onChange={(v) => setSetupForm((c) => c ? { ...c, followerOnlyMode: v } : c)}
-                    description="Only followers can enter the giveaway."
+                    description={t('setup.followerOnlyDesc')}
                   />
                   <SetupToggle
-                    label="Subscriber-only mode"
+                    label={t('setup.subscriberOnly')}
                     checked={setupForm.subscriberOnlyMode}
                     onChange={(v) => setSetupForm((c) => c ? { ...c, subscriberOnlyMode: v } : c)}
-                    description="Only subscribers can enter the giveaway."
+                    description={t('setup.subscriberOnlyDesc')}
                   />
                   <SetupToggle
-                    label="Exclude broadcaster"
+                    label={t('setup.excludeBroadcaster')}
                     checked={setupForm.excludeBroadcaster}
                     onChange={(v) => setSetupForm((c) => c ? { ...c, excludeBroadcaster: v } : c)}
-                    description="Prevent the broadcaster from entering."
+                    description={t('setup.excludeBroadcasterDesc')}
                   />
                   <SetupToggle
-                    label="Allow duplicate entries"
+                    label={t('setup.allowDuplicates')}
                     checked={setupForm.allowDuplicateEntries}
                     onChange={(v) => setSetupForm((c) => c ? { ...c, allowDuplicateEntries: v } : c)}
-                    description="Allow users to enter multiple times."
+                    description={t('setup.allowDuplicatesDesc')}
                   />
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <NumberStepper
-                    label="Max entries per user"
+                    label={t('setup.maxEntries')}
                     value={setupForm.maxEntriesPerUser}
                     onChange={(v) => setSetupForm((c) => c ? { ...c, maxEntriesPerUser: v } : c)}
                     min={1}
                     max={100}
                   />
                   <NumberStepper
-                    label="Spin countdown (seconds)"
+                    label={t('setup.spinCountdown')}
                     value={setupForm.spinCountdownSeconds}
                     onChange={(v) => setSetupForm((c) => c ? { ...c, spinCountdownSeconds: v } : c)}
                     min={0}
@@ -1038,44 +1040,44 @@ export function DashboardPage() {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <TimeStepper
-                    label="Minimum account age"
+                    label={t('setup.minAccountAge')}
                     days={setupForm.minimumAccountAgeDays}
                     onChange={(v) => setSetupForm((c) => c ? { ...c, minimumAccountAgeDays: v } : c)}
                   />
                   <TimeStepper
-                    label="Minimum follow duration"
+                    label={t('setup.minFollowDuration')}
                     days={setupForm.minimumFollowageDays}
                     onChange={(v) => setSetupForm((c) => c ? { ...c, minimumFollowageDays: v } : c)}
                   />
                 </div>
 
                 <div className="space-y-3">
-                  <p className="text-sm font-semibold uppercase tracking-wide text-slate-400">Behavior</p>
+                  <p className="text-sm font-semibold uppercase tracking-wide text-slate-400">{t('setup.behavior')}</p>
                   <SetupToggle
-                    label="Remove winner after draw"
+                    label={t('setup.removeWinner')}
                     checked={setupForm.removeWinnerAfterDraw}
                     onChange={(v) => setSetupForm((c) => c ? { ...c, removeWinnerAfterDraw: v } : c)}
-                    description="Remove the winner from the pool once revealed."
+                    description={t('setup.removeWinnerDesc')}
                   />
                   <SetupToggle
-                    label="Announce winner in chat"
+                    label={t('setup.announceWinner')}
                     checked={setupForm.announceWinnerInChat}
                     onChange={(v) => setSetupForm((c) => c ? { ...c, announceWinnerInChat: v } : c)}
-                    description="Post the winner into Twitch chat after the spin."
+                    description={t('setup.announceWinnerDesc')}
                   />
                 </div>
 
                 <div>
-                  <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Role Weights</p>
-                  <p className="mb-4 text-sm text-slate-400">Adjust how much each role's entries are weighted in the draw.</p>
+                  <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">{t('setup.roleWeights')}</p>
+                  <p className="mb-4 text-sm text-slate-400">{t('setup.roleWeightsDesc')}</p>
                   <div className="grid gap-4 md:grid-cols-2">
                     {[
-                      { key: "viewerWeight" as const, label: "Viewer" },
-                      { key: "followerWeight" as const, label: "Follower" },
-                      { key: "subscriberWeight" as const, label: "Subscriber" },
-                      { key: "vipWeight" as const, label: "VIP" },
-                      { key: "moderatorWeight" as const, label: "Moderator" },
-                      { key: "broadcasterWeight" as const, label: "Broadcaster" }
+                      { key: "viewerWeight" as const, label: t('setup.viewer') },
+                      { key: "followerWeight" as const, label: t('setup.follower') },
+                      { key: "subscriberWeight" as const, label: t('setup.subscriber') },
+                      { key: "vipWeight" as const, label: t('setup.vip') },
+                      { key: "moderatorWeight" as const, label: t('setup.moderator') },
+                      { key: "broadcasterWeight" as const, label: t('setup.broadcaster') }
                     ].map(({ key, label }) => (
                       <div key={key}>
                         <div className="flex items-center justify-between">
@@ -1103,10 +1105,10 @@ export function DashboardPage() {
 
             <div className="flex justify-end gap-3 border-t border-slate-800 px-6 py-4">
               <Button variant="secondary" onClick={dismissSetup}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button onClick={saveSetup} disabled={savingSetup}>
-                {savingSetup ? "Saving..." : "Save Changes"}
+                {savingSetup ? t('setup.saving') : t('common.save')}
               </Button>
             </div>
           </div>
@@ -1129,18 +1131,18 @@ export function DashboardPage() {
             <div className="pointer-events-none absolute inset-x-1/2 top-0 h-48 w-48 -translate-x-1/2 rounded-full bg-violet-500/20 blur-[90px]" />
             <div className="pointer-events-none absolute inset-x-10 bottom-0 h-px bg-gradient-to-r from-transparent via-violet-400/35 to-transparent" />
 
-            <p className="section-kicker">Winner locked in</p>
-            <h3 className="mt-4 text-xl font-semibold text-slate-200">The wheel landed on</h3>
+            <p className="section-kicker">{t('dashboard.winnerLockedIn')}</p>
+            <h3 className="mt-4 text-xl font-semibold text-slate-200">{t('dashboard.theWheelLandedOn')}</h3>
             <p className="mt-5 font-display text-5xl font-bold tracking-tight text-white sm:text-7xl">
               {winnerPopupName}
             </p>
             {winnerPopupChance !== null && (
               <p className="mt-3 text-lg font-semibold text-violet-300">
-                {winnerPopupChance.toFixed(2)}% chance to win
+                {winnerPopupChance.toFixed(2)}% {t('dashboard.chanceToWin')}
               </p>
             )}
             <div className="mt-8 flex justify-center">
-              <Button onClick={() => handleDismissWinner()}>Dismiss</Button>
+              <Button onClick={() => handleDismissWinner()}>{t('dashboard.dismissWinner')}</Button>
             </div>
           </div>
         </div>
@@ -1151,13 +1153,13 @@ export function DashboardPage() {
       {showClearConfirm ? (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/90 p-4 backdrop-blur-sm">
           <div className="relative w-full max-w-md rounded-lg border border-rose-400/30 bg-slate-900 px-6 py-6 shadow-xl">
-            <h3 className="text-lg font-bold text-white">Clear All Entrants?</h3>
+            <h3 className="text-lg font-bold text-white">{t('dashboard.confirmClear')}</h3>
             <p className="mt-2 text-sm text-slate-300">
-              This will remove all {giveaway.entrantCount} entrants from the current giveaway. This action cannot be undone.
+              {t('dashboard.confirmClearDesc', { count: giveaway.entrantCount })}
             </p>
             <div className="mt-6 flex justify-end gap-3">
               <Button variant="secondary" onClick={() => setShowClearConfirm(false)}>
-                Cancel
+                {t('common.cancel')}
               </Button>
               <Button
                 variant="danger"
@@ -1166,7 +1168,7 @@ export function DashboardPage() {
                   runAction("clear-all", () => apiPost("/api/entrants/clear"));
                 }}
               >
-                Clear All
+                {t('dashboard.clearAll')}
               </Button>
             </div>
           </div>
@@ -1177,7 +1179,7 @@ export function DashboardPage() {
       <button
         onClick={() => setShowHotkeys(!showHotkeys)}
         className="fixed bottom-6 right-6 z-40 flex h-11 w-11 items-center justify-center rounded-full border border-violet-500/30 bg-violet-500/10 text-violet-300 shadow-lg backdrop-blur-sm transition hover:border-violet-400/50 hover:bg-violet-500/20 hover:text-violet-200"
-        title="Keyboard shortcuts (?)"
+        title={t('dashboard.keyboardShortcuts')}
       >
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
@@ -1187,7 +1189,7 @@ export function DashboardPage() {
       {showHotkeys && (
         <div className="fixed bottom-20 right-6 z-50 w-80 rounded-xl border border-violet-500/30 bg-slate-900/95 p-5 shadow-2xl backdrop-blur-md">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-bold text-white">Keyboard Shortcuts</h3>
+            <h3 className="font-bold text-white">{t('dashboard.keyboardShortcuts')}</h3>
             <button
               onClick={() => setShowHotkeys(false)}
               className="text-slate-400 transition hover:text-white"
@@ -1200,37 +1202,37 @@ export function DashboardPage() {
 
           <div className="space-y-2 text-sm">
             <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
-              <span className="text-slate-300">Fullscreen wheel</span>
+              <span className="text-slate-300">{t('dashboard.fullscreenWheel')}</span>
               <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">F</kbd>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
-              <span className="text-slate-300">Spin wheel</span>
+              <span className="text-slate-300">{t('dashboard.spinWheel')}</span>
               <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">Space</kbd>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
-              <span className="text-slate-300">Open/Close entry</span>
+              <span className="text-slate-300">{t('dashboard.openCloseEntry')}</span>
               <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">O</kbd>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
-              <span className="text-slate-300">Reroll winner</span>
+              <span className="text-slate-300">{t('dashboard.rerollWinner')}</span>
               <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">R</kbd>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
-              <span className="text-slate-300">Shuffle wheel</span>
+              <span className="text-slate-300">{t('dashboard.shuffleWheel')}</span>
               <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">Shift + S</kbd>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
-              <span className="text-slate-300">Dismiss winner</span>
+              <span className="text-slate-300">{t('dashboard.dismissWinnerKey')}</span>
               <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">D</kbd>
             </div>
             <div className="flex items-center justify-between rounded-lg border border-slate-700/50 bg-slate-800/40 px-3 py-2">
-              <span className="text-slate-300">Toggle shortcuts</span>
+              <span className="text-slate-300">{t('dashboard.toggleShortcuts')}</span>
               <kbd className="rounded border border-slate-600 bg-slate-700/60 px-2 py-1 font-mono text-xs font-semibold text-white">?</kbd>
             </div>
           </div>
 
           <p className="mt-4 text-xs text-slate-500">
-            Shortcuts work when not typing in text fields
+            {t('dashboard.shortcutsWork')}
           </p>
         </div>
       )}
