@@ -258,6 +258,14 @@ export function DashboardPage() {
   const eligibleEntrants = useMemo(() => getEligibleEntrants(snapshot), [snapshot]);
   const giveaway = snapshot?.giveaway;
 
+  // Only show lastSpin to wheel if it's fresh (not completed before page load)
+  const wheelLastSpin = useMemo(() => {
+    if (!giveaway?.lastSpin) return null;
+    // If this is handled (either old or already shown), don't pass to wheel
+    if (handledWinnerPopupRef.current === giveaway.lastSpin.eventId) return null;
+    return giveaway.lastSpin;
+  }, [giveaway?.lastSpin]);
+
   useEffect(() => {
     if (giveaway) setSetupForm(buildSetupForm(giveaway));
   }, [giveaway]);
@@ -279,7 +287,11 @@ export function DashboardPage() {
     const completedAt = new Date(spin.completedAt).getTime();
     if (!bootstrappedSpinRef.current) {
       bootstrappedSpinRef.current = true;
-      if (completedAt <= Date.now()) { handledWinnerPopupRef.current = spin.eventId; return; }
+      // If spin completed in the past, mark as handled without showing popup
+      if (completedAt <= Date.now()) {
+        handledWinnerPopupRef.current = spin.eventId;
+        return;
+      }
     }
     if (handledWinnerPopupRef.current === spin.eventId) return;
 
@@ -304,7 +316,16 @@ export function DashboardPage() {
     if (!winnerPopupName) return;
     const handleKeyDown = (e: KeyboardEvent) => { if (e.key === "Escape") handleDismissWinner(); };
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+
+    // Auto-dismiss after 30 seconds
+    const autoDismissTimer = window.setTimeout(() => {
+      handleDismissWinner();
+    }, 30000);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.clearTimeout(autoDismissTimer);
+    };
   }, [winnerPopupName]);
 
   if (!giveaway || !snapshot) {
@@ -391,7 +412,40 @@ export function DashboardPage() {
         <div className="relative grid gap-6 lg:grid-cols-[1fr_380px]">
           {/* Wheel - no card! Let it breathe */}
           <div className="space-y-4">
-            {/* Primary action bar - above wheel */}
+            {/* Hero action button - ABOVE wheel for visibility */}
+            <Button
+              variant="secondary"
+              disabled={busyAction !== null || spinActive}
+              onClick={() => runAction(giveaway.status === "OPEN" ? "close" : "open", () =>
+                apiPost(giveaway.status === "OPEN" ? "/api/giveaway/close" : "/api/giveaway/open")
+              )}
+              className={cn(
+                "w-full !h-14 !text-lg !font-bold",
+                giveaway.status === "OPEN"
+                  ? "!border-red-400/30 !bg-red-500/20 hover:!bg-red-500/30"
+                  : "!border-emerald-400/30 !bg-emerald-500/20 hover:!bg-emerald-500/30 animate-pulse"
+              )}
+            >
+              {giveaway.status === "OPEN" ? (
+                <>
+                  <svg className="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                  </svg>
+                  CLOSE ENTRY
+                </>
+              ) : (
+                <>
+                  <svg className="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  OPEN ENTRY
+                </>
+              )}
+            </Button>
+
+            {/* Secondary action bar */}
             <div className="flex items-center justify-between">
               <div className="flex gap-2">
                 <Button
@@ -399,7 +453,11 @@ export function DashboardPage() {
                   onClick={() => setShowSetupModal(true)}
                   className="!border-slate-600/50"
                 >
-                  ⚙️ Setup
+                  <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Setup
                 </Button>
                 <Button
                   variant="secondary"
@@ -408,7 +466,10 @@ export function DashboardPage() {
                   title="Spin again if winner doesn't respond"
                   className="!border-slate-600/50"
                 >
-                  🔄 Reroll
+                  <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Reroll
                 </Button>
               </div>
 
@@ -420,9 +481,13 @@ export function DashboardPage() {
                     if (document.fullscreenElement) {
                       document.exitFullscreen().catch(() => {});
                     } else {
-                      const applyStyles = () => {
+                      const originalStyles = wheelFullscreenTarget.getAttribute('style') || '';
+                      const childOriginalStyles = new Map<Element, string>();
+
+                      const applyFullscreenStyles = () => {
                         const target = document.getElementById("wheel-fullscreen-target");
                         if (target && document.fullscreenElement === target) {
+                          // Apply fullscreen styles to container
                           target.style.cssText = `
                             position: fixed !important;
                             top: 0 !important;
@@ -433,46 +498,53 @@ export function DashboardPage() {
                             margin: 0 !important;
                             background: radial-gradient(circle at center, rgba(71, 215, 255, 0.16), transparent 40%), linear-gradient(180deg, #09111f 0%, #030509 100%) !important;
                             overflow: hidden !important;
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
                           `;
 
-                          const children = target.children;
-                          for (let i = 0; i < children.length; i++) {
-                            const child = children[i] as HTMLElement;
-                            child.style.display = 'none';
-                          }
-
-                          const pointer = children[3] as HTMLElement;
-                          const wheelContainer = children[4] as HTMLElement;
-
-                          if (pointer) {
-                            pointer.style.cssText = `
-                              display: flex !important;
-                              position: fixed !important;
-                              top: 3vh !important;
-                              left: 50% !important;
-                              transform: translateX(-50%) scale(2) !important;
-                              z-index: 100 !important;
-                            `;
-                          }
-
-                          if (wheelContainer) {
-                            wheelContainer.style.cssText = `
-                              display: block !important;
-                              position: fixed !important;
-                              top: 50% !important;
-                              left: 50% !important;
-                              transform: translate(-50%, -50%) !important;
-                              width: 98vmin !important;
-                              height: 98vmin !important;
+                          // Find the main wheel container (child 3 in structure)
+                          const mainContainer = target.children[3] as HTMLElement;
+                          if (mainContainer) {
+                            childOriginalStyles.set(mainContainer, mainContainer.getAttribute('style') || '');
+                            mainContainer.style.cssText = `
+                              width: 95vmin !important;
+                              height: 95vmin !important;
                               max-width: none !important;
-                              max-height: none !important;
+                              display: flex !important;
+                              flex-direction: column !important;
+                              align-items: center !important;
+                              justify-content: center !important;
                             `;
                           }
                         }
                       };
 
-                      wheelFullscreenTarget.addEventListener("fullscreenchange", applyStyles, { once: true });
-                      setTimeout(applyStyles, 50);
+                      const restoreStyles = () => {
+                        const target = document.getElementById("wheel-fullscreen-target");
+                        if (target) {
+                          // Restore original styles
+                          target.setAttribute('style', originalStyles);
+
+                          // Restore child styles
+                          childOriginalStyles.forEach((style, element) => {
+                            (element as HTMLElement).setAttribute('style', style);
+                          });
+                        }
+                      };
+
+                      // Listen for fullscreen change to restore styles on exit
+                      const handleFullscreenChange = () => {
+                        if (!document.fullscreenElement) {
+                          restoreStyles();
+                          wheelFullscreenTarget.removeEventListener("fullscreenchange", handleFullscreenChange);
+                        } else {
+                          applyFullscreenStyles();
+                        }
+                      };
+
+                      wheelFullscreenTarget.addEventListener("fullscreenchange", handleFullscreenChange);
+                      setTimeout(applyFullscreenStyles, 50);
                       wheelFullscreenTarget.requestFullscreen().catch(() => {});
                     }
                   }
@@ -489,7 +561,7 @@ export function DashboardPage() {
             <div id="wheel-container">
               <Wheel
                 entrants={eligibleEntrants.map((e) => ({ id: e.id, displayName: e.displayName, weight: e.effectiveWeight }))}
-                lastSpin={giveaway.lastSpin}
+                lastSpin={wheelLastSpin}
                 winnerLabel={spinActive ? null : giveaway.winners[0]?.displayName ?? null}
                 onSpin={() => runAction("spin", () => apiPost("/api/giveaway/spin"))}
                 spinDisabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
@@ -498,35 +570,12 @@ export function DashboardPage() {
               />
             </div>
 
-            {/* Hero action buttons - below wheel */}
-            <div className="flex gap-3">
-              <Button
-                disabled={busyAction !== null || spinActive || eligibleEntrants.length === 0}
-                onClick={() => runAction("spin", () => apiPost("/api/giveaway/spin"))}
-                className="flex-1 !h-14 !text-lg !font-bold !shadow-[0_0_20px_rgba(139,92,246,0.3)] hover:!shadow-[0_0_30px_rgba(139,92,246,0.5)]"
-              >
-                🎯 SPIN NOW
-              </Button>
-              <Button
-                variant="secondary"
-                disabled={busyAction !== null || spinActive}
-                onClick={() => runAction(giveaway.status === "OPEN" ? "close" : "open", () =>
-                  apiPost(giveaway.status === "OPEN" ? "/api/giveaway/close" : "/api/giveaway/open")
-                )}
-                className={cn(
-                  "flex-1 !h-14 !text-lg !font-bold",
-                  giveaway.status === "OPEN"
-                    ? "!border-red-400/30 !bg-red-500/20 hover:!bg-red-500/30"
-                    : "!border-emerald-400/30 !bg-emerald-500/20 hover:!bg-emerald-500/30 animate-pulse"
-                )}
-              >
-                {giveaway.status === "OPEN" ? "🔴 CLOSE ENTRY" : "🟢 OPEN ENTRY"}
-              </Button>
-            </div>
-
             {latestJoinRejection && (
               <div className="rounded-lg border border-amber-400/20 bg-amber-500/[0.08] px-4 py-3 text-sm text-amber-200">
-                ⚠️ {latestJoinRejection.message}
+                <svg className="mr-2 inline h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                {latestJoinRejection.message}
               </div>
             )}
           </div>
@@ -548,8 +597,20 @@ export function DashboardPage() {
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-violet-300">Overlay URL</label>
                   {snapshot.overlayUrl ? (
-                    <div className="rounded-lg border border-violet-500/20 bg-slate-900/50 p-2">
-                      <p className="break-all font-mono text-xs text-slate-300">{snapshot.overlayUrl}</p>
+                    <div className="flex gap-2">
+                      <div className="flex-1 rounded-lg border border-violet-500/20 bg-slate-900/50 p-2">
+                        <p className="font-mono text-xs text-slate-400">••••••••••••••••••••••••••••••••••</p>
+                      </div>
+                      <Button
+                        variant="secondary"
+                        onClick={() => snapshot.overlayUrl && copyToClipboard(snapshot.overlayUrl)}
+                        className="!h-auto !border-violet-500/30 !bg-violet-500/10 !px-3 hover:!bg-violet-500/20"
+                        title="Copy URL"
+                      >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </Button>
                     </div>
                   ) : (
                     <p className="text-sm text-slate-400">Configure overlay in Settings</p>
@@ -570,24 +631,18 @@ export function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
-                  <Button
-                    variant="secondary"
-                    disabled={!snapshot.overlayUrl}
-                    onClick={() => snapshot.overlayUrl && copyToClipboard(snapshot.overlayUrl)}
-                    className="!border-violet-500/30 !bg-violet-500/10 hover:!bg-violet-500/20"
-                  >
-                    📋 Copy
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    disabled={!snapshot.overlayUrl}
-                    onClick={() => snapshot.overlayUrl && window.open(snapshot.overlayUrl, "GiveawayOverlay", "width=1920,height=1080")}
-                    className="!border-violet-500/30 !bg-violet-500/10 hover:!bg-violet-500/20"
-                  >
-                    👁️ Preview
-                  </Button>
-                </div>
+                <Button
+                  variant="secondary"
+                  disabled={!snapshot.overlayUrl}
+                  onClick={() => snapshot.overlayUrl && window.open(snapshot.overlayUrl, "GiveawayOverlay", "width=1920,height=1080")}
+                  className="w-full !border-violet-500/30 !bg-violet-500/10 hover:!bg-violet-500/20"
+                >
+                  <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  Preview
+                </Button>
 
                 <Button
                   variant="secondary"
@@ -611,7 +666,10 @@ export function DashboardPage() {
                     onClick={() => runAction("shuffle", () => apiPost("/api/giveaway/shuffle"))}
                     className="!border-slate-600/50 !text-sm"
                   >
-                    🔀 Shuffle
+                    <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                    </svg>
+                    Shuffle
                   </Button>
                   <Button
                     variant="secondary"
@@ -619,7 +677,10 @@ export function DashboardPage() {
                     onClick={() => runAction("chatters", () => apiPost("/api/entrants/import-chatters"))}
                     className="!border-slate-600/50 !text-sm"
                   >
-                    👥 Import
+                    <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    Import
                   </Button>
                 </div>
 
@@ -641,7 +702,9 @@ export function DashboardPage() {
                       })}
                       className="!border-slate-600/50"
                     >
-                      ✚
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                      </svg>
                     </Button>
                   </div>
                 </div>
@@ -652,7 +715,10 @@ export function DashboardPage() {
                     onClick={() => apiDownload("/api/entrants/export")}
                     className="!border-slate-600/50 !text-sm"
                   >
-                    💾 Export
+                    <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Export
                   </Button>
                   <Button
                     variant="danger"
@@ -660,7 +726,10 @@ export function DashboardPage() {
                     onClick={() => setShowClearConfirm(true)}
                     className="!text-sm"
                   >
-                    🗑️ Clear
+                    <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Clear
                   </Button>
                 </div>
               </div>
@@ -769,7 +838,9 @@ export function DashboardPage() {
               onClick={() => apiDownload("/api/history/export")}
               className="!h-7 !border-slate-600/50 !px-2 !text-xs"
             >
-              💾
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
             </Button>
           </div>
           <div className="space-y-2">
@@ -983,10 +1054,17 @@ export function DashboardPage() {
 
       {/* Winner popup - preserved as-is */}
       {winnerPopupName ? (
-        <div className="fixed inset-0 z-[100] h-screen w-screen flex items-center justify-center bg-slate-950/95 p-4 backdrop-blur-xl"
-          onClick={() => handleDismissWinner()}>
-          <div className="relative w-full max-w-3xl overflow-hidden rounded-lg border border-violet-400/25 bg-slate-900 px-8 py-10 text-center shadow-[0_48px_130px_rgba(0,0,0,0.65)]"
-            onClick={(e) => e.stopPropagation()}>
+        <>
+          {/* Backdrop blur layer */}
+          <div className="fixed inset-0 z-[9999] backdrop-blur-md" style={{ margin: 0, padding: 0 }} />
+          {/* Content layer */}
+          <div
+            className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/95 p-4"
+            onClick={() => handleDismissWinner()}
+            style={{ margin: 0 }}
+          >
+            <div className="relative w-full max-w-3xl overflow-hidden rounded-lg border border-violet-400/25 bg-slate-900 px-8 py-10 text-center shadow-[0_48px_130px_rgba(0,0,0,0.65)]"
+              onClick={(e) => e.stopPropagation()}>
             <div className="pointer-events-none absolute inset-x-1/2 top-0 h-48 w-48 -translate-x-1/2 rounded-full bg-violet-500/20 blur-[90px]" />
             <div className="pointer-events-none absolute inset-x-10 bottom-0 h-px bg-gradient-to-r from-transparent via-violet-400/35 to-transparent" />
 
@@ -1005,6 +1083,7 @@ export function DashboardPage() {
             </div>
           </div>
         </div>
+        </>
       ) : null}
 
       {/* Clear All Confirmation - preserved as-is */}
