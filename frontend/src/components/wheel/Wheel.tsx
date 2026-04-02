@@ -472,8 +472,8 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
         {showCenterText && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="text-center">
-              <p className="text-4xl font-extrabold text-[#ecfbff]">LIVE DRAW</p>
-              <p className="mt-2 text-xl font-bold text-[#7be5ff]">{wheelEntrants.length} names in play</p>
+              <p className="text-8xl font-extrabold text-[#ecfbff] tracking-wider">LIVE DRAW</p>
+              <p className="mt-4 text-4xl font-bold text-[#7be5ff]">{wheelEntrants.length} names in play</p>
             </div>
           </div>
         )}
