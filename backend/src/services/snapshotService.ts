@@ -37,10 +37,10 @@ function mapWeightSettings(weights: RoleWeightSettings | null) {
   if (!weights) {
     return {
       viewerWeight: 1,
-      followerWeight: 1.25,
-      subscriberWeight: 2,
-      vipWeight: 2.5,
-      moderatorWeight: 3,
+      followerWeight: 1,
+      subscriberWeight: 1,
+      vipWeight: 1,
+      moderatorWeight: 1,
       broadcasterWeight: 0
     };
   }

@@ -138,10 +138,10 @@ model RoleWeightSettings {
   id                String   @id @default(cuid())
   broadcasterId     String   @unique
   viewerWeight      Float    @default(1)
-  followerWeight    Float    @default(1.25)
-  subscriberWeight  Float    @default(2)
-  vipWeight         Float    @default(2.5)
-  moderatorWeight   Float    @default(3)
+  followerWeight    Float    @default(1)
+  subscriberWeight  Float    @default(1)
+  vipWeight         Float    @default(1)
+  moderatorWeight   Float    @default(1)
   broadcasterWeight Float    @default(0)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
