@@ -1067,7 +1067,8 @@ export function DashboardPage() {
 
                 <div>
                   <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Role Weights</p>
-                  <div className="space-y-2">
+                  <p className="mb-4 text-sm text-slate-400">Adjust how much each role's entries are weighted in the draw.</p>
+                  <div className="grid gap-4 md:grid-cols-2">
                     {[
                       { key: "viewerWeight" as const, label: "Viewer" },
                       { key: "followerWeight" as const, label: "Follower" },
@@ -1076,18 +1077,22 @@ export function DashboardPage() {
                       { key: "moderatorWeight" as const, label: "Moderator" },
                       { key: "broadcasterWeight" as const, label: "Broadcaster" }
                     ].map(({ key, label }) => (
-                      <div key={key} className="flex items-center gap-3 rounded-lg border border-slate-700/70 bg-slate-800/60 px-4 py-3">
-                        <label className="flex-1 font-semibold text-white">{label}</label>
+                      <div key={key}>
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm font-semibold text-white">{label}</label>
+                          <span className="text-sm font-bold text-violet-300">{setupForm.weights[key].toFixed(2)}×</span>
+                        </div>
                         <input
-                          type="number"
-                          className="field-input w-24 text-center"
+                          type="range"
+                          min="0"
+                          max="10"
+                          step="0.25"
                           value={setupForm.weights[key]}
                           onChange={(e) => setSetupForm((c) => c ? {
                             ...c,
-                            weights: { ...c.weights, [key]: Number(e.target.value) || 1 }
+                            weights: { ...c.weights, [key]: Number(e.target.value) }
                           } : c)}
-                          min={1}
-                          max={100}
+                          className="mt-2 h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-800 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-violet-500 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-violet-500"
                         />
                       </div>
                     ))}
