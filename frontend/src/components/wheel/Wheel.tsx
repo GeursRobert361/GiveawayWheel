@@ -149,6 +149,7 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       setDuration(0);
       setCountdown(null);
       handledSpinRef.current = null;
+      stopTickTrack();
     }
   }, [lastSpin]);
 
@@ -374,14 +375,6 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
       <circle cx={center} cy={center} r={innerRadius + 18} fill="url(#wheelCore)" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
       <circle cx={center} cy={center} r={innerRadius} fill="#07101c" stroke="rgba(123,229,255,0.22)" strokeWidth="3" />
-      {showCenterText && (
-        <>
-          <text x={center} y={center - 12} textAnchor="middle" fill="#ecfbff" fontSize={compact ? "24" : "28"} fontWeight="800">LIVE DRAW</text>
-          <text x={center} y={center + 18} textAnchor="middle" fill="#7be5ff" fontSize={compact ? "15" : "18"} fontWeight="700">
-            {wheelEntrants.length} names in play
-          </text>
-        </>
-      )}
     </svg>
   ) : (
     <svg
@@ -444,14 +437,6 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
       <circle cx={center} cy={center} r={innerRadius + 18} fill="url(#wheelCore)" stroke="rgba(255,255,255,0.2)" strokeWidth="8" />
       <circle cx={center} cy={center} r={innerRadius} fill="#07101c" stroke="rgba(123,229,255,0.22)" strokeWidth="3" />
-      {showCenterText && (
-        <>
-          <text x={center} y={center - 12} textAnchor="middle" fill="#ecfbff" fontSize={compact ? "24" : "28"} fontWeight="800">LIVE DRAW</text>
-          <text x={center} y={center + 18} textAnchor="middle" fill="#7be5ff" fontSize={compact ? "15" : "18"} fontWeight="700">
-            {wheelEntrants.length} names in play
-          </text>
-        </>
-      )}
     </svg>
   );
 
@@ -482,6 +467,16 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
         <div className="w-full">
           {svgEl}
         </div>
+
+        {/* Center text overlay - stays still while wheel spins */}
+        {showCenterText && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="text-center">
+              <p className="text-4xl font-extrabold text-[#ecfbff]">LIVE DRAW</p>
+              <p className="mt-2 text-xl font-bold text-[#7be5ff]">{wheelEntrants.length} names in play</p>
+            </div>
+          </div>
+        )}
 
         {/* Winner popup when spin completes (only show when celebrating) */}
         {resolvedWinner && celebrating && (
@@ -527,6 +522,16 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
 
           <div className="relative">
             {svgEl}
+
+            {/* Center text overlay - stays still while wheel spins */}
+            {showCenterText && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="text-center">
+                  <p className={`font-extrabold text-[#ecfbff] ${compact ? 'text-2xl' : 'text-3xl'}`}>LIVE DRAW</p>
+                  <p className={`mt-1 font-bold text-[#7be5ff] ${compact ? 'text-sm' : 'text-lg'}`}>{wheelEntrants.length} names in play</p>
+                </div>
+              </div>
+            )}
 
             {/* Countdown overlay */}
             {countdown != null && countdown > 0 && (
