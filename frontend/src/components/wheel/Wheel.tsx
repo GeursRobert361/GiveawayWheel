@@ -164,10 +164,20 @@ export function Wheel({ entrants, lastSpin, winnerLabel, compact = false, onSpin
       stopTickTrack();
       setDuration(0);
       setRotation(lastSpin.rotationDegrees);
-      setResolvedWinner(overlayMode ? null : lastSpin.winnerDisplayName);
-      setResolvedWinnerChance(overlayMode ? null : lastSpin.winnerChancePercent);
-      setCelebrating(false);
+      setResolvedWinner(lastSpin.winnerDisplayName);
+      setResolvedWinnerChance(lastSpin.winnerChancePercent);
+      setCelebrating(overlayMode); // Show celebration in overlay mode when spin already completed
       setCountdown(null);
+
+      // Auto-dismiss in overlay mode after showing the winner
+      if (overlayMode) {
+        const autoDismissTimeout = window.setTimeout(() => {
+          setCelebrating(false);
+          setResolvedWinner(null);
+          setResolvedWinnerChance(null);
+        }, 8000);
+        return () => window.clearTimeout(autoDismissTimeout);
+      }
       return;
     }
 
