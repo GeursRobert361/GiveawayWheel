@@ -5,6 +5,7 @@ import { useDashboardStore } from "../../store/useDashboardStore";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import { HelpModal } from "../ui/HelpModal";
+import { PreferencesPanel } from "../ui/PreferencesPanel";
 
 const links = [
   { to: "/dashboard", label: "Dashboard" },
@@ -117,6 +118,7 @@ export function AppShell() {
       </div>
 
       <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
+      <PreferencesPanel />
     </div>
   );
 }

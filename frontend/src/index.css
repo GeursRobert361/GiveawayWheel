@@ -11,6 +11,16 @@ html {
   background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
 }
 
+/* Light mode */
+html.light {
+  color-scheme: light;
+  background: linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+html.light body {
+  @apply text-slate-900;
+}
+
 html.overlay-mode {
   background: transparent;
 }
@@ -21,6 +31,10 @@ html.overlay-mode body {
 
 body {
   @apply min-h-screen bg-transparent font-sans text-slate-100 antialiased;
+}
+
+html.light body {
+  @apply text-slate-900;
 }
 
 #root {
