@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { loginWithTwitch } from "../lib/api";
@@ -83,6 +84,19 @@ export function LoginPage() {
             </Button>
           </div>
         </Card>
+      </div>
+
+      {/* Footer */}
+      <div className="mx-auto mt-12 max-w-7xl border-t border-white/10 px-4 pt-8">
+        <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+          <div className="flex flex-wrap gap-4 text-xs text-slate-400">
+            <Link to="/legal/privacy" className="hover:text-violet-400 transition">Privacy Policy</Link>
+            <Link to="/legal/cookies" className="hover:text-violet-400 transition">Cookie Policy</Link>
+            <Link to="/legal/terms" className="hover:text-violet-400 transition">Terms of Service</Link>
+            <Link to="/legal/giveaway-rules" className="hover:text-violet-400 transition">Giveaway Rules</Link>
+          </div>
+          <p className="text-xs text-slate-500">Not affiliated with Twitch Interactive, Inc.</p>
+        </div>
       </div>
     </div>
   );

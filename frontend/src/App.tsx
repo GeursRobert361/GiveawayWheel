@@ -9,6 +9,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { OverlayPage } from "./pages/OverlayPage";
 import { SettingsPage } from "./pages/SettingsPage";
 import { SetupPage } from "./pages/SetupPage";
+import { PrivacyPolicyPage, CookiePolicyPage, TermsOfServicePage, GiveawayRulesPage } from "./pages/legal";
 
 function ProtectedRoutes() {
   const authState = useDashboardStore((state) => state.authState);
@@ -61,6 +62,11 @@ export default function App() {
         <Route path="/history" element={<HistoryPage />} />
       </Route>
       <Route path="/overlay/:overlayKey" element={<OverlayPage />} />
+      {/* Public legal pages */}
+      <Route path="/legal/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/legal/cookies" element={<CookiePolicyPage />} />
+      <Route path="/legal/terms" element={<TermsOfServicePage />} />
+      <Route path="/legal/giveaway-rules" element={<GiveawayRulesPage />} />
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

@@ -7,6 +7,7 @@ import { useDashboardStore } from "../../store/useDashboardStore";
 import { Button } from "../ui/Button";
 import { StatusPill } from "../ui/StatusPill";
 import { HelpModal } from "../ui/HelpModal";
+import { Footer } from "./Footer";
 
 export function AppShell() {
   const { t, i18n } = useTranslation();
@@ -196,6 +197,8 @@ export function AppShell() {
         <main className="flex-1 py-4">
           <Outlet />
         </main>
+
+        <Footer />
       </div>
 
       <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
