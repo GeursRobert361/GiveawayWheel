@@ -107,9 +107,20 @@ export function PrivacyPolicyPage() {
               We load fonts (Inter and Plus Jakarta Sans) from Google Fonts CDN. When you visit our site, your browser may send requests to <code className="text-violet-400">fonts.googleapis.com</code> and <code className="text-violet-400">fonts.gstatic.com</code>. Google may collect technical information such as IP address and user agent. See <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">Google's Privacy Policy</a>.
             </p>
 
-            <h3 className="text-xl font-semibold text-white mb-3 mt-6">5.3 No Other Third Parties</h3>
+            <h3 className="text-xl font-semibold text-white mb-3 mt-6">5.3 Google AdSense</h3>
             <p className="text-slate-300 leading-relaxed">
-              We do <strong>not</strong> share your personal data with advertisers, data brokers, or analytics companies. We do <strong>not</strong> sell your data.
+              We use Google AdSense to display advertisements on certain pages (dashboard, settings, history, and legal pages). AdSense may collect information about your device, browser, and browsing behavior to serve personalized ads. This may include cookies, device identifiers, and IP addresses.
+            </p>
+            <p className="text-slate-300 leading-relaxed mt-4">
+              Google processes this data in accordance with <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">Google's Privacy Policy</a>. You can control personalized advertising via <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">Google Ads Settings</a>.
+            </p>
+            <p className="text-slate-300 leading-relaxed mt-4">
+              <strong>Note:</strong> Ads are not displayed on overlay pages, login pages, or setup pages.
+            </p>
+
+            <h3 className="text-xl font-semibold text-white mb-3 mt-6">5.4 No Other Third Parties</h3>
+            <p className="text-slate-300 leading-relaxed">
+              Apart from the services listed above (Twitch, Google Fonts, Google AdSense), we do <strong>not</strong> share your personal data with other advertisers, data brokers, or analytics companies. We do <strong>not</strong> sell your data.
             </p>
           </section>
 

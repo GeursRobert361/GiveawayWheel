@@ -196,22 +196,46 @@ export function CookiePolicyPage() {
             <p className="text-slate-300 leading-relaxed">
               When you authenticate via Twitch OAuth, you are redirected to Twitch's servers. Twitch may set their own cookies during the authentication process. These cookies are controlled by Twitch and subject to <a href="https://www.twitch.tv/p/legal/privacy-notice/" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">Twitch's Privacy Notice</a>.
             </p>
+
+            <h3 className="text-xl font-semibold text-white mb-3 mt-6">5.3 Google AdSense</h3>
+            <p className="text-slate-300 leading-relaxed">
+              We use Google AdSense to display advertisements on certain pages of our service. AdSense may use cookies and similar technologies to:
+            </p>
+            <ul className="list-disc list-inside text-slate-300 space-y-2 mt-3">
+              <li>Serve ads based on your prior visits to our website or other websites</li>
+              <li>Measure ad performance and engagement</li>
+              <li>Provide personalized advertising based on your interests</li>
+              <li>Prevent the same ads from being shown repeatedly</li>
+            </ul>
+            <p className="text-slate-300 leading-relaxed mt-4">
+              Google's use of advertising cookies enables it and its partners to serve ads based on your visit to this site and/or other sites on the Internet. You can opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">Google Ads Settings</a> or <a href="http://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">aboutads.info</a>.
+            </p>
+            <p className="text-slate-300 leading-relaxed mt-4">
+              For more information about how Google uses data, visit <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">Google's Privacy & Terms</a>.
+            </p>
+            <p className="text-slate-300 leading-relaxed mt-4">
+              <strong>Note:</strong> Ads are <strong>not displayed</strong> on overlay pages (OBS browser sources), login pages, or setup pages. Ads only appear on the dashboard, settings, history, and legal pages.
+            </p>
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-white mb-4">6. Do You Need My Consent?</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">6. Cookie Consent</h2>
             <p className="text-slate-300 leading-relaxed">
-              <strong>No cookie consent banner is required</strong> because we only use:
+              We use two types of cookies:
             </p>
             <ul className="list-disc list-inside text-slate-300 space-y-2 mt-3">
-              <li><strong>Strictly necessary cookies</strong> for authentication and security</li>
-              <li><strong>Functional storage</strong> for preferences you explicitly set (theme, language)</li>
+              <li><strong>Strictly necessary cookies</strong> for authentication and security (consent not required)</li>
+              <li><strong>Advertising cookies</strong> from Google AdSense (may require consent depending on your location)</li>
             </ul>
             <p className="text-slate-300 leading-relaxed mt-4">
-              Under GDPR and ePrivacy regulations, consent is <strong>not required</strong> for cookies that are essential for the service to function or for saving user preferences.
+              Under GDPR and ePrivacy regulations:
             </p>
+            <ul className="list-disc list-inside text-slate-300 space-y-2 mt-3">
+              <li>Strictly necessary cookies and functional storage do <strong>not</strong> require consent</li>
+              <li>Advertising and analytics cookies <strong>may require consent</strong> in certain jurisdictions (EU, UK, etc.)</li>
+            </ul>
             <p className="text-slate-300 leading-relaxed mt-4">
-              We do <strong>not</strong> use analytics, advertising, or marketing cookies that would require your consent.
+              By continuing to use our service, you acknowledge and accept the use of cookies as described in this policy. You can opt out of personalized advertising via <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">Google Ads Settings</a> or manage cookies through your browser settings.
             </p>
           </section>
 

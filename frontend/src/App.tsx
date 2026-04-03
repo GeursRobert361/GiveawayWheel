@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
+import { AdSenseScript } from "./components/ads/AdSenseScript";
 import { useDashboardRealtime } from "./hooks/useDashboardRealtime";
 import { useDashboardStore } from "./store/useDashboardStore";
 import { DashboardPage } from "./pages/DashboardPage";
@@ -44,7 +45,9 @@ export default function App() {
   const hasCompletedSetup = useDashboardStore((state) => state.snapshot?.broadcaster.hasCompletedSetup);
 
   return (
-    <Routes>
+    <>
+      <AdSenseScript />
+      <Routes>
       <Route
         path="/"
         element={
@@ -68,6 +71,7 @@ export default function App() {
       <Route path="/legal/terms" element={<TermsOfServicePage />} />
       <Route path="/legal/giveaway-rules" element={<GiveawayRulesPage />} />
       <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+      </Routes>
+    </>
   );
 }
