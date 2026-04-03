@@ -33,11 +33,13 @@ export function PrivacyPolicyPage() {
               <li>Display name</li>
               <li>Profile image URL</li>
               <li>Broadcaster type (if applicable)</li>
-              <li>Email address (if provided by Twitch)</li>
               <li>Channel information (channel ID, login, name)</li>
               <li>OAuth access and refresh tokens (encrypted)</li>
               <li>OAuth scopes granted</li>
             </ul>
+            <p className="text-slate-300 leading-relaxed mt-4">
+              <strong>Note:</strong> We do <strong>not</strong> request or collect your email address from Twitch. The OAuth scopes we request are limited to chat interaction, follower/subscriber data, and VIP information necessary for giveaway functionality.
+            </p>
 
             <h3 className="text-xl font-semibold text-white mb-3 mt-6">2.2 Giveaway Data</h3>
             <p className="text-slate-300 leading-relaxed">
@@ -56,8 +58,10 @@ export function PrivacyPolicyPage() {
               <li><strong>Session cookies:</strong> Authentication and security (see Cookie Policy)</li>
               <li><strong>User preferences:</strong> Theme (light/dark mode) and language selection stored in browser local storage</li>
               <li><strong>Connection logs:</strong> Twitch EventSub connection status, reconnection attempts, errors</li>
-              <li><strong>Server logs:</strong> HTTP requests for error diagnosis and security (IP addresses may be logged temporarily)</li>
             </ul>
+            <p className="text-slate-300 leading-relaxed mt-4">
+              We do <strong>not</strong> use application-level analytics, tracking, or logging services. Standard web server access logs may temporarily record request metadata for operational purposes, but we do not actively collect or analyze this data.
+            </p>
           </section>
 
           <section>

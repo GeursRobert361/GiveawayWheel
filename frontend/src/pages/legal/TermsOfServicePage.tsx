@@ -240,7 +240,7 @@ export function TermsOfServicePage() {
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">17. Changes to Terms</h2>
             <p className="text-slate-300 leading-relaxed">
-              We may update these Terms from time to time. When we make significant changes, we will update the "Last updated" date and may notify you via the Service or email.
+              We may update these Terms from time to time. When we make significant changes, we will update the "Last updated" date at the top of this page.
             </p>
             <p className="text-slate-300 leading-relaxed mt-4">
               Your continued use of the Service after changes are posted constitutes acceptance of the modified Terms. If you do not agree to the changes, you must stop using the Service.
