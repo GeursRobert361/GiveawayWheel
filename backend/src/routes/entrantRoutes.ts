@@ -34,6 +34,13 @@ export async function registerEntrantRoutes(app: FastifyInstance, options: Entra
     return snapshot.giveaway?.entrants ?? [];
   });
 
+  app.post("/api/entrants/clear", { config: { rateLimit: { max: 5, timeWindow: 60_000 } } }, async (request) => {
+    const userId = await requireUserId(request);
+    await options.giveawayService.clearCurrent(userId);
+    const snapshot = await options.snapshotService.getDashboardSnapshot(userId);
+    return snapshot.giveaway?.entrants ?? [];
+  });
+
   app.post(
     "/api/entrants/import-chatters",
     { config: { rateLimit: { max: 5, timeWindow: 60_000 } } },
