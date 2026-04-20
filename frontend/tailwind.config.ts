@@ -6,6 +6,7 @@ export default {
     extend: {
       colors: {
         slate: {
+          750: "#283447", // between 700 (#334155) and 800 (#1e293b) — used for hover states
           925: "#0a0f1e",
           950: "#050816"
         },

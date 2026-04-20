@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
 import { AdSenseScript } from "./components/ads/AdSenseScript";
+import { ConsentBanner } from "./components/consent/ConsentBanner";
 import { useDashboardRealtime } from "./hooks/useDashboardRealtime";
 import { useDashboardStore } from "./store/useDashboardStore";
 import { DashboardPage } from "./pages/DashboardPage";
@@ -47,6 +48,7 @@ export default function App() {
   return (
     <>
       <AdSenseScript />
+      <ConsentBanner />
       <Routes>
       <Route
         path="/"

@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─────────────────────────────────────────────────
+   DESIGN TOKENS (mirrors tailwind.config.ts)
+   ─────────────────────────────────────────────────
+   Primary:   violet-600  (#7c3aed)
+   Surface:   slate-900   (#0f172a) / slate-800 (#1e293b)
+   Border:    slate-700   (#334155)
+   Text-hi:   white       (#ffffff)
+   Text-mid:  slate-300   (#cbd5e1)
+   Text-lo:   slate-400   (#94a3b8) / slate-500 (#64748b)
+   Accent:    brand-300   (#47d7ff) — cyan highlights
+   Status:    emerald/amber/rose for connected/reconnecting/error
+   Radius:    md (6px) for inputs, lg (8px) for cards, xl (12px) for panels
+   ───────────────────────────────────────────────── */
+
 :root {
   color-scheme: dark;
 }
@@ -286,7 +300,31 @@ html.light body {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-/* Fullscreen wheel - completely removed, using inline styles instead */
+/* ─── Global focus-visible ───────────────────────────────────────────────────
+   Fallback for any interactive element that doesn't have an explicit
+   focus-visible:ring-* Tailwind class. Ensures keyboard users always see
+   a visible focus indicator (WCAG 2.4.7 / 2.4.11).
+   Components that define their own focus style will naturally override this.
+   ────────────────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgb(139 92 246); /* violet-500 */
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove the outline for mouse/touch users (only show for keyboard) */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ─── Skip-to-content link ──────────────────────────────────────────────────
+   Hidden visually but visible when focused via keyboard (a11y best practice).
+   Add <a href="#main-content" className="skip-link">Skip to content</a>
+   as the first element in the body to enable this.
+   ────────────────────────────────────────────────────────────────────────── */
+.skip-link {
+  @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[9999] focus:rounded-lg focus:bg-violet-600 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white focus:shadow-lg;
+}
 
 @keyframes idle-spin {
   from {

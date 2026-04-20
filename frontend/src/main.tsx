@@ -5,13 +5,16 @@ import App from "./App";
 import "./index.css";
 import "./i18n";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { ConsentProvider } from "./contexts/ConsentContext";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <ConsentProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ConsentProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

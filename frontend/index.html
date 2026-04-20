@@ -4,6 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Twitch Giveaway Wheel</title>
+    <!-- Google Consent Mode v2 — MUST fire before any Google scripts (AdSense, Analytics).
+         Defaults to denied for all ad signals; updated by ConsentContext when user grants consent.
+         Required by Google for EEA/UK publishers. https://developers.google.com/tag-platform/security/guides/consent -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('consent', 'default', {
+        'ad_storage':          'denied',
+        'ad_user_data':        'denied',
+        'ad_personalization':  'denied',
+        'analytics_storage':   'denied',
+        'wait_for_update':     500
+      });
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet" />

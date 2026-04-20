@@ -33,7 +33,7 @@ export function CookiePolicyPage() {
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">3. Cookies We Use</h2>
             <p className="text-slate-300 leading-relaxed mb-6">
-              <strong>We only use strictly necessary and functional cookies.</strong> We do not use analytics, advertising, or marketing cookies. Below is a complete list of all cookies and storage mechanisms used by our service.
+              We use <strong>strictly necessary</strong> cookies for authentication, <strong>functional</strong> storage for your preferences, and — if you have given consent — <strong>advertising cookies</strong> from Google AdSense. Below is a complete list of all cookies and storage mechanisms used by our service.
             </p>
 
             <div className="space-y-6">
@@ -221,21 +221,24 @@ export function CookiePolicyPage() {
           <section>
             <h2 className="text-2xl font-bold text-white mb-4">6. Cookie Consent</h2>
             <p className="text-slate-300 leading-relaxed">
-              We use two types of cookies:
+              We use two categories of cookies, each with different consent requirements:
             </p>
             <ul className="list-disc list-inside text-slate-300 space-y-2 mt-3">
-              <li><strong>Strictly necessary cookies</strong> for authentication and security (consent not required)</li>
-              <li><strong>Advertising cookies</strong> from Google AdSense (may require consent depending on your location)</li>
+              <li><strong>Strictly necessary &amp; functional cookies</strong> — used without consent (permitted under ePrivacy Directive Article 5(3) and GDPR Recital 47)</li>
+              <li><strong>Advertising cookies</strong> from Google AdSense — only placed <strong>after you explicitly accept</strong> via the consent banner shown on ad-enabled pages</li>
             </ul>
             <p className="text-slate-300 leading-relaxed mt-4">
-              Under GDPR and ePrivacy regulations:
+              When you visit a page where ads are displayed, a consent banner will appear. You can:
             </p>
             <ul className="list-disc list-inside text-slate-300 space-y-2 mt-3">
-              <li>Strictly necessary cookies and functional storage do <strong>not</strong> require consent</li>
-              <li>Advertising and analytics cookies <strong>may require consent</strong> in certain jurisdictions (EU, UK, etc.)</li>
+              <li><strong>Accept</strong> — advertising cookies are enabled and ads are personalized</li>
+              <li><strong>Decline</strong> — no advertising cookies are placed; you can still use all features of the service</li>
             </ul>
             <p className="text-slate-300 leading-relaxed mt-4">
-              By continuing to use our service, you acknowledge and accept the use of cookies as described in this policy. You can opt out of personalized advertising via <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">Google Ads Settings</a> or manage cookies through your browser settings.
+              Your consent choice is stored in your browser's local storage (<code className="text-violet-400">tgw_consent</code>). You can withdraw consent at any time by clearing your browser's local storage or by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="text-violet-400 hover:text-violet-300">Google Ads Settings</a>.
+            </p>
+            <p className="text-slate-300 leading-relaxed mt-4">
+              We implement <strong>Google Consent Mode v2</strong>, which signals your consent decision directly to Google's ad infrastructure, ensuring no personalized ads or ad measurement occurs before consent is granted.
             </p>
           </section>
 

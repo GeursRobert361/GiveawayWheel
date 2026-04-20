@@ -1,62 +1,49 @@
+/**
+ * AdSense Auto Ads Integration
+ *
+ * Loads the Google AdSense script only when:
+ *   1. The current route permits ads (excludes overlay, login, setup)
+ *   2. The user has granted advertising consent (GDPR requirement for EEA)
+ *
+ * Uses Auto Ads — Google determines placement automatically.
+ * No manual ad-unit markup needed.
+ */
+
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { adsenseConfig, isAdsAllowedRoute } from "../../config/adsense";
+import { useConsent } from "../../contexts/ConsentContext";
 
-/**
- * AdSense Auto Ads Integration Component
- *
- * Conditionally loads Google AdSense script based on current route.
- * Excludes overlay routes, auth routes, and other specified paths.
- *
- * Usage: Add <AdSenseScript /> once at the app root level
- */
+const SCRIPT_SELECTOR = 'script[src*="adsbygoogle.js"]';
+
 export function AdSenseScript() {
-  const location = useLocation();
+  const { pathname } = useLocation();
+  const { status } = useConsent();
 
   useEffect(() => {
-    // Check if ads are allowed on current route
-    const adsAllowed = isAdsAllowedRoute(location.pathname);
+    const allowed = isAdsAllowedRoute(pathname) && status === "granted";
 
-    if (!adsAllowed) {
-      // Remove script if navigating to excluded route
-      const existingScript = document.querySelector(
-        'script[src*="adsbygoogle.js"]'
-      );
-      if (existingScript) {
-        existingScript.remove();
-      }
+    if (!allowed) {
+      // Remove script when navigating to an excluded route or when consent is withdrawn
+      document.querySelector(SCRIPT_SELECTOR)?.remove();
       return;
     }
 
-    // Check if script is already loaded
-    const existingScript = document.querySelector(
-      'script[src*="adsbygoogle.js"]'
-    );
-    if (existingScript) {
-      return; // Script already loaded
+    if (document.querySelector(SCRIPT_SELECTOR)) return; // Already loaded
+
+    if (!adsenseConfig.clientId) {
+      // Fail loudly in development so missing env var is caught early
+      console.warn("[AdSense] VITE_ADSENSE_CLIENT_ID is not set — ads will not load.");
+      return;
     }
 
-    // Create and inject AdSense script
     const script = document.createElement("script");
     script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseConfig.clientId}`;
     script.async = true;
     script.crossOrigin = "anonymous";
-
-    // Add error handling
-    script.onerror = () => {
-      console.warn("AdSense script failed to load");
-    };
-
-    // Append to head
+    script.onerror = () => console.warn("[AdSense] Script failed to load — likely blocked by an ad blocker.");
     document.head.appendChild(script);
+  }, [pathname, status]);
 
-    // Cleanup function
-    return () => {
-      // Note: We don't remove the script on unmount since it's shared across routes
-      // Only remove when navigating to excluded routes (handled above)
-    };
-  }, [location.pathname]);
-
-  // This component doesn't render anything
   return null;
 }
